@@ -5,11 +5,26 @@
 #include "NimaLTD.I-CUBE-EE24_conf.h"
 #include "ee24.h"
 
+// Global brightness settings (adjust ranges as needed)
+#define MIN_BRIGHTNESS 0
+#define MAX_BRIGHTNESS 250
+
+int brightness = 50;  // Default brightness value
+
 int statbarShow = 0;
 int batteryLife;
 int leaveWorld = 0;
 int refresh = 0;
 int soundOn = 0;
+
+int A_Button_Flag = 0;
+int B_Button_Flag = 0;
+int START_Button_Flag = 0;
+int SELECT_Button_Flag = 0;
+int UP_Button_Flag = 0;
+int DOWN_Button_Flag = 0;
+int LEFT_Button_Flag = 0;
+int RIGHT_Button_Flag = 0;
 
 extern EE24_HandleTypeDef hee24;
 
@@ -106,8 +121,47 @@ const unsigned char* getItemTitle(ItemType itemType) {
     }
 }
 
+void updateButtonFlags(){
+    // A button
+    if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+    	A_Button_Flag = 1;
+    }
 
-//CropTile cropSpot1 = { .crop = NONE, .grown = 0};
+    // B Button
+    if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+    	B_Button_Flag = 1;
+    }
+
+    // START button
+    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
+    	START_Button_Flag = 1;
+    }
+
+    // SELECT button
+    if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
+    	SELECT_Button_Flag = 1;
+    }
+
+    // UP button
+    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
+    	UP_Button_Flag = 1;
+    }
+
+	// DOWN button
+    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
+    	DOWN_Button_Flag = 1;
+    }
+
+    // LEFT button
+    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+    	LEFT_Button_Flag = 1;
+    }
+
+    // RIGHT button
+    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+    	RIGHT_Button_Flag = 1;
+    }
+}
 
 void pushEEPROM(void) {
     uint32_t addr = 0;  // Starting address
@@ -232,6 +286,36 @@ int hasItemInInventory(InventorySlot inventory[], ItemType itemType) {
         }
     }
     return 0; // Item not found
+}
+
+void playerDisplay(){
+    // Choose the appropriate player sprite.
+    const unsigned char *sprite;
+    switch(player.direction) {
+        case DOWN:  sprite = KikiDownSprite;  break;
+        case UP:    sprite = KikiUpSprite;    break;
+        case LEFT:  sprite = KikiLeftSprite;  break;
+        case RIGHT: sprite = KikiRightSprite; break;
+        default:    sprite = KikiDownSprite;  break;
+    }
+
+    // Draw the player sprite.
+    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, White);
+}
+
+void playerErase(){
+    // Choose the appropriate player sprite.
+    const unsigned char *sprite;
+    switch(player.direction) {
+        case DOWN:  sprite = KikiDownSprite;  break;
+        case UP:    sprite = KikiUpSprite;    break;
+        case LEFT:  sprite = KikiLeftSprite;  break;
+        case RIGHT: sprite = KikiRightSprite; break;
+        default:    sprite = KikiDownSprite;  break;
+    }
+
+    // Draw the player sprite.
+    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, Black);
 }
 
 int showInventory(int plantSeed) {
@@ -684,12 +768,6 @@ int gameMenu(){
     return 0;
 }
 
-
-// Global brightness settings (adjust ranges as needed)
-#define MIN_BRIGHTNESS 0
-#define MAX_BRIGHTNESS 250
-int brightness = 50;  // Default brightness value
-
 void gameOptions(void) {
     int optionSelect = 1; // 1: sound, 2: brightness
 
@@ -828,7 +906,6 @@ void gameOptions(void) {
     ssd1306_Line(0, 48, 128, 48, White);
     ssd1306_SetCursor(37, 38);
     ssd1306_WriteString("save game", Font_6x8, White);
-    ssd1306_Line(37, 41, 85, 41, White); // TEMP line
     ssd1306_SetCursor(37, 28);
     ssd1306_WriteString("main menu", Font_6x8, White);
     ssd1306_SetCursor(43, 18);
