@@ -17,7 +17,6 @@ void handleCrop();
 
 // Global variables
 int showCoordinates = 0;
-int cropMovement = 0;
 extern int refreshBackground;
 
 //------------------------------------------------------------------------------
@@ -135,61 +134,45 @@ void cropHardRefresh(void) {
 // position and direction. A short delay is used for debouncing.
 //------------------------------------------------------------------------------
 void cropPlayerMovement(void) {
-    static uint8_t downCounter = 0, upCounter = 0, leftCounter = 0, rightCounter = 0;
     uint8_t step = 1;  // Fixed movement step
 
     // UP button
     if (UP_Button_Flag) {
-    	UP_Button_Flag = 0;
-        upCounter++;
-        cropMovement++;
+        UP_Button_Flag = 0;
         player.direction = UP;
         int nextY = player.coordinates.y - step;
         if (nextY > TOP_SCREEN_EDGE && !cropObstacle(player.coordinates.x, nextY))
             player.coordinates.y = nextY;
-    } else {
-        upCounter = 0;
     }
 
     // DOWN button
     if (DOWN_Button_Flag) {
-    	DOWN_Button_Flag = 0;
-        downCounter++;
-        cropMovement++;
+        DOWN_Button_Flag = 0;
         player.direction = DOWN;
         int nextY = player.coordinates.y + step;
         if (nextY < BOTTOM_WORLD_EDGE && !cropObstacle(player.coordinates.x, nextY))
             player.coordinates.y = nextY;
-    } else {
-        downCounter = 0;
     }
 
     // LEFT button
     if (LEFT_Button_Flag) {
-    	LEFT_Button_Flag = 0;
-        leftCounter++;
-        cropMovement++;
+        LEFT_Button_Flag = 0;
         player.direction = LEFT;
         int nextX = player.coordinates.x - step;
         if (nextX > LEFT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
-    } else {
-        leftCounter = 0;
     }
 
     // RIGHT button
     if (RIGHT_Button_Flag) {
-    	RIGHT_Button_Flag = 0;
-        rightCounter++;
-        cropMovement++;
+        RIGHT_Button_Flag = 0;
         player.direction = RIGHT;
         int nextX = player.coordinates.x + step;
         if (nextX < RIGHT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
-    } else {
-        rightCounter = 0;
     }
 }
+
 
 void cropPlant(){
 	refreshBackground = 1;
@@ -487,6 +470,7 @@ void handleCrop() {
         		cropDisplay();
         		ssd1306_CopyBuffer();
         	}
+
         	updateButtonFlags();
         	cropPlayerMovement();
 

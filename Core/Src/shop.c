@@ -272,56 +272,47 @@ void shopSell(){
     // Implement selling logic here
 }
 
-void shopPlayerMovement() {
-    static uint8_t downCounter = 0, upCounter = 0, leftCounter = 0, rightCounter = 0;
+void shopPlayerMovement(void) {
     uint8_t step = 1;  // Fixed movement step
 
-    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
-        downCounter++;
-        refresh++;
-        player.direction = DOWN;
-        int nextY = player.coordinates.y + step;
-        if (nextY < 64 && !shopObstacle(player.coordinates.x, nextY)) {
-            player.coordinates.y = nextY;
-        }
-    } else {
-        downCounter = 0;
-    }
-
-    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
-        upCounter++;
-        refresh++;
+    // UP movement: move the player upward if within bounds
+    if (UP_Button_Flag) {
+        UP_Button_Flag = 0;
         player.direction = UP;
         int nextY = player.coordinates.y - step;
         if (nextY > 25 && !shopObstacle(player.coordinates.x, nextY)) {
             player.coordinates.y = nextY;
         }
-    } else {
-        upCounter = 0;
     }
 
-    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
-        leftCounter++;
-        refresh++;
+    // DOWN movement: move the player downward if within bounds
+    if (DOWN_Button_Flag) {
+        DOWN_Button_Flag = 0;
+        player.direction = DOWN;
+        int nextY = player.coordinates.y + step;
+        if (nextY < 64 && !shopObstacle(player.coordinates.x, nextY)) {
+            player.coordinates.y = nextY;
+        }
+    }
+
+    // LEFT movement: move the player left if within bounds
+    if (LEFT_Button_Flag) {
+        LEFT_Button_Flag = 0;
         player.direction = LEFT;
         int nextX = player.coordinates.x - step;
         if (nextX > 0 && !shopObstacle(nextX, player.coordinates.y)) {
             player.coordinates.x = nextX;
         }
-    } else {
-        leftCounter = 0;
     }
 
-    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
-        rightCounter++;
-        refresh++;
+    // RIGHT movement: move the player right if within bounds
+    if (RIGHT_Button_Flag) {
+        RIGHT_Button_Flag = 0;
         player.direction = RIGHT;
         int nextX = player.coordinates.x + step;
         if (nextX < 117 && !shopObstacle(nextX, player.coordinates.y)) {
             player.coordinates.x = nextX;
         }
-    } else {
-        rightCounter = 0;
     }
 }
 
@@ -373,7 +364,7 @@ void handleShop() {
     player.coordinates.y = 48;
     player.direction = UP;
 
-    ssd1306_Fill(Black);  // Clear offscreen buffer
+    ssd1306_Fill(Black);
     shopDisplay();
     ssd1306_CopyBuffer();
 
