@@ -54,24 +54,6 @@ typedef enum {
     SUGARSEED
 } ItemType;
 
-typedef struct {
-    ItemType id;
-    int sellValue;
-    int buyValue;
-    int growTime;      // in game ticks
-    int xp;
-    int levelUnlock;
-    int quantity;
-    const unsigned char *sprite;     // Normal (grown) sprite
-    const unsigned char *seedSprite; // Seed sprite (if applicable; NULL if not)
-} Item;
-
-extern Item wheat, corn, potato, carrot, pumpkin, sugar;
-extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed;
-extern Item tillSoil, houseKey;
-
-extern Item shopItems[];
-
 typedef enum {
     TITLE,
     CROP,
@@ -91,6 +73,18 @@ typedef struct {
     int x;
     int y;
 } Coordinates;
+
+typedef struct {
+    ItemType id;
+    int sellValue;
+    int buyValue;
+    int growTime;      // in game ticks
+    int xp;
+    int levelUnlock;
+    int quantity;
+    const unsigned char *sprite;     // Normal (grown) sprite
+    const unsigned char *seedSprite; // Seed sprite (if applicable; NULL if not)
+} Item;
 
 typedef struct {
     Item* item;
@@ -133,6 +127,12 @@ typedef enum {
     Up,
     Down
 } BuyMenuDirection;
+
+extern Item wheat, corn, potato, carrot, pumpkin, sugar;
+extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed;
+extern Item tillSoil, houseKey;
+
+extern Item shopItems[];
 
 extern Player player;
 

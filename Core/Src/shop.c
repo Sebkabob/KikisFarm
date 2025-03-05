@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
+extern int refreshBackground;
 
 const unsigned char *itemTitles[] = {
     WheatSeedsTitle,
@@ -271,96 +272,52 @@ void shopSell(){
     // Implement selling logic here
 }
 
-void shopPlayerMovement() {
-    static uint8_t downCounter = 0, upCounter = 0, leftCounter = 0, rightCounter = 0;
+void shopPlayerMovement(void) {
     uint8_t step = 1;  // Fixed movement step
 
-    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
-        downCounter++;
-        refresh++;
-        player.direction = DOWN;
-        int nextY = player.coordinates.y + step;
-        if (nextY < 64 && !shopObstacle(player.coordinates.x, nextY)) {
-            player.coordinates.y = nextY;
-        }
-    } else {
-        downCounter = 0;
-    }
-
-    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
-        upCounter++;
-        refresh++;
+    // UP movement: move the player upward if within bounds
+    if (UP_Button_Flag) {
+        UP_Button_Flag = 0;
         player.direction = UP;
         int nextY = player.coordinates.y - step;
         if (nextY > 25 && !shopObstacle(player.coordinates.x, nextY)) {
             player.coordinates.y = nextY;
         }
-    } else {
-        upCounter = 0;
     }
 
-    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
-        leftCounter++;
-        refresh++;
+    // DOWN movement: move the player downward if within bounds
+    if (DOWN_Button_Flag) {
+        DOWN_Button_Flag = 0;
+        player.direction = DOWN;
+        int nextY = player.coordinates.y + step;
+        if (nextY < 64 && !shopObstacle(player.coordinates.x, nextY)) {
+            player.coordinates.y = nextY;
+        }
+    }
+
+    // LEFT movement: move the player left if within bounds
+    if (LEFT_Button_Flag) {
+        LEFT_Button_Flag = 0;
         player.direction = LEFT;
         int nextX = player.coordinates.x - step;
         if (nextX > 0 && !shopObstacle(nextX, player.coordinates.y)) {
             player.coordinates.x = nextX;
         }
-    } else {
-        leftCounter = 0;
     }
 
-    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
-        rightCounter++;
-        refresh++;
+    // RIGHT movement: move the player right if within bounds
+    if (RIGHT_Button_Flag) {
+        RIGHT_Button_Flag = 0;
         player.direction = RIGHT;
         int nextX = player.coordinates.x + step;
         if (nextX < 117 && !shopObstacle(nextX, player.coordinates.y)) {
             player.coordinates.x = nextX;
         }
-    } else {
-        rightCounter = 0;
     }
 }
 
 void shopDisplay(){
-    char coords[16];   // Buffer to hold the formatted coordinates string
-    sprintf(coords, "(%d, %d)", player.coordinates.x, player.coordinates.y);
-
-    ssd1306_FillRectangle(0, 54, 128, 64, Black);
     ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
-    ssd1306_FillRectangle(player.coordinates.x + 2, player.coordinates.y + 2,
-            player.coordinates.x + 5, player.coordinates.y + 5, Black);
-    if(statbarShow) displayStats();
-
-    if(refresh){
-        refresh = 0;
-        switch(player.direction) {
-        case DOWN:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, Black);
-            break;
-        case UP:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiUpSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiUpSprite, 9, 11, Black);
-            break;
-        case LEFT:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiLeftSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiLeftSprite, 9, 11, Black);
-            break;
-        case RIGHT:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiRightSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiRightSprite, 9, 11, Black);
-            break;
-        default:
-            break;
-        }
-    }
 }
 
 void shopPlayerAction(){
@@ -407,11 +364,9 @@ void handleShop() {
     player.coordinates.y = 48;
     player.direction = UP;
 
-    ssd1306_Fill(Black);  // Clear offscreen buffer
-    ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-    ssd1306_UpdateScreen();
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, Black);
+    ssd1306_Fill(Black);
+    shopDisplay();
+    ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -420,14 +375,31 @@ void handleShop() {
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
+
+        	ssd1306_Fill(Black);
+        	if (refreshBackground){
+        		refreshBackground = 0;
+        		shopDisplay();
+        		ssd1306_CopyBuffer();
+        	}
+
+        	updateButtonFlags();
             shopPlayerMovement();
+
+        	playerDisplay();
+        	ORBuffer(); //ORs the saved buffer with the current one
+
             shopPlayerAction();
-            shopDisplay();
+
+        	ssd1306_UpdateScreen();
             lastFrameTime = now;
         }
+
+        gameLogic();
+
         HAL_Delay(1);  // Short delay to yield CPU time
 
-        // Exit if player moves into the exit zone
+        // Exit condition: if player goes across bridge
         if (player.coordinates.y >= 62) {
             player.inWorld = CROP;
             break;

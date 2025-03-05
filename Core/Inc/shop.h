@@ -8,6 +8,10 @@
 #include "ssd1306_fonts.h"
 #include "sprites.h"
 #include "game.h"
+#include "crop.h"
+#include "sprites.h"
+#include <stdbool.h>
+#include <math.h>
 
 // Void left
 #define OB5_X  0    // Left boundary
@@ -28,5 +32,9 @@ void shopDisplay();
 void shopPlayerAction();
 
 void handleShop();
+
+void updateButtonFlags();
+void playerDisplay();
+void initShopItems();
 
 #endif /* INC_SHOP_H_ */

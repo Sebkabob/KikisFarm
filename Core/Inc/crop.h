@@ -54,6 +54,10 @@ int showInventory(int plantSeed);
 int updateBatteryLife(void);
 void gameOptions(void);
 
+void updateButtonFlags();
+void playerDisplay();
+
+
 #if defined(XBM)
 void cropDisplay(u8g2_t *display);
 #endif

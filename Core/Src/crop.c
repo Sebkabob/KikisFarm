@@ -17,7 +17,7 @@ void handleCrop();
 
 // Global variables
 int showCoordinates = 0;
-int cropMovement = 0;
+extern int refreshBackground;
 
 //------------------------------------------------------------------------------
 // Returns true if the (x,y) point collides with any defined obstacle.
@@ -134,63 +134,48 @@ void cropHardRefresh(void) {
 // position and direction. A short delay is used for debouncing.
 //------------------------------------------------------------------------------
 void cropPlayerMovement(void) {
-    static uint8_t downCounter = 0, upCounter = 0, leftCounter = 0, rightCounter = 0;
     uint8_t step = 1;  // Fixed movement step
 
     // UP button
     if (UP_Button_Flag) {
-    	UP_Button_Flag = 0;
-        upCounter++;
-        cropMovement++;
+        UP_Button_Flag = 0;
         player.direction = UP;
         int nextY = player.coordinates.y - step;
         if (nextY > TOP_SCREEN_EDGE && !cropObstacle(player.coordinates.x, nextY))
             player.coordinates.y = nextY;
-    } else {
-        upCounter = 0;
     }
 
     // DOWN button
     if (DOWN_Button_Flag) {
-    	DOWN_Button_Flag = 0;
-        downCounter++;
-        cropMovement++;
+        DOWN_Button_Flag = 0;
         player.direction = DOWN;
         int nextY = player.coordinates.y + step;
         if (nextY < BOTTOM_WORLD_EDGE && !cropObstacle(player.coordinates.x, nextY))
             player.coordinates.y = nextY;
-    } else {
-        downCounter = 0;
     }
 
     // LEFT button
     if (LEFT_Button_Flag) {
-    	LEFT_Button_Flag = 0;
-        leftCounter++;
-        cropMovement++;
+        LEFT_Button_Flag = 0;
         player.direction = LEFT;
         int nextX = player.coordinates.x - step;
         if (nextX > LEFT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
-    } else {
-        leftCounter = 0;
     }
 
     // RIGHT button
     if (RIGHT_Button_Flag) {
-    	RIGHT_Button_Flag = 0;
-        rightCounter++;
-        cropMovement++;
+        RIGHT_Button_Flag = 0;
         player.direction = RIGHT;
         int nextX = player.coordinates.x + step;
         if (nextX < RIGHT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
-    } else {
-        rightCounter = 0;
     }
 }
 
+
 void cropPlant(){
+	refreshBackground = 1;
 	int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
@@ -230,6 +215,7 @@ void cropPlant(){
 }
 
 void cropHarvest(){
+	refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
 
     // If the spot is valid and a grown crop exists, harvest it
@@ -253,6 +239,28 @@ void cropHarvest(){
 
         ssd1306_UpdateScreen();
         return;  // Exit function after harvesting
+    }
+}
+
+void cropDestroy(){
+	refreshBackground = 1;
+    uint32_t startTime = HAL_GetTick();
+    while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+        HAL_Delay(10);
+        if (HAL_GetTick() - startTime >= 1500) {
+            // Held for 1.5 seconds: destroy the crop.
+            int spot = checkIfOnCrop();
+            if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
+                cropTiles[spot - 1].crop.id = NONE;
+                cropTiles[spot - 1].grown = 0;
+                buzzer(300, 20);
+                buzzer(200, 40);
+                buzzer(100, 75);
+            }
+            // Wait until button is released.
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            return;
+        }
     }
 }
 
@@ -281,27 +289,9 @@ void cropPlayerAction(void) {
     // Button B: Either toggle the status bar (short press) or, if held for 2 seconds, destroy the crop.
     if (B_Button_Flag) {
     	B_Button_Flag = 0;
-        uint32_t startTime = HAL_GetTick();
-        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            HAL_Delay(10);
-            if (HAL_GetTick() - startTime >= 1500) {
-                // Held for 1.5 seconds: destroy the crop.
-                int spot = checkIfOnCrop();
-                if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
-                    cropTiles[spot - 1].crop.id = NONE;
-                    cropTiles[spot - 1].grown = 0;
-                    buzzer(300, 20);
-                    buzzer(200, 40);
-                    buzzer(100, 75);
-                }
-                // Wait until button is released.
-                while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-                return;
-            }
-        }
-        // If released before 2 seconds, treat as a short press.
+    	cropDestroy();
         buzzer(300, 25);
-        statbarShow = !statbarShow;
+        showInventory(0);
     }
 
     // SELECT button: Enter menu mode.
@@ -322,9 +312,6 @@ void cropPlayerAction(void) {
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
-        cropSoftRefresh();
-        showInventory(0);
-        cropHardRefresh();
     }
 }
 
@@ -465,6 +452,8 @@ void handleCrop() {
     player.direction = DOWN;
 
     ssd1306_Fill(Black);
+	cropDisplay();
+	ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -474,17 +463,23 @@ void handleCrop() {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
             // Process input and update state only once per frame
+
+        	ssd1306_Fill(Black);
+        	if (refreshBackground){
+        		refreshBackground = 0;
+        		cropDisplay();
+        		ssd1306_CopyBuffer();
+        	}
+
         	updateButtonFlags();
         	cropPlayerMovement();
+
         	playerDisplay();
-        	cropDisplay();
+        	ORBuffer(); //ORs the saved buffer with the current one
+
         	cropPlayerAction();
-            // Draw UI elements if enabled.
-            if (statbarShow) {
-                displayStats();
-            }
+
         	ssd1306_UpdateScreen();
-        	ssd1306_Fill(Black);
             lastFrameTime = now;
         }
 
@@ -492,7 +487,7 @@ void handleCrop() {
 
         HAL_Delay(1);
 
-        // Exit condition: if player moves above top boundary
+        // Exit condition: if player goes across bridge
         if (player.coordinates.y < 0) {
             player.inWorld = SHOP;
             break;
