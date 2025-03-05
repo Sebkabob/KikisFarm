@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
+extern int refreshBackground;
 
 const unsigned char *itemTitles[] = {
     WheatSeedsTitle,
@@ -325,42 +326,7 @@ void shopPlayerMovement() {
 }
 
 void shopDisplay(){
-    char coords[16];   // Buffer to hold the formatted coordinates string
-    sprintf(coords, "(%d, %d)", player.coordinates.x, player.coordinates.y);
-
-    ssd1306_FillRectangle(0, 54, 128, 64, Black);
     ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
-    ssd1306_FillRectangle(player.coordinates.x + 2, player.coordinates.y + 2,
-            player.coordinates.x + 5, player.coordinates.y + 5, Black);
-    if(statbarShow) displayStats();
-
-    if(refresh){
-        refresh = 0;
-        switch(player.direction) {
-        case DOWN:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, Black);
-            break;
-        case UP:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiUpSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiUpSprite, 9, 11, Black);
-            break;
-        case LEFT:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiLeftSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiLeftSprite, 9, 11, Black);
-            break;
-        case RIGHT:
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiRightSprite, 9, 11, White);
-            ssd1306_UpdateScreen();
-            ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiRightSprite, 9, 11, Black);
-            break;
-        default:
-            break;
-        }
-    }
 }
 
 void shopPlayerAction(){
@@ -408,10 +374,8 @@ void handleShop() {
     player.direction = UP;
 
     ssd1306_Fill(Black);  // Clear offscreen buffer
-    ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-    ssd1306_UpdateScreen();
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, Black);
+    shopDisplay();
+    ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -420,14 +384,31 @@ void handleShop() {
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
+
+        	ssd1306_Fill(Black);
+        	if (refreshBackground){
+        		refreshBackground = 0;
+        		shopDisplay();
+        		ssd1306_CopyBuffer();
+        	}
+
+        	updateButtonFlags();
             shopPlayerMovement();
+
+        	playerDisplay();
+        	ORBuffer(); //ORs the saved buffer with the current one
+
             shopPlayerAction();
-            shopDisplay();
+
+        	ssd1306_UpdateScreen();
             lastFrameTime = now;
         }
+
+        gameLogic();
+
         HAL_Delay(1);  // Short delay to yield CPU time
 
-        // Exit if player moves into the exit zone
+        // Exit condition: if player goes across bridge
         if (player.coordinates.y >= 62) {
             player.inWorld = CROP;
             break;

@@ -28,6 +28,8 @@ int RIGHT_Button_Flag = 0;
 
 extern EE24_HandleTypeDef hee24;
 
+int refreshBackground;
+
 Player player = { .inWorld = TITLE, .money = 5, .xp = 0, .level = 1, .soilSpots = 1};
 
 Game game;
@@ -221,6 +223,7 @@ void gameLevelUp(){
 	int xpNeededForNextLevel = 100 + (50 * player.level) + (10 * player.level * player.level);
 	if (player.xp > xpNeededForNextLevel){
 		player.level++;
+		//add in level up display
 		player.xp = 0;
 	}
 }
@@ -234,6 +237,7 @@ void cropGrowth(){
             // The crop's growTime is in game ticks (seconds).
             // Compare elapsed time (in ms) with growTime (converted to ms).
             if (currentTime - cropPlantTimes[i] >= cropTiles[i].crop.growTime * 1000) {
+            	refreshBackground = 1;
                 cropTiles[i].grown = 1;
                 // (Optional: update the sprite or trigger additional logic here.)
             }

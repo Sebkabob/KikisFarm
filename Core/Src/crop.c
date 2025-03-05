@@ -18,6 +18,7 @@ void handleCrop();
 // Global variables
 int showCoordinates = 0;
 int cropMovement = 0;
+extern int refreshBackground;
 
 //------------------------------------------------------------------------------
 // Returns true if the (x,y) point collides with any defined obstacle.
@@ -191,6 +192,7 @@ void cropPlayerMovement(void) {
 }
 
 void cropPlant(){
+	refreshBackground = 1;
 	int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
@@ -230,6 +232,7 @@ void cropPlant(){
 }
 
 void cropHarvest(){
+	refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
 
     // If the spot is valid and a grown crop exists, harvest it
@@ -257,6 +260,7 @@ void cropHarvest(){
 }
 
 void cropDestroy(){
+	refreshBackground = 1;
     uint32_t startTime = HAL_GetTick();
     while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
         HAL_Delay(10);
@@ -476,20 +480,20 @@ void handleCrop() {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
             // Process input and update state only once per frame
+
         	ssd1306_Fill(Black);
+        	if (refreshBackground){
+        		refreshBackground = 0;
+        		cropDisplay();
+        		ssd1306_CopyBuffer();
+        	}
         	updateButtonFlags();
         	cropPlayerMovement();
 
         	playerDisplay();
-        	//cropDisplay();
-        	ORBuffer();
+        	ORBuffer(); //ORs the saved buffer with the current one
 
         	cropPlayerAction();
-
-            // Draw UI elements if enabled.
-            if (statbarShow) {
-                displayStats();
-            }
 
         	ssd1306_UpdateScreen();
             lastFrameTime = now;
@@ -499,7 +503,7 @@ void handleCrop() {
 
         HAL_Delay(1);
 
-        // Exit condition: if player moves above top boundary
+        // Exit condition: if player goes across bridge
         if (player.coordinates.y < 0) {
             player.inWorld = SHOP;
             break;
