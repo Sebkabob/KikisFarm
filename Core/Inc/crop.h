@@ -19,10 +19,10 @@ extern uint32_t cropPlantTimes[10]; // Declare globally so other files can use i
 #define OB1_H  15  // Height
 
 // Tree
-#define OB2_X  118  // Left boundary
+#define OB2_X  110  // Left boundary
 #define OB2_Y  0    // Top boundary
-#define OB2_W  30   // Width
-#define OB2_H  18   // Height
+#define OB2_W  20   // Width
+#define OB2_H  8   // Height
 
 // Void left
 #define OB3_X  0    // Left boundary

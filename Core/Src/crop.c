@@ -474,8 +474,8 @@ void handleCrop() {
         	updateButtonFlags();
         	cropPlayerMovement();
 
+            ORBuffer();
         	playerDisplay();
-        	ORBuffer(); //ORs the saved buffer with the current one
 
         	cropPlayerAction();
 

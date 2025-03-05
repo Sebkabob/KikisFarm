@@ -304,7 +304,12 @@ void playerDisplay(){
     }
 
     // Draw the player sprite.
+    ssd1306_FillRectangle(player.coordinates.x + 2, player.coordinates.y + 2,
+    		              player.coordinates.x + 5, player.coordinates.y + 5, Black);
+
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, White);
+
+
 }
 
 void playerErase(){

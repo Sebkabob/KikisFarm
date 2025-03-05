@@ -210,6 +210,12 @@ void ORBuffer(void) {
     }
 }
 
+void XORBuffer(void) {
+    for (uint16_t i = 0; i < SSD1306_BUFFER_SIZE; i++) {
+        SSD1306_Buffer[i] ^= SSD1306_Buffer_1[i];
+    }
+}
+
 ////////////////////////////////////////////////////////////////////
 
 /*
