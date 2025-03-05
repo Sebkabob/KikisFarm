@@ -25,16 +25,21 @@
 #define OB6_W  100   // Width
 #define OB6_H  16   // Height
 
-void shopPlayerMovement();
-
-void shopDisplay();
-
-void shopPlayerAction();
-
-void handleShop();
-
-void updateButtonFlags();
-void playerDisplay();
-void initShopItems();
+void textSpeaking(const char *text, int speed, int fontSize, int wait);
+int getTillSoilCost(void);
+bool shopObstacle(int x, int y);
+void shopSoftRefresh(void);
+void shopHardRefresh(void);
+void shopTextDraw(int itemSelect);
+int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect);
+bool shopNearBuy(void);
+bool shopNearSell(void);
+void initShopItems(void);
+void shopBuy(void);
+void shopSell(void);
+void shopPlayerMovement(void);
+void shopDisplay(void);
+void shopPlayerAction(void);
+void handleShop(void);
 
 #endif /* INC_SHOP_H_ */

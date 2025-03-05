@@ -10,5 +10,7 @@
 #include "game.h"
 
 void handleTitle();
+void initGame(void);
+void cutToDark(int duration);
 
 #endif /* INC_TITLE_H_ */

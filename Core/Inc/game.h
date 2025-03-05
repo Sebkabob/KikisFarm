@@ -141,12 +141,40 @@ extern CropTile cropTiles[10];
 extern Direction cropDirection;
 
 
-void displayStats();
-int gameMenu();
+void initGame(void);
+void initShopItems(void);
+const unsigned char* getItemTitle(ItemType itemType);
+void updateButtonFlags(void);
+void pushEEPROM(void);
+void pullEEPROM(void);
+void gameLevelUp(void);
+void cropGrowth(void);
+void gameLogic(void);
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity);
 int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int quantity);
 int hasItemInInventory(InventorySlot inventory[], ItemType itemType);
-Item* getItemByType(ItemType itemType);
+void playerDisplay(void);
+void playerErase(void);
+int showInventory(int plantSeed);
+void textSpeaking(const char *text, int voice, int speed, int button);
+void cutToDark(int speed);
+void displayStats(void);
+void gameIntro(void);
+int gameMenu(void);
 void gameOptions(void);
+bool cropObstacle(int x, int y);
+int checkIfOnCrop(void);
+void cropDisplay(void);
+void cropSoftRefresh(void);
+void cropHardRefresh(void);
+void cropPlayerMovement(void);
+void cropPlant(void);
+void cropHarvest(void);
+void cropDestroy(void);
+void cropPlayerAction(void);
+void drawSoil(void);
+void drawCrops(void);
+void handleCrop(void);
+int updateBatteryLife(void);
 
 #endif /* INC_GAME_H_ */

@@ -47,15 +47,18 @@ extern uint32_t cropPlantTimes[10]; // Declare globally so other files can use i
 
 
 bool cropObstacle(int x, int y);
-void cropPlayerMovement();
-void cropPlayerAction();
-void gameLogic(void);
-int showInventory(int plantSeed);
-int updateBatteryLife(void);
-void gameOptions(void);
-
-void updateButtonFlags();
-void playerDisplay();
+int checkIfOnCrop(void);
+void cropDisplay(void);
+void cropSoftRefresh(void);
+void cropHardRefresh(void);
+void cropPlayerMovement(void);
+void cropPlant(void);
+void cropHarvest(void);
+void cropDestroy(void);
+void cropPlayerAction(void);
+void drawSoil(void);
+void drawCrops(void);
+void handleCrop(void);
 
 
 #if defined(XBM)
