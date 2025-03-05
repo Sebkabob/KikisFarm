@@ -95,36 +95,12 @@ int checkIfOnCrop(void) {
 // then calls a single ssd1306_UpdateScreen() to transfer the complete buffer over SPI.
 //------------------------------------------------------------------------------
 void cropDisplay(void) {
-    // Clear the offscreen buffer.
-    ssd1306_Fill(Black);
-
     // Draw static background elements.
     ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
     ssd1306_DrawBitmap(0, 0, CropWorldSprite, 128, 64, White);
 
     drawSoil();
     drawCrops();
-
-    // Draw UI elements if enabled.
-    if (statbarShow) {
-        displayStats();
-    }
-
-    // Choose the appropriate player sprite.
-    const unsigned char *sprite;
-    switch(player.direction) {
-        case DOWN:  sprite = KikiDownSprite;  break;
-        case UP:    sprite = KikiUpSprite;    break;
-        case LEFT:  sprite = KikiLeftSprite;  break;
-        case RIGHT: sprite = KikiRightSprite; break;
-        default:    sprite = KikiDownSprite;  break;
-    }
-
-    // Draw the player sprite.
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, White);
-
-    // Perform a single screen update over SPI.
-    ssd1306_UpdateScreen();
 }
 
 
@@ -161,55 +137,57 @@ void cropPlayerMovement(void) {
     static uint8_t downCounter = 0, upCounter = 0, leftCounter = 0, rightCounter = 0;
     uint8_t step = 1;  // Fixed movement step
 
-    // DOWN button
-    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
-        downCounter++;
-        cropMovement++;
-        player.direction = DOWN;
-        int nextY = player.coordinates.y + step;
-        if (nextY < 54 && !cropObstacle(player.coordinates.x, nextY))
-            player.coordinates.y = nextY;
-    } else {
-        downCounter = 0;
-    }
-
     // UP button
-    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
+    if (UP_Button_Flag) {
+    	UP_Button_Flag = 0;
         upCounter++;
         cropMovement++;
         player.direction = UP;
         int nextY = player.coordinates.y - step;
-        if (nextY > -12 && !cropObstacle(player.coordinates.x, nextY))
+        if (nextY > TOP_SCREEN_EDGE && !cropObstacle(player.coordinates.x, nextY))
             player.coordinates.y = nextY;
     } else {
         upCounter = 0;
     }
 
+    // DOWN button
+    if (DOWN_Button_Flag) {
+    	DOWN_Button_Flag = 0;
+        downCounter++;
+        cropMovement++;
+        player.direction = DOWN;
+        int nextY = player.coordinates.y + step;
+        if (nextY < BOTTOM_WORLD_EDGE && !cropObstacle(player.coordinates.x, nextY))
+            player.coordinates.y = nextY;
+    } else {
+        downCounter = 0;
+    }
+
     // LEFT button
-    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+    if (LEFT_Button_Flag) {
+    	LEFT_Button_Flag = 0;
         leftCounter++;
         cropMovement++;
         player.direction = LEFT;
         int nextX = player.coordinates.x - step;
-        if (nextX > 0 && !cropObstacle(nextX, player.coordinates.y))
+        if (nextX > LEFT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
     } else {
         leftCounter = 0;
     }
 
     // RIGHT button
-    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+    if (RIGHT_Button_Flag) {
+    	RIGHT_Button_Flag = 0;
         rightCounter++;
         cropMovement++;
         player.direction = RIGHT;
         int nextX = player.coordinates.x + step;
-        if (nextX < 120 && !cropObstacle(nextX, player.coordinates.y))
+        if (nextX < RIGHT_WORLD_EDGE && !cropObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
     } else {
         rightCounter = 0;
     }
-
-    // (No delay here; the main loop frame limiter will pace the updates.)
 }
 
 void cropPlant(){
@@ -268,8 +246,8 @@ void cropHarvest(){
 
         // Reset the croptile (remove the crop but keep it tilled)
         //cropTiles[spot - 1].crop.id = NONE;
-        player.money += cropTiles[spot - 1].crop.sellValue;
-        player.xp += cropTiles[spot - 1].crop.xp;
+        player.money += (cropTiles[spot - 1].crop.sellValue) * 100;
+        player.xp += (cropTiles[spot - 1].crop.xp) * 100;
         cropTiles[spot - 1].grown = 0;  // Reset growth stage
         cropPlantTimes[spot - 1] = HAL_GetTick();  // Reset the growth timer
 
@@ -284,8 +262,8 @@ void cropHarvest(){
 //------------------------------------------------------------------------------
 void cropPlayerAction(void) {
     // Button A: Harvest a grown crop or plant a seed if the spot is empty.
-    if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-        // Wait until A is released, with a short delay for debouncing.
+    if (A_Button_Flag) {
+    	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
         if (spot != 0) {
@@ -298,22 +276,20 @@ void cropPlayerAction(void) {
                 cropPlant();
             }
         }
-        ssd1306_UpdateScreen();
     }
 
     // Button B: Either toggle the status bar (short press) or, if held for 2 seconds, destroy the crop.
-    if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+    if (B_Button_Flag) {
+    	B_Button_Flag = 0;
         uint32_t startTime = HAL_GetTick();
-        // Wait until button is released or hold time is reached.
         while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            HAL_Delay(10);  // Delay to avoid a tight loop.
+            HAL_Delay(10);
             if (HAL_GetTick() - startTime >= 1500) {
                 // Held for 1.5 seconds: destroy the crop.
                 int spot = checkIfOnCrop();
                 if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
                     cropTiles[spot - 1].crop.id = NONE;
                     cropTiles[spot - 1].grown = 0;
-                    //cropPlantTimes[spot - 1] = HAL_GetTick();  // Reset growth timer.
                     buzzer(300, 20);
                     buzzer(200, 40);
                     buzzer(100, 75);
@@ -329,7 +305,8 @@ void cropPlayerAction(void) {
     }
 
     // SELECT button: Enter menu mode.
-    if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
+    if (SELECT_Button_Flag) {
+    	SELECT_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
             HAL_Delay(10);
         }
@@ -342,10 +319,9 @@ void cropPlayerAction(void) {
     }
 
     // START button: Show inventory.
-    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
-        while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
-            HAL_Delay(10);
-        }
+    if (START_Button_Flag) {
+    	START_Button_Flag = 0;
+        while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
         cropSoftRefresh();
         showInventory(0);
         cropHardRefresh();
@@ -488,8 +464,7 @@ void handleCrop() {
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-    // Initial full draw
-    cropDisplay();
+    ssd1306_Fill(Black);
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -499,17 +474,22 @@ void handleCrop() {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
             // Process input and update state only once per frame
-            cropPlayerMovement();
-            cropPlayerAction();
-
-            // Redraw full frame (all drawing commands are done offscreen)
-            cropDisplay();
-
+        	updateButtonFlags();
+        	cropPlayerMovement();
+        	playerDisplay();
+        	cropDisplay();
+        	cropPlayerAction();
+            // Draw UI elements if enabled.
+            if (statbarShow) {
+                displayStats();
+            }
+        	ssd1306_UpdateScreen();
+        	ssd1306_Fill(Black);
             lastFrameTime = now;
         }
 
         gameLogic();
-        // Optional: a very short delay to yield CPU time
+
         HAL_Delay(1);
 
         // Exit condition: if player moves above top boundary

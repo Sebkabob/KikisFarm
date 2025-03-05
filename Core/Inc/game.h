@@ -11,6 +11,11 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define TOP_SCREEN_EDGE -12
+#define BOTTOM_WORLD_EDGE 54
+#define LEFT_WORLD_EDGE 0
+#define RIGHT_WORLD_EDGE 120
+
 // ONLY DEFINE 1 //
 #define CPP		//ssd1306 lib
 //#define XBM  //u8g2 lib
@@ -21,6 +26,15 @@ extern int leaveWorld;
 extern int refresh;
 extern int soundOn;
 extern int selectedInventorySlot; // Track the selected slot in the inventory
+
+extern int A_Button_Flag;
+extern int B_Button_Flag;
+extern int START_Button_Flag;
+extern int SELECT_Button_Flag;
+extern int UP_Button_Flag;
+extern int DOWN_Button_Flag;
+extern int LEFT_Button_Flag;
+extern int RIGHT_Button_Flag;
 
 typedef enum {
 	NONE,
