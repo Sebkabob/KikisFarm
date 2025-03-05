@@ -10,6 +10,7 @@
 #include "game.h"
 
 void handleTitle();
+void gameIntro(void);
 void initGame(void);
 void cutToDark(int duration);
 

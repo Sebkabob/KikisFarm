@@ -56,6 +56,61 @@ void EE24_Delay(uint32_t Delay)
 
 /***********************************************************************************************************/
 
+extern EE24_HandleTypeDef hee24;
+
+void pushEEPROM(void) {
+    uint32_t addr = 0;  // Starting address
+
+    // Write soundOn to EEPROM
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
+        // Debug: indicate failure (e.g., via UART, LED, or buzzer pattern)
+        buzzer(100, 300);  // For instance, a low-pitched buzzer sound
+    } else {
+
+    }
+    HAL_Delay(10);
+    addr += sizeof(soundOn);
+
+    // Write player info to EEPROM
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
+        buzzer(100, 300);
+    }
+
+    HAL_Delay(10);
+    addr += sizeof(cropTiles);
+
+    // Write crop info to EEPROM
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
+        buzzer(100, 300);
+    }
+    HAL_Delay(10);
+}
+
+void pullEEPROM(void) {
+    uint32_t addr = 0;  // Starting address
+
+    // Read soundOn from EEPROM
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
+        buzzer(100, 300);
+    }
+
+    HAL_Delay(10);
+    addr += sizeof(soundOn);
+
+    // Read player's money from EEPROM
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
+        buzzer(100, 300);
+    }
+
+    HAL_Delay(10);
+    addr += sizeof(cropTiles);
+
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
+        buzzer(100, 300);
+    }
+    HAL_Delay(10);
+}
+
 void EE24_Lock(EE24_HandleTypeDef *Handle)
 {
   while (Handle->Lock)
@@ -98,42 +153,6 @@ bool EE24_Init(EE24_HandleTypeDef *Handle, I2C_HandleTypeDef *HI2c, uint8_t I2CA
     }
     Handle->HI2c = HI2c;
     Handle->Address = I2CAddress;
-    if (HAL_I2C_IsDeviceReady(Handle->HI2c, Handle->Address, 2, 100) == HAL_OK)
-    {
-      answer = true;
-    }
-  }
-  while (0);
-
-  return answer;
-}
-#else
-/**
-  * @brief  Initialize EEPROM handle
-  * @note   Initialize EEPROM handle and set memory address
-  *
-  * @param  *Handle: Pointer to EE24_HandleTypeDef structure
-  * @param  *HI2c: Pointer to I2C_HandleTypeDef structure
-  * @param  I2CAddress: I2C Memory address
-  * @param  *GPIO_TypeDef: Pointer to GPIO_TypeDef structure for Write protected pin
-  * @param  WpPin: PinNumber of write protected pin
-  *
-  * @retval bool: true or false
-  */
-bool EE24_Init(EE24_HandleTypeDef *Handle, I2C_HandleTypeDef *HI2c, uint8_t I2CAddress, GPIO_TypeDef *WpGpio, uint16_t WpPin)
-{
-  bool answer = false;
-  do
-  {
-    if ((Handle == NULL) || (HI2c == NULL) || (WpGpio == NULL))
-    {
-      break;
-    }
-    Handle->HI2c = HI2c;
-    Handle->Address = I2CAddress;
-    Handle->WpGpio = WpGpio;
-    Handle->WpPin = WpPin;
-    HAL_GPIO_WritePin(Handle->WpGpio, Handle->WpPin, GPIO_PIN_SET);
     if (HAL_I2C_IsDeviceReady(Handle->HI2c, Handle->Address, 2, 100) == HAL_OK)
     {
       answer = true;

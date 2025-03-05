@@ -42,6 +42,12 @@ extern "C"
 #include "stddef.h"
 #include "NimaLTD.I-CUBE-EE24_conf.h"
 
+#include "game.h"
+#include "crop.h"
+#include "sprites.h"
+#include "NimaLTD.I-CUBE-EE24_conf.h"
+#include "ee24.h"
+
 /************************************************************************************************************
 **************    Public Definitions
 ************************************************************************************************************/
@@ -69,6 +75,10 @@ typedef struct
 ************************************************************************************************************/
 
 #if EE24_USE_WP_PIN == false
+
+void pushEEPROM(void);
+void pullEEPROM(void);
+
 bool EE24_Init(EE24_HandleTypeDef *Handle, I2C_HandleTypeDef *HI2c, uint8_t I2CAddress);
 #else
 bool EE24_Init(EE24_HandleTypeDef *Handle, I2C_HandleTypeDef *HI2c, uint8_t I2CAddress, GPIO_TypeDef *WpGpio, uint16_t WpPin);

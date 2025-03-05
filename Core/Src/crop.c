@@ -175,8 +175,8 @@ void cropPlayerMovement(void) {
 
 
 void cropPlant(){
-	refreshBackground = 1;
-	int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
+    refreshBackground = 1;
+    int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
         buzzer(440, 15);
@@ -197,8 +197,34 @@ void cropPlant(){
                 }
             }
             if (slot != -1) {
-                // Plant the seed on the corresponding crop tile
-                cropTiles[spot - 1].crop = *player.inventory[slot].item;
+                // Convert the seed to its grown crop using a switch statement
+                Item crop;
+                switch (seedId) {
+                    case WHEATSEED:
+                        crop = wheat;
+                        break;
+                    case CORNSEED:
+                        crop = corn;
+                        break;
+                    case POTATOSEED:
+                        crop = potato;
+                        break;
+                    case CARROTSEED:
+                        crop = carrot;
+                        break;
+                    case PUMPKINSEED:
+                        crop = pumpkin;
+                        break;
+                    case SUGARSEED:
+                        crop = sugar;
+                        break;
+                    default:
+                        // If no matching crop, you might want to handle the error.
+                        return;
+                }
+
+                // Plant the corresponding crop on the crop tile
+                cropTiles[spot - 1].crop = crop;
                 cropTiles[spot - 1].grown = 0;
                 cropTiles[spot - 1].isTilled = true;
 
@@ -213,6 +239,7 @@ void cropPlant(){
         }
     }
 }
+
 
 void cropHarvest(){
 	refreshBackground = 1;
@@ -289,7 +316,25 @@ void cropPlayerAction(void) {
     // Button B: Either toggle the status bar (short press) or, if held for 2 seconds, destroy the crop.
     if (B_Button_Flag) {
     	B_Button_Flag = 0;
-    	cropDestroy();
+    	refreshBackground = 1;
+        uint32_t startTime = HAL_GetTick();
+        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            HAL_Delay(10);
+            if (HAL_GetTick() - startTime >= 1500) {
+                // Held for 1.5 seconds: destroy the crop.
+                int spot = checkIfOnCrop();
+                if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
+                    cropTiles[spot - 1].crop.id = NONE;
+                    cropTiles[spot - 1].grown = 0;
+                    buzzer(300, 20);
+                    buzzer(200, 40);
+                    buzzer(100, 75);
+                }
+                // Wait until button is released.
+                while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+                return;
+            }
+        }
         buzzer(300, 25);
         showInventory(0);
     }

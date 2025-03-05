@@ -37,4 +37,11 @@ extern const unsigned char TillMoreSoilTitle[];
 extern const unsigned char CornSeedsTitle[];
 extern const unsigned char WheatSeedsTitle[];
 
+extern const unsigned char ItemIconCarrot[];
+extern const unsigned char ItemIconCorn[];
+extern const unsigned char ItemIconPotato[];
+extern const unsigned char ItemIconPumpkin[];
+extern const unsigned char ItemIconWheat[];
+extern const unsigned char ItemIconSugar[];
+
 #endif /* INC_SPRITES_H_ */

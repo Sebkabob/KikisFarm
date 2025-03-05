@@ -26,8 +26,6 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
-extern EE24_HandleTypeDef hee24;
-
 int refreshBackground;
 
 Player player = { .inWorld = TITLE, .money = 5, .xp = 0, .level = 1, .soilSpots = 1};
@@ -35,20 +33,20 @@ Player player = { .inWorld = TITLE, .money = 5, .xp = 0, .level = 1, .soilSpots 
 Game game;
 
 // Crops
-Item wheat   = { WHEAT,   10, 20, 5, 6, 1, 0, WheatSprite,  NULL };
-Item corn    = { CORN,    15, 30, 8, 12, 2, 0, CornSprite,   NULL };
-Item potato  = { POTATO,  20, 40, 12, 18, 4, 0, PotatoSprite, NULL };
-Item carrot  = { CARROT,  30, 60, 16, 30, 7, 0, CarrotSprite, NULL };
-Item pumpkin = { PUMPKIN, 50, 100,20, 45, 11, 0, PumpkinSprite,NULL };
-Item sugar   = { SUGAR,   75, 150,25, 60, 17, 0, SugarSprite,  NULL };
+Item wheat   = { WHEAT,   10, 20, 5,  6,  1,  0, WheatSprite,   NULL, ItemIconWheat};
+Item corn    = { CORN,    15, 30, 8,  12, 2,  0, CornSprite,    NULL, ItemIconCorn};
+Item potato  = { POTATO,  20, 40, 12, 18, 4,  0, PotatoSprite,  NULL, ItemIconPotato};
+Item carrot  = { CARROT,  30, 60, 16, 30, 7,  0, CarrotSprite,  NULL, ItemIconCarrot};
+Item pumpkin = { PUMPKIN, 50, 100,20, 45, 11, 0, PumpkinSprite, NULL, ItemIconPumpkin};
+Item sugar   = { SUGAR,   75, 150,25, 60, 17, 0, SugarSprite,   NULL, ItemIconSugar};
 
 // Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,  5, 5, 6, 1, 0, WheatSprite,  WheatSeedSprite };
-Item cornSeed    = { CORNSEED,    5, 12, 8, 12, 2, 0, CornSprite,   CornSeedSprite };
-Item potatoSeed  = { POTATOSEED, 10, 18,12, 18, 4, 0, PotatoSprite, PotatoSeedSprite };
-Item carrotSeed  = { CARROTSEED, 20, 40,16, 30, 7, 0, CarrotSprite, CarrotSeedSprite };
-Item pumpkinSeed = { PUMPKINSEED,30, 60,20, 45, 11, 0, PumpkinSprite,PumpkinSeedSprite };
-Item sugarSeed   = { SUGARSEED,   50,100,25, 60, 17, 0, SugarSprite,  SugarSeedSprite };
+Item wheatSeed   = { WHEATSEED,   3,  5,   5,  6,  1,  0, NULL,   WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    5,  12,  8,  12, 2,  0, NULL,    CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED, 10,  18,  12, 18, 4,  0, NULL,  PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED, 20,  40,  16, 30, 7,  0, NULL,  CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED,30,  60,  20, 45, 11, 0, NULL, PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   50, 100, 25, 60, 17, 0, NULL,   SugarSeedSprite,   NULL };
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
@@ -165,59 +163,6 @@ void updateButtonFlags(){
     }
 }
 
-void pushEEPROM(void) {
-    uint32_t addr = 0;  // Starting address
-
-    // Write soundOn to EEPROM
-    if (!EE24_Write(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
-        // Debug: indicate failure (e.g., via UART, LED, or buzzer pattern)
-        buzzer(100, 300);  // For instance, a low-pitched buzzer sound
-    } else {
-
-    }
-    HAL_Delay(10);
-    addr += sizeof(soundOn);
-
-    // Write player info to EEPROM
-    if (!EE24_Write(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
-        buzzer(100, 300);
-    }
-
-    HAL_Delay(10);
-    addr += sizeof(cropTiles);
-
-    // Write crop info to EEPROM
-    if (!EE24_Write(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
-        buzzer(100, 300);
-    }
-    HAL_Delay(10);
-}
-
-void pullEEPROM(void) {
-    uint32_t addr = 0;  // Starting address
-
-    // Read soundOn from EEPROM
-    if (!EE24_Read(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
-        buzzer(100, 300);
-    }
-
-    HAL_Delay(10);
-    addr += sizeof(soundOn);
-
-    // Read player's money from EEPROM
-    if (!EE24_Read(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
-        buzzer(100, 300);
-    }
-
-    HAL_Delay(10);
-    addr += sizeof(cropTiles);
-
-    if (!EE24_Read(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
-        buzzer(100, 300);
-    }
-    HAL_Delay(10);
-}
-
 
 void gameLevelUp(){
 	int xpNeededForNextLevel = 100 + (50 * player.level) + (10 * player.level * player.level);
@@ -248,48 +193,6 @@ void cropGrowth(){
 void gameLogic(){
 	gameLevelUp();
 	cropGrowth();
-}
-
-// Add an item to the inventory
-int addItemToInventory(InventorySlot inventory[], Item *item, int quantity) {
-    for (int i = 0; i < 9; i++) {
-        if (inventory[i].item == NULL || inventory[i].item->id == NONE) {
-            inventory[i].item = item;
-            inventory[i].quantity = quantity;
-            return 1; // Success
-        }
-        if (inventory[i].item->id == item->id) {
-            inventory[i].quantity += quantity;
-            return 1; // Success
-        }
-    }
-    return 0; // Inventory full
-}
-
-// Remove an item from the inventory
-int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int quantity) {
-    for (int i = 0; i < 9; i++) {
-        if (inventory[i].item != NULL && inventory[i].item->id == itemType) {
-            if (inventory[i].quantity > quantity) {
-                inventory[i].quantity -= quantity;
-            } else {
-                inventory[i].item = NULL;
-                inventory[i].quantity = 0;
-            }
-            return 1; // Success
-        }
-    }
-    return 0; // Item not found
-}
-
-// Check if an item exists in the inventory
-int hasItemInInventory(InventorySlot inventory[], ItemType itemType) {
-    for (int i = 0; i < 9; i++) {
-        if (inventory[i].item != NULL && inventory[i].item->id == itemType) {
-            return inventory[i].quantity;
-        }
-    }
-    return 0; // Item not found
 }
 
 void playerDisplay(){
@@ -326,154 +229,6 @@ void playerErase(){
     // Draw the player sprite.
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, Black);
 }
-
-int showInventory(int plantSeed) {
-
-    int itemSelect = 1; // Start with the first item selected
-    int moved = 1;      // Indicates that the selection box needs to be redrawn
-    int xMov, yMov;
-    int prevXMov = 0, prevYMov = 0; // Track previous selection box position
-
-    ssd1306_FillRectangle(5, 1, 122, 55, Black);
-    ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
-
-    // Draw the items in the inventory
-    for (int i = 0; i < 9; i++) {
-        if (player.inventory[i].item != NULL && player.inventory[i].item->id != NONE) {
-            xMov = ((i % 3) * 17);
-            yMov = ((i / 3) * 17);
-            const unsigned char *spriteToDraw;
-            if (player.inventory[i].item->seedSprite != NULL) {
-                spriteToDraw = player.inventory[i].item->seedSprite;
-            } else {
-                spriteToDraw = player.inventory[i].item->sprite;
-            }
-            ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
-        }
-    }
-
-    displayStats();
-
-    xMov = ((itemSelect - 1) % 3) * 17;
-    yMov = ((itemSelect - 1) / 3) * 17;
-    prevXMov = xMov;
-    prevYMov = yMov;
-
-    // Draw the initial selection box
-    ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
-
-    // Draw the title and quantity of the selected item
-    if (player.inventory[itemSelect - 1].item != NULL && player.inventory[itemSelect - 1].item->id != NONE) {
-        ssd1306_FillRectangle(57, 2, 121, 53, Black);
-        const unsigned char *itemTitle = getItemTitle(player.inventory[itemSelect - 1].item->id);
-        if (itemTitle != NULL) {
-            ssd1306_DrawBitmap(57, 2, itemTitle, 65, 24, White);
-        }
-        char quantityText[10];
-        snprintf(quantityText, sizeof(quantityText), "x%d", player.inventory[itemSelect - 1].quantity);
-        ssd1306_SetCursor(90, 32);
-        ssd1306_WriteString(quantityText, Font_6x8, White);
-    } else {
-        ssd1306_FillRectangle(57, 2, 121, 53, Black);
-    }
-
-    ssd1306_UpdateScreen();
-
-    while (1) {
-        if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
-            moved = 1;
-            buzzer(540, 10);
-            itemSelect -= 3;
-            while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
-        }
-        if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
-            moved = 1;
-            buzzer(540, 10);
-            itemSelect += 3;
-            while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
-        }
-        if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
-            moved = 1;
-            buzzer(540, 10);
-            itemSelect -= 1;
-            while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
-        }
-        if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
-            moved = 1;
-            buzzer(540, 10);
-            itemSelect += 1;
-            while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
-        }
-
-        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0 || HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
-            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0 || HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
-            break;
-        }
-
-        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-
-            if (plantSeed == 1) {
-                // Check if the selected item is a valid seed
-                Item* selectedItem = player.inventory[itemSelect - 1].item;
-                if (selectedItem != NULL &&
-                    (selectedItem->id == WHEATSEED ||
-                     selectedItem->id == CORNSEED ||
-                     selectedItem->id == POTATOSEED ||
-                     selectedItem->id == CARROTSEED ||
-                     selectedItem->id == PUMPKINSEED ||
-                     selectedItem->id == SUGARSEED)) {
-
-                    // Remove one unit of the seed from the inventory.
-                	return selectedItem->id;
-                } else {
-                    // Optionally, you could provide feedback if the selected item is not a valid seed.
-                }
-            } else {
-                // Handle normal inventory selection if needed.
-                moved = 1; // Ensure redraw after selection.
-            }
-            moved = 1; // Ensure redraw after selection.
-        }
-
-        if (moved) {
-            moved = 0;
-            // Erase the previous selection box.
-            ssd1306_DrawRectangle(8 + prevXMov, 4 + prevYMov, 21 + prevXMov, 17 + prevYMov, Black);
-
-            // Update selection box position.
-            xMov = ((itemSelect - 1) % 3) * 17;
-            yMov = ((itemSelect - 1) / 3) * 17;
-            prevXMov = xMov;
-            prevYMov = yMov;
-
-            displayStats();
-
-            // Draw the new selection box.
-            ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
-
-            // Clear previous text area.
-            ssd1306_FillRectangle(57, 2, 121, 53, Black);
-
-            // Draw title and quantity for the selected item.
-            if (player.inventory[itemSelect - 1].item != NULL && player.inventory[itemSelect - 1].item->id != NONE) {
-                const unsigned char *itemTitle = getItemTitle(player.inventory[itemSelect - 1].item->id);
-                if (itemTitle != NULL) {
-                    ssd1306_DrawBitmap(57, 2, itemTitle, 65, 24, White);
-                }
-                char quantityText[10];
-                snprintf(quantityText, sizeof(quantityText), "x%d", player.inventory[itemSelect - 1].quantity);
-                ssd1306_SetCursor(90, 32);
-                ssd1306_WriteString(quantityText, Font_6x8, White);
-            }
-
-            ssd1306_UpdateScreen();
-        }
-    }
-    // If no valid seed is selected, return NONE.
-    return NONE;
-}
-
 
 
 void textSpeaking(const char *text, int voice, int speed, int button) {
@@ -564,6 +319,7 @@ void cutToDark(int speed){
         ssd1306_UpdateScreen();
         HAL_Delay(speed);
     }
+    HAL_Delay(speed * 10);
 }
 
 void displayStats(void) {
@@ -600,55 +356,6 @@ void displayStats(void) {
     if (levelBar > 0) {
         ssd1306_FillRectangle(33, 58, 33 + levelBar, 60, White);
     }
-}
-
-
-
-
-void gameIntro(){
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("By 2097, Earth's farms were fully ruled by AI.", 100, 5, 1);
-	textSpeaking("No longer did humans toil in the fields.", 100, 5, 1);
-	textSpeaking("Food was plentiful. Life was easy.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("One day, a deadly blight spread across the land.", 100, 5, 1);
-	textSpeaking("Crops withered. Harvests failed.", 100, 5, 1);
-	textSpeaking("AI was helpless. It had no solution.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("Earth had lost all its farmers.", 100, 5, 1);
-	textSpeaking("There was no one left to fix this.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("But a dying breed still remained...", 100, 5, 1);
-	textSpeaking("Farming engineers rose from the ashes.", 100, 5, 1);
-	textSpeaking("They built new robots unlike any before.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("These machines could till, plant, and harvest.", 100, 5, 1);
-	textSpeaking("But AI could no longer be trusted.", 100, 5, 1);
-	textSpeaking("Blight-resistant crops needed real oversight.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("Only humans could analyze the soil.", 100, 5, 1);
-	textSpeaking("Only humans could adapt in real time.", 100, 5, 1);
-	textSpeaking("The robots became tools, not rulers.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("You are one of the last farmers.", 100, 5, 1);
-	textSpeaking("The survival of humanity is in your hands.", 100, 5, 1);
-	textSpeaking("Start farming. You have no choice.", 100, 5, 1);
-
-	ssd1306_Fill(Black);
 }
 
 int gameMenu(){
