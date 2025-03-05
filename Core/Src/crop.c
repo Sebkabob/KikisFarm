@@ -256,6 +256,27 @@ void cropHarvest(){
     }
 }
 
+void cropDestroy(){
+    uint32_t startTime = HAL_GetTick();
+    while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+        HAL_Delay(10);
+        if (HAL_GetTick() - startTime >= 1500) {
+            // Held for 1.5 seconds: destroy the crop.
+            int spot = checkIfOnCrop();
+            if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
+                cropTiles[spot - 1].crop.id = NONE;
+                cropTiles[spot - 1].grown = 0;
+                buzzer(300, 20);
+                buzzer(200, 40);
+                buzzer(100, 75);
+            }
+            // Wait until button is released.
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            return;
+        }
+    }
+}
+
 //------------------------------------------------------------------------------
 // Processes player actions (interacting with crops, toggling UI, menu).
 // Basic debouncing is used by waiting for button release.
@@ -281,27 +302,9 @@ void cropPlayerAction(void) {
     // Button B: Either toggle the status bar (short press) or, if held for 2 seconds, destroy the crop.
     if (B_Button_Flag) {
     	B_Button_Flag = 0;
-        uint32_t startTime = HAL_GetTick();
-        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            HAL_Delay(10);
-            if (HAL_GetTick() - startTime >= 1500) {
-                // Held for 1.5 seconds: destroy the crop.
-                int spot = checkIfOnCrop();
-                if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
-                    cropTiles[spot - 1].crop.id = NONE;
-                    cropTiles[spot - 1].grown = 0;
-                    buzzer(300, 20);
-                    buzzer(200, 40);
-                    buzzer(100, 75);
-                }
-                // Wait until button is released.
-                while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-                return;
-            }
-        }
-        // If released before 2 seconds, treat as a short press.
+    	cropDestroy();
         buzzer(300, 25);
-        statbarShow = !statbarShow;
+        showInventory(0);
     }
 
     // SELECT button: Enter menu mode.
@@ -322,9 +325,6 @@ void cropPlayerAction(void) {
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
-        cropSoftRefresh();
-        showInventory(0);
-        cropHardRefresh();
     }
 }
 
@@ -465,6 +465,8 @@ void handleCrop() {
     player.direction = DOWN;
 
     ssd1306_Fill(Black);
+	cropDisplay();
+	ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -474,17 +476,22 @@ void handleCrop() {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
             // Process input and update state only once per frame
+        	ssd1306_Fill(Black);
         	updateButtonFlags();
         	cropPlayerMovement();
+
         	playerDisplay();
-        	cropDisplay();
+        	//cropDisplay();
+        	ORBuffer();
+
         	cropPlayerAction();
+
             // Draw UI elements if enabled.
             if (statbarShow) {
                 displayStats();
             }
+
         	ssd1306_UpdateScreen();
-        	ssd1306_Fill(Black);
             lastFrameTime = now;
         }
 

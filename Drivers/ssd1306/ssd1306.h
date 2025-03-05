@@ -173,6 +173,11 @@ void ssd1306_Polyline(const SSD1306_VERTEX *par_vertex, uint16_t par_size, SSD13
 void ssd1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 void ssd1306_FillRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color);
 
+///////////////// ADDED IN FUNCTION ////////////////////////////////
+void ssd1306_CopyBuffer(void);
+void ORBuffer(void);
+////////////////////////////////////////////////////////////////////
+
 /**
  * @brief Invert color of pixels in rectangle (include border)
  * 

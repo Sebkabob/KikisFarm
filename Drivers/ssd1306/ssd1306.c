@@ -58,6 +58,14 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
 // Screenbuffer
 static uint8_t SSD1306_Buffer[SSD1306_BUFFER_SIZE];
 
+///////////////// ADDED IN BUFFER ////////////////////////////////
+static uint8_t SSD1306_Buffer_1[SSD1306_BUFFER_SIZE];
+//////////////////////////////////////////////////////////////////
+
+void ssd1306_CopyBuffer(void) {
+    memcpy(SSD1306_Buffer_1, SSD1306_Buffer, SSD1306_BUFFER_SIZE);
+}
+
 // Screen object
 static SSD1306_t SSD1306;
 
@@ -194,6 +202,15 @@ void ssd1306_UpdateScreen(void) {
         ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
     }
 }
+
+///////////////// ADDED IN FUNCTION ////////////////////////////////
+void ORBuffer(void) {
+    for (uint16_t i = 0; i < SSD1306_BUFFER_SIZE; i++) {
+        SSD1306_Buffer[i] |= SSD1306_Buffer_1[i];
+    }
+}
+
+////////////////////////////////////////////////////////////////////
 
 /*
  * Draw one pixel in the screenbuffer
