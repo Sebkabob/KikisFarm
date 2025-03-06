@@ -144,7 +144,6 @@ extern Direction cropDirection;
 
 void initGame(void);
 void initShopItems(void);
-const unsigned char* getItemTitle(ItemType itemType);
 void updateButtonFlags(void);
 void gameLevelUp(void);
 void cropGrowth(void);

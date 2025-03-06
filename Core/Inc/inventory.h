@@ -6,6 +6,7 @@
 #include "crop.h"
 #include "sprites.h"
 
+const unsigned char* getItemTitle(ItemType itemType);
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity);
 int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int quantity);
 int hasItemInInventory(InventorySlot inventory[], ItemType itemType);

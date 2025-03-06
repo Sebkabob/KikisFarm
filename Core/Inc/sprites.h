@@ -31,12 +31,12 @@ extern const unsigned char SugarSeedSprite[];
 extern const unsigned char WheatSeedSprite[];
 extern const unsigned char TillSprite[];
 
-extern const unsigned char potatoTitle[];
-extern const unsigned char pumpkinTitle[];
-extern const unsigned char wheatTitle[];
-extern const unsigned char sugarTitle[];
-extern const unsigned char carrotTitle[];
-extern const unsigned char cornTitle[];
+extern const unsigned char PotatoTitle[];
+extern const unsigned char PumpkinTitle[];
+extern const unsigned char WheatTitle[];
+extern const unsigned char SugarTitle[];
+extern const unsigned char CarrotTitle[];
+extern const unsigned char CornTitle[];
 
 extern const unsigned char PumpkinSeedsTitle[];
 extern const unsigned char PotatoSeedsTitle[];

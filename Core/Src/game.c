@@ -71,10 +71,10 @@ CropTile cropTiles[10] = {
 Item shopItems[8];
 
 void initGame(){
-	player.money = 5;
+	player.money = 100000;
 	player.inWorld = CROP;
 	player.xp = 0;
-	player.level = 1;
+	player.level = 20;
 	player.soilSpots = 1;
     for (int i = 0; i < 9; i++) {
         player.inventory[i].item = NULL;
@@ -105,20 +105,6 @@ void initShopItems(void) {
     shopItems[5] = sugarSeed;
     shopItems[6] = tillSoil;
     shopItems[7] = houseKey;
-}
-
-const unsigned char* getItemTitle(ItemType itemType) {
-    switch (itemType) {
-        case WHEATSEED: return WheatSeedsTitle;
-        case CORNSEED: return CornSeedsTitle;
-        case POTATOSEED: return PotatoSeedsTitle;
-        case CARROTSEED: return CarrotSeedsTitle;
-        case PUMPKINSEED: return PumpkinSeedsTitle;
-        case SUGARSEED: return SugarSeedsTitle;
-        case TILLSOIL: return TillMoreSoilTitle;
-        case HOUSEKEY: return HouseKeyTitle;
-        default: return NULL;
-    }
 }
 
 void updateButtonFlags(){
