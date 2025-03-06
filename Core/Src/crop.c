@@ -242,32 +242,52 @@ void cropPlant(){
 
 
 void cropHarvest(){
-	refreshBackground = 1;
+    refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
 
-    // If the spot is valid and a grown crop exists, harvest it
     if (spot != 0 && cropTiles[spot - 1].grown == 1) {
-    	buzzer(262, 10);  // Higher pitch to indicate harvest
-        buzzer(330, 20);  // Higher pitch to indicate harvest
-        buzzer(392, 30);  // Higher pitch to indicate harvest
+        buzzer(262, 10);
+        buzzer(330, 20);
+        buzzer(392, 30);
 
-        // Get the harvested crop's item
-        Item harvestedCrop = cropTiles[spot - 1].crop;
+        Item *harvestedCrop = NULL;
+        switch (cropTiles[spot - 1].crop.id) {
+            case WHEAT:
+                harvestedCrop = &wheat;
+                break;
+            case CORN:
+                harvestedCrop = &corn;
+                break;
+            case POTATO:
+                harvestedCrop = &potato;
+                break;
+            case CARROT:
+                harvestedCrop = &carrot;
+                break;
+            case PUMPKIN:
+                harvestedCrop = &pumpkin;
+                break;
+            case SUGAR:
+                harvestedCrop = &sugar;
+                break;
+            default:
+                return; // Invalid crop type, exit function.
+        }
 
-        // Add the harvested crop to the player's inventory
-        addItemToInventory(player.inventory, &harvestedCrop, 1);
+        addItemToInventory(player.inventory, harvestedCrop, 1);
 
-        // Reset the croptile (remove the crop but keep it tilled)
-        //cropTiles[spot - 1].crop.id = NONE;
-        player.money += (cropTiles[spot - 1].crop.sellValue) * 1;
-        player.xp += (cropTiles[spot - 1].crop.xp) * 1;
-        cropTiles[spot - 1].grown = 0;  // Reset growth stage
-        cropPlantTimes[spot - 1] = HAL_GetTick();  // Reset the growth timer
+        // Optionally, clear the crop from the tile (uncomment if needed)
+        // cropTiles[spot - 1].crop.id = NONE;
+
+        player.money += cropTiles[spot - 1].crop.sellValue;
+        player.xp += cropTiles[spot - 1].crop.xp;
+        cropTiles[spot - 1].grown = 0;
+        cropPlantTimes[spot - 1] = HAL_GetTick();
 
         ssd1306_UpdateScreen();
-        return;  // Exit function after harvesting
     }
 }
+
 
 void cropDestroy(){
 	refreshBackground = 1;
