@@ -259,8 +259,8 @@ void cropHarvest(){
 
         // Reset the croptile (remove the crop but keep it tilled)
         //cropTiles[spot - 1].crop.id = NONE;
-        player.money += (cropTiles[spot - 1].crop.sellValue) * 100;
-        player.xp += (cropTiles[spot - 1].crop.xp) * 100;
+        player.money += (cropTiles[spot - 1].crop.sellValue) * 1;
+        player.xp += (cropTiles[spot - 1].crop.xp) * 1;
         cropTiles[spot - 1].grown = 0;  // Reset growth stage
         cropPlantTimes[spot - 1] = HAL_GetTick();  // Reset the growth timer
 

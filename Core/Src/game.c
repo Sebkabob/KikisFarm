@@ -41,12 +41,12 @@ Item pumpkin = { PUMPKIN, 50, 100,20, 45, 11, 0, PumpkinSprite, NULL, ItemIconPu
 Item sugar   = { SUGAR,   75, 150,25, 60, 17, 0, SugarSprite,   NULL, ItemIconSugar};
 
 // Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,  5,   5,  6,  1,  0, NULL,   WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    5,  12,  8,  12, 2,  0, NULL,    CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED, 10,  18,  12, 18, 4,  0, NULL,  PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED, 20,  40,  16, 30, 7,  0, NULL,  CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED,30,  60,  20, 45, 11, 0, NULL, PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   50, 100, 25, 60, 17, 0, NULL,   SugarSeedSprite,   NULL };
+Item wheatSeed   = { WHEATSEED,   3,   5,   5,  6,  1,  0, NULL,  WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    5,   12,  8,  12, 2,  0, NULL,  CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED,  10,  18,  12, 18, 4,  0, NULL,  PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED,  20,  40,  16, 30, 7,  0, NULL,  CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED, 30,  60,  20, 45, 11, 0, NULL,  PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   50,  100, 25, 60, 17, 0, NULL,  SugarSeedSprite,   NULL };
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};

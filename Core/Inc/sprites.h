@@ -12,6 +12,7 @@ extern const unsigned char KikiLeftSprite[];
 extern const unsigned char KikiRightSprite[];
 extern const unsigned char ShopWorldSprite[];
 extern const unsigned char BoardSprite[];
+
 extern const unsigned char TilledSoilSprite[];
 extern const unsigned char WheatSprite[];
 extern const unsigned char PumpkinSprite[];
@@ -20,6 +21,7 @@ extern const unsigned char PotatoSprite[];
 extern const unsigned char CornSprite[];
 extern const unsigned char SugarSprite[];
 extern const unsigned char SproutSprite[];
+
 extern const unsigned char CarrotSeedSprite[];
 extern const unsigned char CornSeedSprite[];
 extern const unsigned char HouseKeySprite[];
@@ -28,6 +30,14 @@ extern const unsigned char PumpkinSeedSprite[];
 extern const unsigned char SugarSeedSprite[];
 extern const unsigned char WheatSeedSprite[];
 extern const unsigned char TillSprite[];
+
+extern const unsigned char potatoTitle[];
+extern const unsigned char pumpkinTitle[];
+extern const unsigned char wheatTitle[];
+extern const unsigned char sugarTitle[];
+extern const unsigned char carrotTitle[];
+extern const unsigned char cornTitle[];
+
 extern const unsigned char PumpkinSeedsTitle[];
 extern const unsigned char PotatoSeedsTitle[];
 extern const unsigned char HouseKeyTitle[];

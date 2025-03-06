@@ -97,7 +97,7 @@ void pullEEPROM(void) {
     HAL_Delay(10);
     addr += sizeof(soundOn);
 
-    // Read player's money from EEPROM
+    // Read player's info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
         buzzer(100, 300);
     }
