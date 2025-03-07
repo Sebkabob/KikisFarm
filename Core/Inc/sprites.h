@@ -54,4 +54,6 @@ extern const unsigned char ItemIconPumpkin[];
 extern const unsigned char ItemIconWheat[];
 extern const unsigned char ItemIconSugar[];
 
+extern const unsigned char ControlsTitle[];
+
 #endif /* INC_SPRITES_H_ */

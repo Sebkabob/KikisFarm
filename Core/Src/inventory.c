@@ -20,6 +20,23 @@ const unsigned char* getItemTitle(ItemType itemType) {
     }
 }
 
+void moveInventoryItemsTogether(InventorySlot inventory[]) {
+    int nextFree = 0;
+    for (int i = 0; i < 9; i++) {
+        // Check if the current slot is not empty
+        if (inventory[i].item != NULL && inventory[i].item->id != NONE) {
+            if (i != nextFree) {
+                // Move the item and its quantity to the next available free slot
+                inventory[nextFree] = inventory[i];
+                // Mark the original slot as empty
+                inventory[i].item = NULL;
+                inventory[i].quantity = 0;
+            }
+            nextFree++;
+        }
+    }
+}
+
 // Add an item to the inventory
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity) {
     for (int i = 0; i < 9; i++) {
@@ -46,6 +63,7 @@ int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int qu
                 inventory[i].item = NULL;
                 inventory[i].quantity = 0;
             }
+            moveInventoryItemsTogether(inventory);
             return 1; // Success
         }
     }

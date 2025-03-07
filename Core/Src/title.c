@@ -4,49 +4,138 @@
 #include "title.h"
 
 void gameIntro(){
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("By 2097, Earth's farms were fully ruled by AI.", 100, 5, 1);
-	textSpeaking("No longer did humans toil in the fields.", 100, 5, 1);
-	textSpeaking("Food was plentiful. Life was easy.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("One day, a deadly blight spread across the land.", 100, 5, 1);
-	textSpeaking("Crops withered. Harvests failed.", 100, 5, 1);
-	textSpeaking("AI was helpless. It had no solution.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("Earth had lost all its farmers.", 100, 5, 1);
-	textSpeaking("There was no one left to fix this.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("But a dying breed still remained...", 100, 5, 1);
-	textSpeaking("Farming engineers rose from the ashes.", 100, 5, 1);
-	textSpeaking("They built new robots unlike any before.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("These machines could till, plant, and harvest.", 100, 5, 1);
-	textSpeaking("But AI could no longer be trusted.", 100, 5, 1);
-	textSpeaking("Blight-resistant crops needed real oversight.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("Only humans could analyze the soil.", 100, 5, 1);
-	textSpeaking("Only humans could adapt in real time.", 100, 5, 1);
-	textSpeaking("The robots became tools, not rulers.", 100, 5, 1);
-	ssd1306_Fill(Black);
-	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
-	textSpeaking("You are one of the last farmers.", 100, 5, 1);
-	textSpeaking("The survival of humanity is in your hands.", 100, 5, 1);
-	textSpeaking("Start farming. You have no choice.", 100, 5, 1);
+    int voice1 = 600;  // Voice for character 1
+    int voice2 = 200;  // Voice for character 2
 
-	ssd1306_Fill(Black);
+    ssd1306_Fill(Black);
+    ssd1306_UpdateScreen();
+    HAL_Delay(1000);
+
+    // Character 1: "Whats going on... Where am I?"
+    textSpeaking("Whats going on... Where am I?", voice1, 5, 1);
+
+    // Character 2: "You have been transported to planet 43X"
+    textSpeaking("You have been transported to planet 43X", voice2, 5, 1);
+    // Character 2: "We need you to farm"
+    textSpeaking("We need you to farm", voice2, 5, 1);
+
+    ssd1306_Fill(Black);
+    ssd1306_UpdateScreen();
+    HAL_Delay(1000);
+
+    // Character 1: "Farm? What are you talking about"
+    textSpeaking("Farm? What are you talking about", voice1, 5, 1);
+    // Character 2: "..."
+    textSpeaking("...", voice2, 5, 1);
+
+    ssd1306_Fill(Black);
+    ssd1306_UpdateScreen();
+    HAL_Delay(1000);
+
+    // Character 1: "What is going on?? What is happening"
+    textSpeaking("What is going on?? What is happening", voice1, 5, 1);
+    // Character 2: "You have been transferred to this district, we need you to start farming immediately"
+    textSpeaking("You have been transferred to this district, we need you to start farming immediately", voice2, 5, 1);
+
+    ssd1306_Fill(Black);
+    ssd1306_UpdateScreen();
+    HAL_Delay(1000);
+
+    // Character 1: "What?????"
+    textSpeaking("What?????", voice1, 5, 1);
+
+    ssd1306_Fill(Black);
+}
+
+
+int areYouSureMenu(){
+    int menuSelect = 2;  // Default: yes selected
+
+    // Draw the static text once.
+    ssd1306_Fill(Black);
+    ssd1306_SetCursor(22, 4);
+    ssd1306_WriteString("WARNING!", Font_11x18, White);
+    ssd1306_SetCursor(18, 24);
+    ssd1306_WriteString("all game data", Font_7x10, White);
+    ssd1306_SetCursor(22, 36);
+    ssd1306_WriteString("will be lost", Font_7x10, White);
+    ssd1306_SetCursor(20, 50);
+    ssd1306_WriteString("yes", Font_7x10, White);
+    ssd1306_SetCursor(94, 50);
+    ssd1306_WriteString("no", Font_7x10, White);
+
+    // Draw initial selection rectangle around "yes"
+    ssd1306_DrawRectangle(18, 48, 42, 62, White);
+    ssd1306_UpdateScreen();
+
+    buzzer(200,300);
+    buzzer(140,300);
+
+    while (1){
+        HAL_Delay(10); // Small delay to prevent overwhelming polling
+
+        // RIGHT button pressed: select "no" (menuSelect = 1)
+        if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+            buzzer(300,25);
+            if (menuSelect != 1) {
+                // Erase the rectangle around "yes"
+                ssd1306_DrawRectangle(18, 48, 42, 62, Black);
+                // Draw rectangle around "no"
+                ssd1306_DrawRectangle(92, 48, 109, 62, White);
+                menuSelect = 1;
+                ssd1306_UpdateScreen();
+            }
+            // Wait for the button to be released
+            while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+                HAL_Delay(10);
+            }
+        }
+
+        // LEFT button pressed: select "yes" (menuSelect = 2)
+        if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+            buzzer(300,25);
+            if (menuSelect != 2) {
+                // Erase the rectangle around "no"
+                ssd1306_DrawRectangle(92, 48, 109, 62, Black);
+                // Draw rectangle around "yes"
+                ssd1306_DrawRectangle(18, 48, 42, 62, White);
+                menuSelect = 2;
+                ssd1306_UpdateScreen();
+            }
+            // Wait for the button to be released
+            while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+                HAL_Delay(10);
+            }
+        }
+
+        // A button: confirm selection.
+        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+            buzzer(800,50);
+            buzzer(900,75);
+            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+
+            if (menuSelect == 2) {
+                return 1;  // "yes" selected
+            } else {
+                return 0;  // "no" selected
+            }
+        }
+
+        // B button: immediately return 0.
+        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            buzzer(800,25);
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            return 0;
+        }
+    }
+}
+
+void controlsTitle(){
+	ssd1306_Fill(Black);        // Clear the screen
+	ssd1306_DrawBitmap(0, 0, ControlsTitle, 128, 64, White);
+	ssd1306_UpdateScreen();
+	HAL_Delay(1000);
+	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
 }
 
 #if defined(CPP)
@@ -75,6 +164,7 @@ void handleTitle() {
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuSelect == 1) {
         	buzzer(800,25);
         	buzzer(900,25);
+        	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         	for (int i = 0; i < 3; i++){
             	ssd1306_DrawRectangle(42, 27, 86, 35, Black);
             	ssd1306_UpdateScreen();
@@ -85,27 +175,24 @@ void handleTitle() {
             	HAL_Delay(100);
         	}
         	player.inWorld = CROP;
-        	break;
+        	return;
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuSelect == 2) {
-        	initGame();
-        	pushEEPROM();
-        	buzzer(800,25);
-        	buzzer(900,25);
-        	//are you sure you want to overwrite?
-        	for (int i = 0; i < 3; i++){
-        		ssd1306_DrawRectangle(42, 36, 86, 44, White);
-        		ssd1306_UpdateScreen();
-        		buzzer(800,25);
-        		HAL_Delay(100);
-        		ssd1306_DrawRectangle(42, 36, 86, 44, Black);
-        		ssd1306_UpdateScreen();
-        		HAL_Delay(100);
+        	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+        	int areYouSure = areYouSureMenu();
+        	if(areYouSure){
+            	buzzer(800,25);
+            	buzzer(900,25);
+            	cutToDark(75);
+            	//gameIntro();
+            	controlsTitle();
+            	initGame();
+            	pushEEPROM();
+            	player.inWorld = CROP;
+            	return;
+        	} else {
+        		return;
         	}
-        	cutToDark(75);
-        	//gameIntro();
-        	player.inWorld = CROP;
-        	break;
         }
 
     }

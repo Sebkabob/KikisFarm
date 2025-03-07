@@ -323,7 +323,7 @@ void shopDisplay(){
 void shopPlayerAction(){
     if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && shopNearBuy()) {
         shopSoftRefresh();
-        textSpeaking("welcome!            you aren't going to rob me are you?", 150, 8, 1);
+        textSpeaking("seeds, seeds, seeds.yeah I got them...", 150, 8, 1);
         while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         shopHardRefresh();
         shopBuy();
@@ -334,11 +334,10 @@ void shopPlayerAction(){
         shopHardRefresh();
     }
 
-    if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-        buzzer(300,25);
-        while(HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-        statbarShow = !statbarShow;
-        refresh = 1;
+    if (B_Button_Flag) {
+    	B_Button_Flag = 0;
+        showInventory(0);
+        while (B_Button_Flag);
     }
 
     if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {

@@ -71,10 +71,10 @@ CropTile cropTiles[10] = {
 Item shopItems[8];
 
 void initGame(){
-	player.money = 100000;
+	player.money = 5;
 	player.inWorld = CROP;
 	player.xp = 0;
-	player.level = 20;
+	player.level = 1;
 	player.soilSpots = 1;
     for (int i = 0; i < 9; i++) {
         player.inventory[i].item = NULL;
@@ -477,6 +477,9 @@ void gameOptions(void) {
     ssd1306_FillRectangle(0, 15, 127, 48, Black);
     ssd1306_Line(0, 15, 128, 15, White);
     ssd1306_Line(0, 48, 128, 48, White);
+
+    ssd1306_UpdateScreen();
+
     ssd1306_SetCursor(43, 18);
     ssd1306_WriteString("options", Font_6x8, White);
 
