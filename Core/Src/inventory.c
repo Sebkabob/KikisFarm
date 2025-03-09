@@ -48,19 +48,31 @@ void moveInventoryItemsTogether(InventorySlot inventory[]) {
 
 // Add an item to the inventory
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity) {
+    // First, try to add to existing stacks that are not full.
     for (int i = 0; i < 9; i++) {
-        if (inventory[i].item == NULL || inventory[i].item->id == NONE) {
-            inventory[i].item = item;
-            inventory[i].quantity = quantity;
-            return 1; // Success
-        }
-        if (inventory[i].item->id == item->id) {
-            inventory[i].quantity += quantity;
-            return 1; // Success
+        if (inventory[i].item != NULL && inventory[i].item->id == item->id && inventory[i].quantity < 99) {
+            int space = 99 - inventory[i].quantity;
+            int add = (quantity > space) ? space : quantity;
+            inventory[i].quantity += add;
+            quantity -= add;
+            if (quantity == 0) return 1; // All quantity added.
         }
     }
-    return 0; // Inventory full
+
+    // Then, add remaining quantity in new empty slots.
+    for (int i = 0; i < 9 && quantity > 0; i++) {
+        if (inventory[i].item == NULL || inventory[i].item->id == NONE) {
+            int add = (quantity > 99) ? 99 : quantity;
+            inventory[i].item = item;
+            inventory[i].quantity = add;
+            quantity -= add;
+        }
+    }
+
+    // Return success if all quantity was added.
+    return (quantity == 0) ? 1 : 0;
 }
+
 
 // Remove an item from the inventory
 int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int quantity) {
@@ -122,6 +134,19 @@ void drawItemInfo(int itemSelect){
     } else {
         ssd1306_FillRectangle(57, 2, 121, 53, Black);
     }
+}
+
+void drawCanPlant(int itemSelect){
+	if (player.inventory[itemSelect - 1].item->subType == SEED){
+	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
+	    ssd1306_WriteString("plant", Font_6x8, White);
+	} else {
+		ssd1306_SetCursor(91 - (7 / 2), 39);
+		ssd1306_WriteString("X", Font_7x10, White);
+	}
+
+    ssd1306_DrawRectangle(66, 35, 115, 51, White);
+    ssd1306_DrawRectangle(67, 36, 114, 50, White);
 }
 
 int showInventory(int plantSeed) {
@@ -226,6 +251,8 @@ int showInventory(int plantSeed) {
             ssd1306_FillRectangle(57, 2, 121, 53, Black);
 
             drawItemInfo(itemSelect);
+
+            if (plantSeed) drawCanPlant(itemSelect);
 
             HAL_Delay(5);
             ssd1306_UpdateScreen();

@@ -246,6 +246,7 @@ void cropHarvest(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
 
     if (spot != 0 && cropTiles[spot - 1].grown == 1) {
+        // Play harvesting tones
         buzzer(262, 10);
         buzzer(330, 20);
         buzzer(392, 30);
@@ -274,12 +275,19 @@ void cropHarvest(){
                 return; // Invalid crop type, exit function.
         }
 
-        addItemToInventory(player.inventory, harvestedCrop, 1);
+        // Attempt to add the harvested crop to the inventory.
+        // If the inventory is full, play an error sound and exit.
+        if (!addItemToInventory(player.inventory, harvestedCrop, 1)) {
+            // Inventory is full; play error sound.
+            buzzer(300, 30);
+            return;
+        }
 
-        // Optionally, clear the crop from the tile (uncomment if needed)
+        // If the crop is successfully harvested:
+        // Optionally clear the crop (uncomment if desired)
         // cropTiles[spot - 1].crop.id = NONE;
 
-        //player.money += cropTiles[spot - 1].crop.sellValue;
+        // Increase player's XP and reset crop state.
         player.xp += cropTiles[spot - 1].crop.xp;
         cropTiles[spot - 1].grown = 0;
         cropPlantTimes[spot - 1] = HAL_GetTick();
@@ -287,6 +295,7 @@ void cropHarvest(){
         ssd1306_UpdateScreen();
     }
 }
+
 
 
 void cropDestroy(){

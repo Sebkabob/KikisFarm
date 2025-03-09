@@ -33,24 +33,25 @@ Player player = { .inWorld = TITLE, .money = 5, .xp = 0, .level = 1, .soilSpots 
 Game game;
 
 // Crops
-Item wheat   = { WHEAT,   10, 20, 5,  6,  1,  0, WheatSprite,   NULL, ItemIconWheat};
-Item corn    = { CORN,    15, 30, 8,  12, 2,  0, CornSprite,    NULL, ItemIconCorn};
-Item potato  = { POTATO,  20, 40, 12, 18, 4,  0, PotatoSprite,  NULL, ItemIconPotato};
-Item carrot  = { CARROT,  30, 60, 16, 30, 7,  0, CarrotSprite,  NULL, ItemIconCarrot};
-Item pumpkin = { PUMPKIN, 50, 100,20, 45, 11, 0, PumpkinSprite, NULL, ItemIconPumpkin};
-Item sugar   = { SUGAR,   75, 150,25, 60, 17, 0, SugarSprite,   NULL, ItemIconSugar};
+/*                       SELL  BUY GROW XP  LV  TYPE   CROP SPRITE                         */
+Item wheat   = { WHEAT,   10, NULL, 5,  6,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat};
+Item corn    = { CORN,    15, NULL, 8,  12, 2,  HCROP, CornSprite,    NULL, ItemIconCorn};
+Item potato  = { POTATO,  20, NULL, 12, 18, 4,  HCROP, PotatoSprite,  NULL, ItemIconPotato};
+Item carrot  = { CARROT,  30, NULL, 16, 30, 7,  HCROP, CarrotSprite,  NULL, ItemIconCarrot};
+Item pumpkin = { PUMPKIN, 50, NULL, 20, 45, 11, HCROP, PumpkinSprite, NULL, ItemIconPumpkin};
+Item sugar   = { SUGAR,   75, NULL, 25, 60, 17, HCROP, SugarSprite,   NULL, ItemIconSugar};
 
 // Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,   5,   5,  6,  1,  0, NULL,  WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    5,   12,  8,  12, 2,  0, NULL,  CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED,  10,  18,  12, 18, 4,  0, NULL,  PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED,  20,  40,  16, 30, 7,  0, NULL,  CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED, 30,  60,  20, 45, 11, 0, NULL,  PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   50,  100, 25, 60, 17, 0, NULL,  SugarSeedSprite,   NULL };
+Item wheatSeed   = { WHEATSEED,   3,   5,   5,  6,  1,  SEED, NULL,  WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    5,   12,  8,  12, 2,  SEED, NULL,  CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED,  10,  18,  12, 18, 4,  SEED, NULL,  PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED,  20,  40,  16, 30, 7,  SEED, NULL,  CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED, 30,  60,  20, 45, 11, SEED, NULL,  PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   50,  100, 25, 60, 17, SEED, NULL,  SugarSeedSprite,   NULL };
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
-Item houseKey = {HOUSEKEY, 0, 9999, 0, 5000, 18, 0, HouseKeySprite, HouseKeySprite};
+Item houseKey = {HOUSEKEY, 1, 9999, 0, 5000, 18, 0, HouseKeySprite, HouseKeySprite};
 
 uint32_t cropPlantTimes[10] = {0}; // Define the array to store planting timestamps
 
@@ -87,7 +88,7 @@ void initGame(){
         cropTiles[i].crop.growTime = 0;
         cropTiles[i].crop.xp = 0;
         cropTiles[i].crop.levelUnlock = 0;
-        cropTiles[i].crop.quantity = 0;
+        cropTiles[i].crop.subType = 0;
         cropTiles[i].crop.sprite = NULL;
         cropTiles[i].crop.seedSprite = NULL;
         cropTiles[i].grown = 0;

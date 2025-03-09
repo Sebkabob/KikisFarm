@@ -55,6 +55,13 @@ typedef enum {
 } ItemType;
 
 typedef enum {
+	HCROP,
+	SEED,
+	SERVICE,
+	ITEM
+} SubItemType;
+
+typedef enum {
     TITLE,
     CROP,
     SHOP,
@@ -81,7 +88,7 @@ typedef struct {
     int growTime;      // in game ticks
     int xp;
     int levelUnlock;
-    int quantity;
+    SubItemType subType;
     const unsigned char *sprite;     // Normal (grown) sprite
     const unsigned char *seedSprite; // Seed sprite (if applicable; NULL if not)
     const unsigned char *itemSprite; // Seed sprite (if applicable; NULL if not)

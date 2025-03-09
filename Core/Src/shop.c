@@ -347,11 +347,12 @@ void shopSell(){
         }
 
         // A button to sell the currently selected item.
+        uint32_t holdTime = 500;  // Change this value as needed.
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
             uint32_t pressStart = HAL_GetTick();
-            // Wait until the button is released or 1000ms (1 second) have passed.
+            // Wait until the button is released or holdTime has passed.
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-                if (HAL_GetTick() - pressStart >= 1000) {
+                if (HAL_GetTick() - pressStart >= holdTime) {
                     break;
                 }
             }
@@ -360,8 +361,8 @@ void shopSell(){
             InventorySlot *slot = &player.inventory[itemSelect - 1];
             // Check if the slot contains a valid item.
             if (slot->item != NULL && slot->item->id != NONE && slot->quantity > 0) {
-                if (pressDuration >= 1000) {
-                    // If held over a second, sell all items in the slot.
+                if (pressDuration >= holdTime) {
+                    // If held for at least holdTime ms, sell all items in the slot.
                     int quantity = slot->quantity;
                     int totalSellPrice = slot->item->sellValue * quantity;
                     removeItemFromInventory(player.inventory, slot->item->id, quantity);
@@ -380,6 +381,7 @@ void shopSell(){
                 buzzer(300, 30);
             }
         }
+
 
         if (moved) {
             moved = 0;
