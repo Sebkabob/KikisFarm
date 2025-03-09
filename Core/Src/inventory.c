@@ -20,6 +20,15 @@ const unsigned char* getItemTitle(ItemType itemType) {
     }
 }
 
+bool isInventoryEmpty(InventorySlot inventory[]) {
+    for (int i = 0; i < 9; i++) {
+        if (inventory[i].item != NULL && inventory[i].item->id != NONE) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void moveInventoryItemsTogether(InventorySlot inventory[]) {
     int nextFree = 0;
     for (int i = 0; i < 9; i++) {
@@ -107,8 +116,8 @@ void drawItemInfo(int itemSelect){
             ssd1306_DrawBitmap(57, 2, itemTitle, 65, 24, White);
         }
         char quantityText[10];
-        snprintf(quantityText, sizeof(quantityText), "x%d", player.inventory[itemSelect - 1].quantity);
-        ssd1306_SetCursor(82, 32);
+        snprintf(quantityText, sizeof(quantityText), "x%02d", player.inventory[itemSelect - 1].quantity);
+        ssd1306_SetCursor(82, 25);
         ssd1306_WriteString(quantityText, Font_6x8, White);
     } else {
         ssd1306_FillRectangle(57, 2, 121, 53, Black);

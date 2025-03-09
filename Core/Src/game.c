@@ -361,14 +361,20 @@ int gameMenu(){
     ssd1306_SetCursor(37, 38);
     ssd1306_WriteString("save game", Font_6x8, White);
 
-    // Update battery life and display it in the top right corner (y ~2)
-    int batteryVoltageHundred = updateBatteryLife();
-    int wholePart = batteryVoltageHundred / 100;      // Integer part (e.g., 3)
-    int fractionalPart = batteryVoltageHundred % 100;   // Fractional part (e.g., 45)
+//    // Update battery life and display it in the top right corner (y ~2)
+//    int batteryVoltageHundred = updateBatteryLife();
+//    int wholePart = batteryVoltageHundred / 100;      // Integer part (e.g., 3)
+//    int fractionalPart = batteryVoltageHundred % 100;   // Fractional part (e.g., 45)
+//    char battStr[16];
+//    sprintf(battStr, "%d.%02dV", wholePart, fractionalPart);
+//    ssd1306_SetCursor(2, 28);
+//    ssd1306_WriteString(battStr, Font_6x8, White);
 
+    // Update battery life and display it in the top right corner (y ~2)
+    int batteryVoltagePercentage = updateBatteryLife();
     char battStr[16];
-    sprintf(battStr, "%d.%02dV", wholePart, fractionalPart);
-    ssd1306_SetCursor(2, 28);
+    sprintf(battStr, "%d%%", batteryVoltagePercentage);
+    ssd1306_SetCursor(8, 28);
     ssd1306_WriteString(battStr, Font_6x8, White);
 
     // Draw the initial selection rectangle around the "options" option

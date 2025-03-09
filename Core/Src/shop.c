@@ -268,9 +268,146 @@ void shopBuy() {
     }
 }
 
-void shopSell(){
-    // Implement selling logic here
+
+void drawSellValue(int itemSelect){
+    int sellPrice;
+    char priceText[10];
+    // If the player owns at least one of the item, calculate the total sell price.
+    if(player.inventory[itemSelect - 1].quantity > 0) {
+        sellPrice =  player.inventory[itemSelect - 1].item->sellValue * player.inventory[itemSelect - 1].quantity;
+        snprintf(priceText, sizeof(priceText), "+$%d", sellPrice);
+        int textWidth = strlen(priceText) * 7;
+        int centeredX = 91 - (textWidth / 2);
+        ssd1306_SetCursor(centeredX, 39);
+        ssd1306_WriteString(priceText, Font_7x10, White);
+    } else {
+        ssd1306_SetCursor(91 - (7 / 2), 39);
+        ssd1306_WriteString("X", Font_7x10, White);
+    }
+
+    ssd1306_DrawRectangle(66, 35, 115, 51, White);
+    ssd1306_DrawRectangle(67, 36, 114, 50, White);
 }
+
+
+void shopSell(){
+    // Clear the screen and draw the board background
+    ssd1306_FillRectangle(5, 1, 122, 55, Black);
+    ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
+
+    int itemSelect = 1;  // initial selection index (1-9)
+    int moved = 1;       // flag to indicate redraw is needed
+    int xMov, yMov;
+    int prevXMov = 0, prevYMov = 0;
+
+    // Draw the inventory items and info.
+    drawInventoryIcons(0, 0);
+    drawItemInfo(itemSelect);
+    drawSellValue(itemSelect);
+
+    // Draw the initial selection box.
+    xMov = ((itemSelect - 1) % 3) * 17;
+    yMov = ((itemSelect - 1) / 3) * 17;
+    prevXMov = xMov;
+    prevYMov = yMov;
+    ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+    ssd1306_UpdateScreen();
+
+    while (1) {
+        // Navigation: move the selection using the directional buttons
+        if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
+            moved = 1;
+            buzzer(540, 10);
+            itemSelect -= 3;
+            while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
+        }
+        if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
+            moved = 1;
+            buzzer(540, 10);
+            itemSelect += 3;
+            while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
+        }
+        if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
+            moved = 1;
+            buzzer(540, 10);
+            itemSelect -= 1;
+            while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
+        }
+        if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
+            moved = 1;
+            buzzer(540, 10);
+            itemSelect += 1;
+            while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
+        }
+
+        // B button to exit the selling UI.
+        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            break;
+        }
+
+        // A button to sell the currently selected item.
+        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+            uint32_t pressStart = HAL_GetTick();
+            // Wait until the button is released or 1000ms (1 second) have passed.
+            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+                if (HAL_GetTick() - pressStart >= 1000) {
+                    break;
+                }
+            }
+            uint32_t pressDuration = HAL_GetTick() - pressStart;
+
+            InventorySlot *slot = &player.inventory[itemSelect - 1];
+            // Check if the slot contains a valid item.
+            if (slot->item != NULL && slot->item->id != NONE && slot->quantity > 0) {
+                if (pressDuration >= 1000) {
+                    // If held over a second, sell all items in the slot.
+                    int quantity = slot->quantity;
+                    int totalSellPrice = slot->item->sellValue * quantity;
+                    removeItemFromInventory(player.inventory, slot->item->id, quantity);
+                    player.money += totalSellPrice;
+                } else {
+                    // Otherwise, sell one unit.
+                    int sellPrice = slot->item->sellValue;
+                    removeItemFromInventory(player.inventory, slot->item->id, 1);
+                    player.money += sellPrice;
+                }
+                buzzer(440, 15);
+                displayStats();  // update money display if needed
+                moved = 1;
+            } else {
+                // No valid item selected: provide an error beep.
+                buzzer(300, 30);
+            }
+        }
+
+        if (moved) {
+            moved = 0;
+            // Erase previous selection box.
+            ssd1306_DrawRectangle(8 + prevXMov, 4 + prevYMov, 21 + prevXMov, 17 + prevYMov, Black);
+
+            // Update the selection box coordinates.
+            xMov = ((itemSelect - 1) % 3) * 17;
+            yMov = ((itemSelect - 1) / 3) * 17;
+            prevXMov = xMov;
+            prevYMov = yMov;
+
+            // Redraw the background and inventory UI.
+            ssd1306_FillRectangle(5, 1, 122, 55, Black);
+            ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
+            drawInventoryIcons(0, 0);
+            drawItemInfo(itemSelect);
+            drawSellValue(itemSelect);
+            displayStats();  // update money display if needed
+
+            // Draw the new selection box.
+            ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+            ssd1306_UpdateScreen();
+        }
+    }
+}
+
+
 
 void shopPlayerMovement(void) {
     uint8_t step = 1;  // Fixed movement step
@@ -328,23 +465,26 @@ void shopPlayerAction(){
         shopHardRefresh();
         shopBuy();
     } else if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && shopNearSell()){
-        shopSoftRefresh();
-        textSpeaking("not open! uh..      please go away...", 500, 7, 1);
-        while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-        shopHardRefresh();
+    	if (!isInventoryEmpty(player.inventory)){
+            textSpeaking("I'll buy stuff!     (I will lowball you)", 500, 7, 1);
+            while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+            shopSoftRefresh();
+            shopSell();
+            shopHardRefresh();
+    	} else {
+    		textSpeaking("Come back with stuff to sell!", 500, 7, 1);
+    		while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+    	}
     }
 
     if (B_Button_Flag) {
+    	while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
     	B_Button_Flag = 0;
         showInventory(0);
-        while (B_Button_Flag);
     }
 
     if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
-        shopSoftRefresh();
-        showInventory(0);
-        shopHardRefresh();
     }
 
     if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) { //menu mode

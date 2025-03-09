@@ -279,7 +279,7 @@ void cropHarvest(){
         // Optionally, clear the crop from the tile (uncomment if needed)
         // cropTiles[spot - 1].crop.id = NONE;
 
-        player.money += cropTiles[spot - 1].crop.sellValue;
+        //player.money += cropTiles[spot - 1].crop.sellValue;
         player.xp += cropTiles[spot - 1].crop.xp;
         cropTiles[spot - 1].grown = 0;
         cropPlantTimes[spot - 1] = HAL_GetTick();
@@ -373,7 +373,7 @@ void cropPlayerAction(void) {
             leaveWorld = 1;
     }
 
-    // START button: Show inventory.
+    // START button:
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
@@ -451,58 +451,40 @@ void drawCrops(void) {
             int x = 0, y = 0;
             // Determine drawing coordinates based on the crop spot number (i+1)
             switch (i + 1) {
-                case 1:
-                    x = cropSpotXc1;
-                    y = cropSpotYr1;
-                    break;
-                case 2:
-                    x = cropSpotXc2;
-                    y = cropSpotYr1;
-                    break;
-                case 3:
-                    x = cropSpotXc3;
-                    y = cropSpotYr1;
-                    break;
-                case 4:
-                    x = cropSpotXc4;
-                    y = cropSpotYr1;
-                    break;
-                case 5:
-                    x = cropSpotXc5;
-                    y = cropSpotYr1;
-                    break;
-                case 6:
-                    x = cropSpotXc1;
-                    y = cropSpotYr2;
-                    break;
-                case 7:
-                    x = cropSpotXc2;
-                    y = cropSpotYr2;
-                    break;
-                case 8:
-                    x = cropSpotXc3;
-                    y = cropSpotYr2;
-                    break;
-                case 9:
-                    x = cropSpotXc4;
-                    y = cropSpotYr2;
-                    break;
-                case 10:
-                    x = cropSpotXc5;
-                    y = cropSpotYr2;
-                    break;
-                default:
-                    break;
+                case 1:  x = cropSpotXc1; y = cropSpotYr1; break;
+                case 2:  x = cropSpotXc2; y = cropSpotYr1; break;
+                case 3:  x = cropSpotXc3; y = cropSpotYr1; break;
+                case 4:  x = cropSpotXc4; y = cropSpotYr1; break;
+                case 5:  x = cropSpotXc5; y = cropSpotYr1; break;
+                case 6:  x = cropSpotXc1; y = cropSpotYr2; break;
+                case 7:  x = cropSpotXc2; y = cropSpotYr2; break;
+                case 8:  x = cropSpotXc3; y = cropSpotYr2; break;
+                case 9:  x = cropSpotXc4; y = cropSpotYr2; break;
+                case 10: x = cropSpotXc5; y = cropSpotYr2; break;
+                default: break;
             }
-            // Draw the planted crop’s sprite at the determined coordinates.
-            if (cropTiles[i].grown == 1){
-            	ssd1306_DrawBitmap(x, y, cropTiles[i].crop.sprite, 18, 15, White);
-            } else if (cropTiles[i].grown == 0){
-            	ssd1306_DrawBitmap(x, y, SproutSprite, 18, 15, White);
+
+            const unsigned char *spriteToDraw = NULL;
+            if (cropTiles[i].grown == 1) {
+                // Instead of using cropTiles[i].crop.sprite, look up the sprite by crop ID.
+                switch (cropTiles[i].crop.id) {
+                    case WHEAT:   spriteToDraw = WheatSprite;   break;
+                    case CORN:    spriteToDraw = CornSprite;    break;
+                    case POTATO:  spriteToDraw = PotatoSprite;  break;
+                    case CARROT:  spriteToDraw = CarrotSprite;  break;
+                    case PUMPKIN: spriteToDraw = PumpkinSprite; break;
+                    case SUGAR:   spriteToDraw = SugarSprite;   break;
+                    default:      spriteToDraw = SproutSprite;  break;
+                }
+            } else if (cropTiles[i].grown == 0) {
+                spriteToDraw = SproutSprite;
             }
+
+            ssd1306_DrawBitmap(x, y, spriteToDraw, 18, 15, White);
         }
     }
 }
+
 
 
 

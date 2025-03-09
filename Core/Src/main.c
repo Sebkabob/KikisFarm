@@ -72,28 +72,48 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+int chargePercentage(double adcValue) {
+    // Apply the formula: 123 - 123 / ((1 + (v / 3.7)^80)^0.165)
+    double base = adcValue / 3.7;
+    double exponent = pow(base, 80);
+    double denominator = pow((1 + exponent), 0.165);
+    double percentage = 123 - 123 / denominator;
+
+    // Ensure percentage is within 0 to 100 range and convert to int
+    if (percentage < 0) percentage = 0;
+    if (percentage > 100) percentage = 100;
+
+    return (int)percentage;
+}
+
+int chargeVoltage(double adcValue){
+	   float measuredVoltage = (adcValue / 4095.0f) * 3.3f;
+	   float batteryVoltage = measuredVoltage * 1.51f;
+
+	    int voltageHundred = (int)(batteryVoltage * 100 + 0.5f);
+	    return voltageHundred;
+}
 
 // Returns battery voltage * 100 (e.g., 345 for 3.45V)
 int updateBatteryLife(void)
 {
     HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 1);
-    HAL_Delay(100);
-    uint32_t adcValue;
+    //HAL_Delay(100);
+    uint32_t rawAdc;
 
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    adcValue = HAL_ADC_GetValue(&hadc1);
+    rawAdc = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
+    //HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 0);
 
-    float measuredVoltage = (adcValue / 4095.0f) * 3.3f;
-    float batteryVoltage = measuredVoltage * 1.51f;
+    float measuredVoltage = (rawAdc / 4095.0f) * 3.3f;
+    float batteryVoltage = measuredVoltage * 1.51f; // in volts
 
-    HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 0);
-
-    // Multiply by 100 and round to get an integer representation
-    int voltageHundred = (int)(batteryVoltage * 100 + 0.5f);
-    return voltageHundred;
+    int val = chargePercentage(batteryVoltage);
+    return val;
 }
+
 
 
 void buzzer(uint16_t frequency, uint32_t duration)
