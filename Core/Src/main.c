@@ -4,7 +4,15 @@
   *	Kiki's Farm Code
   *	Sebastian Forenza
   *	2025
-  *	OPTIMIZING
+  *
+  *	LEFT TO DO:
+  *	-LEVEL UP SCREEN
+  *	-LOW BATTERY SCREEN
+  *	-LORE
+  *	-THE HOUSE
+  *	-GAME PRICE OPTIMIZE
+  *	-MORE ITEMS
+  *	-SOUND DESIGN
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -95,24 +103,43 @@ int chargeVoltage(double adcValue){
 }
 
 // Returns battery voltage * 100 (e.g., 345 for 3.45V)
-int updateBatteryLife(void)
-{
-    HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 1);
-    //HAL_Delay(100);
-    uint32_t rawAdc;
+int updateBatteryLife(void){
+    const int NUM_SAMPLES = 4;
+    uint32_t totalAdc = 0;
 
-    HAL_ADC_Start(&hadc1);
-    HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-    rawAdc = HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
-    //HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 0);
+    // Take several ADC samples to smooth the reading.
+    for (int i = 0; i < NUM_SAMPLES; i++) {
+        HAL_GPIO_WritePin(GPIOB, BAT_FET_Pin, 1);
+        HAL_ADC_Start(&hadc1);
+        HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+        totalAdc += HAL_ADC_GetValue(&hadc1);
+        HAL_ADC_Stop(&hadc1);
+        // Optionally, add a short delay between samples (e.g., HAL_Delay(10));
+    }
 
-    float measuredVoltage = (rawAdc / 4095.0f) * 3.3f;
+    // Average the ADC readings
+    uint32_t avgAdc = totalAdc / NUM_SAMPLES;
+    float measuredVoltage = (avgAdc / 4095.0f) * 3.3f;
     float batteryVoltage = measuredVoltage * 1.51f; // in volts
 
-    int val = chargePercentage(batteryVoltage);
-    return val;
+    // Calculate battery percentage using your custom function
+    int newVal = chargePercentage(batteryVoltage);
+
+    // Ensure that once a battery percentage is displayed, we never show a higher value.
+    // (Assumes batteryPercent is a global variable that holds the last displayed percentage.)
+    if (batteryPercent == 0) {
+        // On first measurement, initialize batteryPercent.
+        batteryPercent = newVal;
+    }
+    if (newVal > batteryPercent) {
+        newVal = batteryPercent;
+    } else {
+        batteryPercent = newVal;
+    }
+
+    return newVal;
 }
+
 
 
 

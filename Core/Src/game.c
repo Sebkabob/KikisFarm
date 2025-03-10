@@ -4,6 +4,7 @@
 #include "sprites.h"
 #include "NimaLTD.I-CUBE-EE24_conf.h"
 #include "ee24.h"
+#include <math.h>
 
 // Global brightness settings (adjust ranges as needed)
 #define MIN_BRIGHTNESS 0
@@ -16,6 +17,8 @@ int batteryLife;
 int leaveWorld = 0;
 int refresh = 0;
 int soundOn = 0;
+int batteryPercent;
+int batteryLow = 0;
 
 int A_Button_Flag = 0;
 int B_Button_Flag = 0;
@@ -28,30 +31,31 @@ int RIGHT_Button_Flag = 0;
 
 int refreshBackground;
 
-Player player = { .inWorld = TITLE, .money = 5, .xp = 0, .level = 1, .soilSpots = 1};
+Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots = 1};
 
 Game game;
 
 // Crops
-/*                       SELL  BUY GROW XP  LV  TYPE   CROP SPRITE                         */
-Item wheat   = { WHEAT,   10, NULL, 5,  6,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat};
-Item corn    = { CORN,    15, NULL, 8,  12, 2,  HCROP, CornSprite,    NULL, ItemIconCorn};
-Item potato  = { POTATO,  20, NULL, 12, 18, 4,  HCROP, PotatoSprite,  NULL, ItemIconPotato};
-Item carrot  = { CARROT,  30, NULL, 16, 30, 7,  HCROP, CarrotSprite,  NULL, ItemIconCarrot};
-Item pumpkin = { PUMPKIN, 50, NULL, 20, 45, 11, HCROP, PumpkinSprite, NULL, ItemIconPumpkin};
-Item sugar   = { SUGAR,   75, NULL, 25, 60, 17, HCROP, SugarSprite,   NULL, ItemIconSugar};
+/*               CROP     SELL BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
+Item wheat   = { WHEAT,   2,   0,  2,   2,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat };
+Item corn    = { CORN,    12,  0,  10,  9,  2,  HCROP, CornSprite,    NULL, ItemIconCorn };
+Item potato  = { POTATO,  16,  0,  15,  20, 4,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
+Item carrot  = { CARROT,  24,  0,  20,  25, 7,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
+Item pumpkin = { PUMPKIN, 40,  0,  28,  36, 11, HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
+Item sugar   = { SUGAR,   60,  0,  35,  50, 17, HCROP, SugarSprite,   NULL, ItemIconSugar };
+
 
 // Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,   5,   5,  6,  1,  SEED, NULL,  WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    5,   12,  8,  12, 2,  SEED, NULL,  CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED,  10,  18,  12, 18, 4,  SEED, NULL,  PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED,  20,  40,  16, 30, 7,  SEED, NULL,  CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED, 30,  60,  20, 45, 11, SEED, NULL,  PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   50,  100, 25, 60, 17, SEED, NULL,  SugarSeedSprite,   NULL };
+Item wheatSeed   = { WHEATSEED,   3,   12,   5,  4,  1,  SEED, NULL, WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    4,   30,   10, 9,  3,  SEED, NULL, CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED,  8,   42,   15, 14, 5,  SEED, NULL, PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED,  12,  80,   20, 24, 9,  SEED, NULL, CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED, 20,  150,  28, 36, 13, SEED, NULL, PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   30,  250,  35, 48, 19, SEED, NULL, SugarSeedSprite,   NULL };
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
-Item houseKey = {HOUSEKEY, 1, 9999, 0, 5000, 18, 0, HouseKeySprite, HouseKeySprite};
+Item houseKey = {HOUSEKEY, 1, 15000, 0, 8000, 18, 0, HouseKeySprite, HouseKeySprite};
 
 uint32_t cropPlantTimes[10] = {0}; // Define the array to store planting timestamps
 
@@ -71,8 +75,89 @@ CropTile cropTiles[10] = {
 // Define the shop inventory
 Item shopItems[8];
 
+// Soil Spot Cost Function (Unchanged)
+int getTillSoilCost() {
+    int baseCost = 100;
+    double multiplier = 1.45; // % increase per spot owned
+    int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
+    return ((cost + 5) / 10) * 10;  // Round to the nearest 10
+}
+
+void displayLevelUp() {
+    // Define the rectangle dimensions
+    int rectWidth = 80;
+    int rectHeight = 26;
+    int rectX = (128 - rectWidth) / 2;  // Centers horizontally (128 is the screen width)
+    int rectY = (64 - rectHeight) / 2;  // Centers vertically (64 is the screen height)
+
+    // Clear the rectangle area by filling it with black and draw its border in white
+    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
+    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
+
+    // Write the header "Level Up!" centered at the top of the rectangle
+    const char *headerText = "Level Up!";
+    int headerWidth = strlen(headerText) * 7;  // approximate width with Font_7x10
+    int headerX = rectX + (rectWidth - headerWidth) / 2;
+    int headerY = rectY + 3;  // Slight offset from the top
+    ssd1306_SetCursor(headerX, headerY);
+    ssd1306_WriteString(headerText, Font_7x10, White);
+
+    // Prepare the strings for the old level and new level
+    char leftStr[10], rightStr[10];
+    sprintf(leftStr, "%d", player.level - 1);
+    sprintf(rightStr, "%d", player.level);
+
+    // Calculate widths of the text and arrow
+    int leftWidth = strlen(leftStr) * 7;
+    int rightWidth = strlen(rightStr) * 7;
+    int arrowWidth = 12;  // given arrow width
+    int gap = 4;  // gap between text and arrow
+
+    // Total width of the three elements (old level, arrow, new level) plus gaps
+    int totalWidth = leftWidth + gap + arrowWidth + gap + rightWidth;
+
+    // Calculate the starting X coordinate to center the group within the rectangle
+    int startX = rectX + (rectWidth - totalWidth) / 2;
+    int levelY = headerY + 12;  // Placed below the header
+
+    // Draw the old level string
+    ssd1306_SetCursor(startX, levelY);
+    ssd1306_WriteString(leftStr, Font_7x10, White);
+
+    // Draw the arrow bitmap between the two numbers, adjusting Y to vertically center it (arrow height 9 vs. text height ~10)
+    int arrowX = startX + leftWidth + gap;
+    int arrowY = levelY;  // adjust as needed (e.g., levelY + 1) if you want a slight vertical offset
+    ssd1306_DrawBitmap(arrowX, arrowY, Arrow, arrowWidth, 9, White);
+
+    // Draw the new level string
+    int rightX = arrowX + arrowWidth + gap;
+    ssd1306_SetCursor(rightX, levelY);
+    ssd1306_WriteString(rightStr, Font_7x10, White);
+}
+
+
+
+// Revised Level-Up Function
+void gameLevelUp(){
+    int baseXp = 100 + (50 * player.level) + (10 * player.level * player.level);
+    double multiplier = 1 + 0.15 * player.level;
+    int xpNeededForNextLevel = baseXp * multiplier;
+    if (player.xp > xpNeededForNextLevel){
+        player.level++;
+        player.xp = 0;
+        displayLevelUp();
+    	ssd1306_UpdateScreen();
+    	buzzer(700,80);
+    	buzzer(800,80);
+    	buzzer(900,80);
+    	buzzer(1000,80);
+    	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
+    	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+    }
+}
+
 void initGame(){
-	player.money = 5;
+	player.money = 20;
 	player.inWorld = CROP;
 	player.xp = 0;
 	player.level = 1;
@@ -148,16 +233,6 @@ void updateButtonFlags(){
     if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
     	RIGHT_Button_Flag = 1;
     }
-}
-
-
-void gameLevelUp(){
-	int xpNeededForNextLevel = 100 + (50 * player.level) + (10 * player.level * player.level);
-	if (player.xp > xpNeededForNextLevel){
-		player.level++;
-		//add in level up display
-		player.xp = 0;
-	}
 }
 
 void cropGrowth(){

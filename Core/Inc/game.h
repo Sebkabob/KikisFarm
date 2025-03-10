@@ -25,6 +25,8 @@ extern int batteryLife; //number 1 to 10;
 extern int leaveWorld;
 extern int refresh;
 extern int soundOn;
+extern int batteryLow;
+extern int batteryPercent;
 extern int selectedInventorySlot; // Track the selected slot in the inventory
 
 extern int A_Button_Flag;

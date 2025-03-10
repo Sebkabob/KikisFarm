@@ -56,4 +56,6 @@ extern const unsigned char ItemIconSugar[];
 
 extern const unsigned char ControlsTitle[];
 
+extern const unsigned char Arrow[];
+
 #endif /* INC_SPRITES_H_ */

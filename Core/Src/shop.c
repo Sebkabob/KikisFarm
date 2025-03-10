@@ -20,12 +20,6 @@ const unsigned char *itemTitles[] = {
 
 void textSpeaking(const char *text, int speed, int fontSize, int wait);
 
-int getTillSoilCost() {
-    int baseCost = 100;
-    double multiplier = 1.35; // 35% increase per spot owned
-    return (int)(baseCost * pow(multiplier, player.soilSpots));
-}
-
 bool shopObstacle(int x, int y) {
     return (
         (x >= OB5_X && x < OB5_X + OB5_W &&
@@ -490,6 +484,7 @@ void shopPlayerAction(){
     }
 
     if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) { //menu mode
+    	SELECT_Button_Flag = 0;
         while(HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0);
         shopSoftRefresh();
         statbarShow = 0;
