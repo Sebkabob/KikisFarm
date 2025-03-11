@@ -6,13 +6,13 @@
   *	2025
   *
   *	LEFT TO DO:
-  *	-LEVEL UP SCREEN
-  *	-LOW BATTERY SCREEN
+  *
   *	-LORE
+  *	-SOUND DESIGN
   *	-THE HOUSE
   *	-GAME PRICE OPTIMIZE
   *	-MORE ITEMS
-  *	-SOUND DESIGN
+  *	-LOW BATTERY SCREEN
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -238,6 +238,9 @@ int main(void)
 		  break;
 	  case SHOP:
 		  handleShop();
+		  break;
+	  case CROPHOUSE:
+		  handleCropHouse();
 		  break;
 	  default:
 		  player.inWorld = TITLE;

@@ -77,10 +77,17 @@ void pushEEPROM(void) {
     }
 
     HAL_Delay(10);
-    addr += sizeof(cropTiles);
+    addr += sizeof(player);
 
     // Write crop info to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
+        buzzer(100, 300);
+    }
+    HAL_Delay(10);
+    addr += sizeof(cropTiles);
+
+    // Write crop info to EEPROM
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {
         buzzer(100, 300);
     }
     HAL_Delay(10);
@@ -103,9 +110,16 @@ void pullEEPROM(void) {
     }
 
     HAL_Delay(10);
-    addr += sizeof(cropTiles);
+    addr += sizeof(player);
 
     if (!EE24_Read(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
+        buzzer(100, 300);
+    }
+
+    HAL_Delay(10);
+    addr += sizeof(cropTiles);
+
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {
         buzzer(100, 300);
     }
     HAL_Delay(10);

@@ -31,13 +31,17 @@ int RIGHT_Button_Flag = 0;
 
 int refreshBackground;
 
+int worldBreak = 0;
+
+int refreshBackground = 0;
+
 Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots = 1};
 
 Game game;
 
 // Crops
 /*               CROP     SELL BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
-Item wheat   = { WHEAT,   2,   0,  2,   2,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat };
+Item wheat   = { WHEAT,   8,   0,  5,   2,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat };
 Item corn    = { CORN,    12,  0,  10,  9,  2,  HCROP, CornSprite,    NULL, ItemIconCorn };
 Item potato  = { POTATO,  16,  0,  15,  20, 4,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
 Item carrot  = { CARROT,  24,  0,  20,  25, 7,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
@@ -55,7 +59,7 @@ Item sugarSeed   = { SUGARSEED,   30,  250,  35, 48, 19, SEED, NULL, SugarSeedSp
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
-Item houseKey = {HOUSEKEY, 1, 15000, 0, 8000, 18, 0, HouseKeySprite, HouseKeySprite};
+Item houseKey = {HOUSEKEY, 1, 20000, 0, 8000, 18, 0, HouseKeySprite, HouseKeySprite};
 
 uint32_t cropPlantTimes[10] = {0}; // Define the array to store planting timestamps
 
@@ -138,7 +142,7 @@ void displayLevelUp() {
 
 
 // Revised Level-Up Function
-void gameLevelUp(){
+int gameLevelUp(void){
     int baseXp = 100 + (50 * player.level) + (10 * player.level * player.level);
     double multiplier = 1 + 0.15 * player.level;
     int xpNeededForNextLevel = baseXp * multiplier;
@@ -154,14 +158,24 @@ void gameLevelUp(){
     	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
     	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     }
+    return xpNeededForNextLevel;
 }
 
 void initGame(){
-	player.money = 20;
+    player.coordinates.x = 60;
+    player.coordinates.y = 10;
+    player.direction = DOWN;
+
+	player.money = 999999;
 	player.inWorld = CROP;
 	player.xp = 0;
-	player.level = 1;
+	player.level = 20;
 	player.soilSpots = 1;
+
+	game.houseUnlocked = 0;
+	game.cropHouseLights = 0;
+	game.cropHouseIntro = 1;
+
     for (int i = 0; i < 9; i++) {
         player.inventory[i].item = NULL;
         player.inventory[i].quantity = 0;
@@ -389,7 +403,7 @@ void displayStats(void) {
     char level[16];
 
     // Calculate XP required for the next level
-    int xpNeededForNextLevel = 100 + (50 * player.level) + (10 * player.level * player.level);
+    int xpNeededForNextLevel = gameLevelUp();
 
     // Ensure we don’t divide by zero
     if (xpNeededForNextLevel == 0) xpNeededForNextLevel = 1;

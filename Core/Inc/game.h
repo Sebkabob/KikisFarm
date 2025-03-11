@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define TOP_SCREEN_EDGE -12
+#define TOP_SCREEN_EDGE 0
 #define BOTTOM_WORLD_EDGE 54
 #define LEFT_WORLD_EDGE 0
 #define RIGHT_WORLD_EDGE 120
@@ -67,6 +67,7 @@ typedef enum {
     TITLE,
     CROP,
     SHOP,
+	CROPHOUSE,
     ORCHARD,
     FISHING
 } World;
@@ -115,7 +116,10 @@ typedef struct {
 
 // Attributes of the game
 typedef struct {
-    int startTimes;
+    int houseUnlocked;		//1 if the player buys the key
+    int firstIntro;			//0 once the intro has been seen
+    int cropHouseIntro;		//0 once the intro has been seen
+    int cropHouseLights;
 } Game;
 
 // Attributes of a croptile
@@ -138,6 +142,10 @@ typedef enum {
     Down
 } BuyMenuDirection;
 
+extern int worldBreak;
+
+extern int refreshBackground;
+
 extern Item wheat, corn, potato, carrot, pumpkin, sugar;
 extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed;
 extern Item tillSoil, houseKey;
@@ -145,6 +153,8 @@ extern Item tillSoil, houseKey;
 extern Item shopItems[];
 
 extern Player player;
+
+extern Game game;
 
 extern CropTile cropTiles[10];
 
@@ -154,7 +164,7 @@ extern Direction cropDirection;
 void initGame(void);
 void initShopItems(void);
 void updateButtonFlags(void);
-void gameLevelUp(void);
+int gameLevelUp(void);
 void cropGrowth(void);
 void gameLogic(void);
 void playerDisplay(void);

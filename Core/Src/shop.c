@@ -135,6 +135,7 @@ int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect
     if (selectedItem->id == HOUSEKEY) {
         if (addItemToInventory(inventory, selectedItem, 1)) {
             *money -= selectedItem->buyValue;
+            game.houseUnlocked = 1;
             displayStats();
             ssd1306_UpdateScreen();
             return 1;
@@ -496,9 +497,6 @@ void shopPlayerAction(){
 
 void handleShop() {
     // Set initial shop state (starting position and direction)
-    player.coordinates.x = 58;
-    player.coordinates.y = 48;
-    player.direction = UP;
 
     ssd1306_Fill(Black);
     shopDisplay();
@@ -538,6 +536,9 @@ void handleShop() {
         // Exit condition: if player goes across bridge
         if (player.coordinates.y >= 62) {
             player.inWorld = CROP;
+            player.coordinates.x = 60;
+            player.coordinates.y = 10;
+            player.direction = DOWN;
             break;
         }
     }
