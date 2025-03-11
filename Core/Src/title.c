@@ -140,6 +140,9 @@ void controlsTitle(){
 
 #if defined(CPP)
 void handleTitle() {
+
+	pullEEPROM();
+
 	int menuSelect = 1;
 	ssd1306_Fill(Black);        // Clear the screen
 	ssd1306_DrawBitmap(0, 0, TitleWorldSprite, 128, 64, White);
@@ -174,7 +177,7 @@ void handleTitle() {
             	ssd1306_UpdateScreen();
             	HAL_Delay(100);
         	}
-        	player.inWorld = CROP;
+        	//player.inWorld = CROP;
         	return;
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuSelect == 2) {
@@ -188,7 +191,7 @@ void handleTitle() {
             	controlsTitle();
             	initGame();
             	pushEEPROM();
-            	player.inWorld = CROP;
+            	//player.inWorld = CROP;
             	return;
         	} else {
         		return;

@@ -13,14 +13,15 @@ bool cropHouseObstacle(){
 }
 
 void lightSwitch(){
-	if (player in location){
-		game.cropHouseIntro = 0;
-		textSpeaking("oh here it is", 150, 8, 1);
-	}
+//	if (player in location){
+//		game.cropHouseIntro = 0;
+//		textSpeaking("oh here it is", 150, 8, 1);
+//	}
 }
 
 void cropHouseIntro(){
-	textSpeaking("its so dark in here, I wonder if theres a light switch?", 150, 8, 1);
+	textSpeaking("its so dark in here", 150, 8, 1);
+	textSpeaking("maybe theres a light switch somewhere", 150, 8, 1);
 }
 
 void cropHousePlayerMovement(){
@@ -104,6 +105,9 @@ void handleCropHouse() {
     ssd1306_Fill(Black);
     cropHouseDisplay();
 	ssd1306_CopyBuffer();
+
+	playerDisplay();
+	ssd1306_UpdateScreen();
 
 	if (game.cropHouseIntro) cropHouseIntro();
 

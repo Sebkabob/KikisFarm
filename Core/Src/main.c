@@ -215,8 +215,6 @@ int main(void)
 
   EE24_Init(&hee24, &hi2c1, EE24_ADDRESS_DEFAULT);
 
-  pullEEPROM();
-
   player.inWorld = TITLE;
 
   /* USER CODE END 2 */
