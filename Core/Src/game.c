@@ -29,8 +29,6 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
-int refreshBackground;
-
 int worldBreak = 0;
 
 int refreshBackground = 0;
@@ -151,10 +149,7 @@ int gameLevelUp(void){
         player.xp = 0;
         displayLevelUp();
     	ssd1306_UpdateScreen();
-    	buzzer(700,80);
-    	buzzer(800,80);
-    	buzzer(900,80);
-    	buzzer(1000,80);
+        sound(levelUp);
     	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
     	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     }
@@ -436,7 +431,7 @@ void displayStats(void) {
 
 int gameMenu(){
     int menuselect = 1;
-    buzzer(800,25);
+    sound(menuOpen);
 
     // Clear only the menu area (y=15 to 48) so we can use the top area for battery info
     ssd1306_FillRectangle(0, 15, 127, 48, Black);
@@ -517,23 +512,23 @@ int gameMenu(){
         }
 
         if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
-            buzzer(800,25);
+            sound(menuExit);
             while(HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0);
             break;
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuselect == 1) {
-            buzzer(800,25);
+            sound(menuSelect);
             while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             gameOptions();
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuselect == 2) {
-            buzzer(800,25);
+            sound(menuSelect);
             while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             player.inWorld = TITLE;
             return 1;
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuselect == 3) {
-            buzzer(800,25);
+            sound(savingGame);
             ssd1306_FillRectangle(0, 16, 127, 47, Black);
             ssd1306_SetCursor(15, 27);
             ssd1306_WriteString("saving game...", Font_7x10, White);
@@ -544,17 +539,13 @@ int gameMenu(){
             ssd1306_FillRectangle(0, 16, 127, 47, Black);
             ssd1306_WriteString("game saved!", Font_7x10, White);
             ssd1306_UpdateScreen();
-        	buzzer(300, 75);
-        	buzzer(400, 75);
-        	buzzer(500, 75);
-        	buzzer(600, 75);
+            sound(gameSaved);
             while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && HAL_GPIO_ReadPin(GPIOB, B_Pin) == 1);
-            buzzer(800,25);
             HAL_Delay(100);
             return 0;
         }
         if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            buzzer(800,25);
+            sound(menuExit);
             while(HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
             break;
         }
@@ -647,7 +638,7 @@ void gameOptions(void) {
 
         // A button: toggle sound if selected or increase brightness when brightness is selected
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-            buzzer(800, 25);
+            sound(menuSelect);
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             if (optionSelect == 1) {
                 soundOn = !soundOn;
@@ -679,6 +670,7 @@ void gameOptions(void) {
 
         // LEFT/RIGHT buttons adjust brightness if brightness option is selected.
         if (optionSelect == 2 && HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+            sound(menuSelect);
             if (brightness > MIN_BRIGHTNESS) {
                 brightness -= 50;
                 ssd1306_SetContrast(brightness);
@@ -686,6 +678,7 @@ void gameOptions(void) {
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
         if (optionSelect == 2 && HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+            sound(menuSelect);
             if (brightness < MAX_BRIGHTNESS) {
                 brightness += 50;
             }
@@ -695,7 +688,7 @@ void gameOptions(void) {
 
         // B button: exit the options submenu
         if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            buzzer(800, 25);
+            sound(menuExit);
             while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
             break;
         }

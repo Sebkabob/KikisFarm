@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include <math.h>
 
-extern int refreshBackground;
-
 const unsigned char *itemTitles[] = {
     WheatSeedsTitle,
     CornSeedsTitle,
@@ -203,32 +201,32 @@ void shopBuy() {
 
     while (1) {
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
-        	buzzer(300, 15);
+        	sound(menuNav);;
             moved = 1;
             itemSelect -= 3;
             while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
-        	buzzer(300, 15);
+        	sound(menuNav);
             moved = 1;
             itemSelect += 3;
             while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
-        	buzzer(300, 15);
+        	sound(menuNav);
             moved = 1;
             itemSelect -= 1;
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
-        	buzzer(300, 15);
+        	sound(menuNav);
             moved = 1;
             itemSelect += 1;
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
         }
 
         if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-        	buzzer(200, 15);
+        	sound(menuNav);
             shopHardRefresh();
             while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
             break;
@@ -237,12 +235,10 @@ void shopBuy() {
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
             int didItBuy = shopBuyItem(&player.money, player.level, player.inventory, itemSelect);
             if (didItBuy){
-            	buzzer(440, 15);
-            	buzzer(540, 15);
+            	sound(buyItem);
             }
             else {
-            	buzzer(300, 30);
-            	buzzer(200, 30);
+            	sound(cantBuy);
             }
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             moved = 1;
@@ -312,25 +308,25 @@ void shopSell(){
         // Navigation: move the selection using the directional buttons
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect -= 3;
             while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect += 3;
             while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect -= 1;
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect += 1;
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
         }
@@ -368,12 +364,12 @@ void shopSell(){
                     removeItemFromInventory(player.inventory, slot->item->id, 1);
                     player.money += sellPrice;
                 }
-                buzzer(440, 15);
+                sound(sellItem);
                 displayStats();  // update money display if needed
                 moved = 1;
             } else {
                 // No valid item selected: provide an error beep.
-                buzzer(300, 30);
+            	sound(cantSell);
             }
         }
 
@@ -520,8 +516,8 @@ void handleShop() {
         	updateButtonFlags();
             shopPlayerMovement();
 
+        	ORBuffer();
         	playerDisplay();
-        	ORBuffer(); //ORs the saved buffer with the current one
 
             shopPlayerAction();
 
@@ -531,7 +527,7 @@ void handleShop() {
 
         gameLogic();
 
-        HAL_Delay(1);  // Short delay to yield CPU time
+        HAL_Delay(1);
 
         // Exit condition: if player goes across bridge
         if (player.coordinates.y >= 62) {

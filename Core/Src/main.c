@@ -8,8 +8,8 @@
   *	LEFT TO DO:
   *
   *	-LORE
-  *	-SOUND DESIGN
-  *	-THE HOUSE
+  *	-SOUND DESIGN *
+  *	-THE HOUSE *
   *	-GAME PRICE OPTIMIZE
   *	-MORE ITEMS
   *	-LOW BATTERY SCREEN
@@ -145,22 +145,30 @@ int updateBatteryLife(void){
 
 void buzzer(uint16_t frequency, uint32_t duration)
 {
-    uint32_t period_us = (1000000 / frequency) / 2; // Half period in microseconds
-    uint32_t cycles = (duration * frequency) / 1000; // Total number of cycles
+    // Get system clock frequency.
+    uint32_t sysClock = HAL_RCC_GetSysClockFreq();
+    // Calculate timer frequency (assuming timer is configured with a prescaler).
+    uint32_t timerFreq = sysClock / (htim1.Init.Prescaler + 1);
+    // Calculate half period in timer ticks.
+    uint32_t halfPeriodTicks = (timerFreq / frequency) / 2;
+    // Calculate the total number of cycles to run (duration is in ms).
+    uint32_t cycles = (duration * frequency) / 1000;
 
-    for (uint32_t i = 0; i < cycles; i++)
-    {
-        if(soundOn) HAL_GPIO_TogglePin(GPIOA, BUZZER_Pin);
-        __HAL_TIM_SET_COUNTER(&htim1, 0); // Reset Timer Counter
-        while (__HAL_TIM_GET_COUNTER(&htim1) < period_us); // Wait using timer
+    for (uint32_t i = 0; i < cycles; i++) {
+        if (soundOn)
+            HAL_GPIO_TogglePin(GPIOA, BUZZER_Pin);
+        __HAL_TIM_SET_COUNTER(&htim1, 0); // Reset timer counter.
+        while (__HAL_TIM_GET_COUNTER(&htim1) < halfPeriodTicks);
 
-        if(soundOn) HAL_GPIO_TogglePin(GPIOA, BUZZER_Pin);
+        if (soundOn)
+            HAL_GPIO_TogglePin(GPIOA, BUZZER_Pin);
         __HAL_TIM_SET_COUNTER(&htim1, 0);
-        while (__HAL_TIM_GET_COUNTER(&htim1) < period_us);
+        while (__HAL_TIM_GET_COUNTER(&htim1) < halfPeriodTicks);
     }
 
-    HAL_GPIO_WritePin(GPIOA, BUZZER_Pin, GPIO_PIN_RESET); // Ensure buzzer is off
+    HAL_GPIO_WritePin(GPIOA, BUZZER_Pin, GPIO_PIN_RESET); // Ensure buzzer is off.
 }
+
 /* USER CODE END 0 */
 
 /**

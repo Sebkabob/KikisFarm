@@ -21,7 +21,7 @@ void lightSwitch(){
 
 void cropHouseIntro(){
 	textSpeaking("its so dark in here", 150, 8, 1);
-	textSpeaking("maybe theres a light switch somewhere", 150, 8, 1);
+	textSpeaking("(maybe there's a    light switch?)", 150, 8, 1);
 }
 
 void cropHousePlayerMovement(){

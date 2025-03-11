@@ -177,25 +177,25 @@ int showInventory(int plantSeed) {
     while (1) {
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect -= 3;
             while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect += 3;
             while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect -= 1;
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
             moved = 1;
-            buzzer(540, 10);
+            sound(menuNav);
             itemSelect += 1;
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
         }

@@ -91,7 +91,8 @@ int checkIfOnCrop(void) {
 
 int checkIfNearHouse(){
     if (player.coordinates.x >= OB1_X && player.coordinates.x < OB1_X + OB1_W &&
-        player.coordinates.y >= OB1_Y && player.coordinates.y <= OB1_Y + OB1_H + 2) {
+        player.coordinates.y >= OB1_Y && player.coordinates.y <= OB1_Y + OB1_H + 2
+		&& game.houseUnlocked) {
         return 1;
     }
     return 0;
@@ -186,7 +187,7 @@ void cropPlant(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
-        buzzer(440, 15);
+    	sound(inventoryOpen);
 
         // Let the player select a seed from the inventory
         while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
@@ -254,9 +255,7 @@ void cropHarvest(){
 
     if (spot != 0 && cropTiles[spot - 1].grown == 1) {
         // Play harvesting tones
-        buzzer(262, 10);
-        buzzer(330, 20);
-        buzzer(392, 30);
+    	sound(harvest);
 
         Item *harvestedCrop = NULL;
         switch (cropTiles[spot - 1].crop.id) {
@@ -285,8 +284,8 @@ void cropHarvest(){
         // Attempt to add the harvested crop to the inventory.
         // If the inventory is full, play an error sound and exit.
         if (!addItemToInventory(player.inventory, harvestedCrop, 1)) {
+        	sound(inventoryFull);
             // Inventory is full; play error sound.
-            buzzer(300, 30);
             return;
         }
 
@@ -316,9 +315,7 @@ void cropDestroy(){
             if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
                 cropTiles[spot - 1].crop.id = NONE;
                 cropTiles[spot - 1].grown = 0;
-                buzzer(300, 20);
-                buzzer(200, 40);
-                buzzer(100, 75);
+                sound(destroy);
             }
             // Wait until button is released.
             while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
@@ -371,16 +368,14 @@ void cropPlayerAction(void) {
                 if (spot != 0 && cropTiles[spot - 1].crop.id != NONE) {
                     cropTiles[spot - 1].crop.id = NONE;
                     cropTiles[spot - 1].grown = 0;
-                    buzzer(300, 20);
-                    buzzer(200, 40);
-                    buzzer(100, 75);
+                    sound(destroy);
                 }
                 // Wait until button is released.
                 while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
                 return;
             }
         }
-        buzzer(300, 25);
+        sound(inventoryOpen);
         showInventory(0);
     }
 

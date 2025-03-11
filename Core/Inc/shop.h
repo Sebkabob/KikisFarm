@@ -7,6 +7,7 @@
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include "sprites.h"
+#include "sound.h"
 #include "game.h"
 #include "crop.h"
 #include "sprites.h"
