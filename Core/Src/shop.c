@@ -2,6 +2,7 @@
 #include "crop.h"
 #include "sprites.h"
 #include "shop.h"
+#include "inventory.h"
 #include <stdbool.h>
 #include <math.h>
 

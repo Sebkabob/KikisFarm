@@ -8,7 +8,7 @@ void cropHouseDisplay(){
 	//if(game.cropHouseLights) ssd1306_DrawBitmap(0, 0, sprite, 128, 64, White);
 }
 
-bool cropHouseObstacle(){
+bool cropHouseObstacle(int x, int y){
 	return 0;
 }
 

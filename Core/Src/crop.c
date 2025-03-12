@@ -1,5 +1,6 @@
 #include "game.h"
 #include "crop.h"
+#include "inventory.h"
 #include "sprites.h"
 #include <stdbool.h>
 #include <stdio.h>    // For sprintf

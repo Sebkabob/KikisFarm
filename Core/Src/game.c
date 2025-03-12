@@ -5,6 +5,8 @@
 #include "NimaLTD.I-CUBE-EE24_conf.h"
 #include "ee24.h"
 #include <math.h>
+#include <stdio.h>
+
 
 // Global brightness settings (adjust ranges as needed)
 #define MIN_BRIGHTNESS 0
@@ -57,7 +59,7 @@ Item sugarSeed   = { SUGARSEED,   30,  250,  35, 48, 19, SEED, NULL, SugarSeedSp
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
-Item houseKey = {HOUSEKEY, 1, 20000, 0, 8000, 18, 0, HouseKeySprite, HouseKeySprite};
+Item houseKey = {HOUSEKEY, 1, 20000, 0, 8000, 20, 0, HouseKeySprite, HouseKeySprite};
 
 uint32_t cropPlantTimes[10] = {0}; // Define the array to store planting timestamps
 
@@ -80,74 +82,51 @@ Item shopItems[8];
 // Soil Spot Cost Function (Unchanged)
 int getTillSoilCost() {
     int baseCost = 100;
-    double multiplier = 1.45; // % increase per spot owned
+    double multiplier = 1.55; // % increase per spot owned
     int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
     return ((cost + 5) / 10) * 10;  // Round to the nearest 10
 }
 
 void displayLevelUp() {
-    // Define the rectangle dimensions
-    int rectWidth = 80;
-    int rectHeight = 26;
-    int rectX = (128 - rectWidth) / 2;  // Centers horizontally (128 is the screen width)
-    int rectY = (64 - rectHeight) / 2;  // Centers vertically (64 is the screen height)
-
-    // Clear the rectangle area by filling it with black and draw its border in white
+    int rectWidth = 80, rectHeight = 26;
+    int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
     ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
     ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
 
-    // Write the header "Level Up!" centered at the top of the rectangle
     const char *headerText = "Level Up!";
-    int headerWidth = strlen(headerText) * 7;  // approximate width with Font_7x10
-    int headerX = rectX + (rectWidth - headerWidth) / 2;
-    int headerY = rectY + 3;  // Slight offset from the top
+    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
+    int headerY = rectY + 3;
     ssd1306_SetCursor(headerX, headerY);
-    ssd1306_WriteString(headerText, Font_7x10, White);
+    // Casting headerText to (char*) to match the expected parameter type.
+    ssd1306_WriteString((char*)headerText, Font_7x10, White);
 
-    // Prepare the strings for the old level and new level
     char leftStr[10], rightStr[10];
-    sprintf(leftStr, "%d", player.level - 1);
-    sprintf(rightStr, "%d", player.level);
+    // Use snprintf to avoid potential buffer overflow.
+    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
+    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
 
-    // Calculate widths of the text and arrow
-    int leftWidth = strlen(leftStr) * 7;
-    int rightWidth = strlen(rightStr) * 7;
-    int arrowWidth = 12;  // given arrow width
-    int gap = 4;  // gap between text and arrow
-
-    // Total width of the three elements (old level, arrow, new level) plus gaps
-    int totalWidth = leftWidth + gap + arrowWidth + gap + rightWidth;
-
-    // Calculate the starting X coordinate to center the group within the rectangle
+    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
     int startX = rectX + (rectWidth - totalWidth) / 2;
-    int levelY = headerY + 12;  // Placed below the header
-
-    // Draw the old level string
+    int levelY = headerY + 12;
     ssd1306_SetCursor(startX, levelY);
     ssd1306_WriteString(leftStr, Font_7x10, White);
-
-    // Draw the arrow bitmap between the two numbers, adjusting Y to vertically center it (arrow height 9 vs. text height ~10)
-    int arrowX = startX + leftWidth + gap;
-    int arrowY = levelY;  // adjust as needed (e.g., levelY + 1) if you want a slight vertical offset
-    ssd1306_DrawBitmap(arrowX, arrowY, Arrow, arrowWidth, 9, White);
-
-    // Draw the new level string
-    int rightX = arrowX + arrowWidth + gap;
-    ssd1306_SetCursor(rightX, levelY);
+    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
+    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
     ssd1306_WriteString(rightStr, Font_7x10, White);
 }
+
 
 
 
 // Revised Level-Up Function
 int gameLevelUp(void){
     int baseXp = 100 + (50 * player.level) + (10 * player.level * player.level);
-    double multiplier = 1 + 0.15 * player.level;
+    double multiplier = 1 + 0.3 * player.level;
     int xpNeededForNextLevel = baseXp * multiplier;
     if (player.xp > xpNeededForNextLevel){
+        displayLevelUp();
         player.level++;
         player.xp = 0;
-        displayLevelUp();
     	ssd1306_UpdateScreen();
         sound(levelUp);
     	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
@@ -161,10 +140,10 @@ void initGame(){
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-	player.money = 999999;
+	player.money = 20;
 	player.inWorld = CROP;
 	player.xp = 0;
-	player.level = 20;
+	player.level = 1;
 	player.soilSpots = 1;
 
 	game.houseUnlocked = 0;
