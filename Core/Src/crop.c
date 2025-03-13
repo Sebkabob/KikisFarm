@@ -519,7 +519,7 @@ void handleCrop() {
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = 20;  // ~30 FPS
+    const uint32_t FRAME_DELAY = 15;  // ~30 FPS
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();

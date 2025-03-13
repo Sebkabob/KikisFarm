@@ -41,21 +41,21 @@ Game game;
 
 // Crops
 /*               CROP     SELL BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
-Item wheat   = { WHEAT,   8,   0,  5,   2,  1,  HCROP, WheatSprite,   NULL, ItemIconWheat };
-Item corn    = { CORN,    12,  0,  10,  9,  2,  HCROP, CornSprite,    NULL, ItemIconCorn };
-Item potato  = { POTATO,  16,  0,  15,  20, 4,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
-Item carrot  = { CARROT,  24,  0,  20,  25, 7,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
-Item pumpkin = { PUMPKIN, 40,  0,  28,  36, 11, HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
-Item sugar   = { SUGAR,   60,  0,  35,  50, 17, HCROP, SugarSprite,   NULL, ItemIconSugar };
+Item wheat   = { WHEAT,   6,   0,  5,   5,  0,  HCROP, WheatSprite,   NULL, ItemIconWheat };
+Item corn    = { CORN,    8,   0,  10,  9,  0,  HCROP, CornSprite,    NULL, ItemIconCorn };
+Item potato  = { POTATO,  14,  0,  15,  25, 0,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
+Item carrot  = { CARROT,  20,  0,  20,  45, 0,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
+Item pumpkin = { PUMPKIN, 25,  0,  28,  65, 0,  HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
+Item sugar   = { SUGAR,   50,  0,  35,  80, 0,  HCROP, SugarSprite,   NULL, ItemIconSugar };
 
 
 // Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,   12,   5,  4,  1,  SEED, NULL, WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    4,   30,   10, 9,  3,  SEED, NULL, CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED,  8,   42,   15, 14, 5,  SEED, NULL, PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED,  12,  80,   20, 24, 9,  SEED, NULL, CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED, 20,  150,  28, 36, 13, SEED, NULL, PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   30,  250,  35, 48, 19, SEED, NULL, SugarSeedSprite,   NULL };
+Item wheatSeed   = { WHEATSEED,   3,   12,   0,  0,  1,  SEED, NULL, WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    4,   30,   0,  0,  3,  SEED, NULL, CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED,  8,   42,   0,  0,  5,  SEED, NULL, PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED,  12,  80,   0,  0,  9,  SEED, NULL, CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED, 20,  150,  0,  0,  13, SEED, NULL, PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   30,  250,  0,  0,  18, SEED, NULL, SugarSeedSprite,   NULL };
 
 // Other items
 Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
@@ -82,7 +82,7 @@ Item shopItems[8];
 // Soil Spot Cost Function (Unchanged)
 int getTillSoilCost() {
     int baseCost = 100;
-    double multiplier = 1.55; // % increase per spot owned
+    double multiplier = 1.50; // % increase per spot owned
     int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
     return ((cost + 5) / 10) * 10;  // Round to the nearest 10
 }
@@ -532,7 +532,6 @@ int gameMenu(){
             //something
         }
     }
-    ssd1306_Fill(Black);
     return 0;
 }
 
