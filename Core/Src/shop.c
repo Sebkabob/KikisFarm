@@ -501,7 +501,7 @@ void handleShop() {
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = 15;  // Update every 20 ms
+    const uint32_t FRAME_DELAY = 23;  // Update every 20 ms
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();

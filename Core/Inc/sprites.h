@@ -58,4 +58,6 @@ extern const unsigned char ControlsTitle[];
 
 extern const unsigned char Arrow[];
 
+extern const unsigned char TheHouse[];
+
 #endif /* INC_SPRITES_H_ */

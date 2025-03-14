@@ -39,34 +39,35 @@ Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots
 
 Game game;
 
-// Crops
-/*               CROP     SELL BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
-Item wheat   = { WHEAT,   6,   0,  5,   5,  0,  HCROP, WheatSprite,   NULL, ItemIconWheat };
-Item corn    = { CORN,    8,   0,  10,  9,  0,  HCROP, CornSprite,    NULL, ItemIconCorn };
-Item potato  = { POTATO,  14,  0,  15,  25, 0,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
-Item carrot  = { CARROT,  20,  0,  20,  45, 0,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
-Item pumpkin = { PUMPKIN, 25,  0,  28,  65, 0,  HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
-Item sugar   = { SUGAR,   50,  0,  35,  80, 0,  HCROP, SugarSprite,   NULL, ItemIconSugar };
+// Revised crop definitions for a more challenging, balanced game
+
+/*               CROP      SELL  BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
+Item wheat   = { WHEAT,   5,    0,   3,   6,   0,  HCROP, WheatSprite,   NULL, ItemIconWheat };
+Item corn    = { CORN,    7,    0,   8,   10,  0,  HCROP, CornSprite,    NULL, ItemIconCorn };
+Item potato  = { POTATO,  12,   0,   12,  28,  0,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
+Item carrot  = { CARROT,  18,   0,   15,  50,  0,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
+Item pumpkin = { PUMPKIN, 22,   0,   22,  70,  0,  HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
+Item sugar   = { SUGAR,   45,   0,   25,  85,  0,  HCROP, SugarSprite,   NULL, ItemIconSugar };
 
 
-// Seeds (linked to grown crops)
-Item wheatSeed   = { WHEATSEED,   3,   12,   0,  0,  1,  SEED, NULL, WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    4,   30,   0,  0,  3,  SEED, NULL, CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED,  8,   42,   0,  0,  5,  SEED, NULL, PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED,  12,  80,   0,  0,  9,  SEED, NULL, CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED, 20,  150,  0,  0,  13, SEED, NULL, PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   30,  250,  0,  0,  18, SEED, NULL, SugarSeedSprite,   NULL };
+// Revised seeds: Adjusted buy values to reflect the new crop rewards.
+Item wheatSeed   = { WHEATSEED,   3,   14,   0,  0,  1, SEED, NULL, WheatSeedSprite,   NULL };
+Item cornSeed    = { CORNSEED,    4,   35,   0,  0,  3, SEED, NULL, CornSeedSprite,    NULL };
+Item potatoSeed  = { POTATOSEED,  8,   50,   0,  0,  6, SEED, NULL, PotatoSeedSprite,  NULL };
+Item carrotSeed  = { CARROTSEED,  12,  90,   0,  0,  10, SEED, NULL, CarrotSeedSprite,  NULL };
+Item pumpkinSeed = { PUMPKINSEED, 20,  170,  0,  0,  13, SEED, NULL, PumpkinSeedSprite, NULL };
+Item sugarSeed   = { SUGARSEED,   30,  290,  0,  0,  16, SEED, NULL, SugarSeedSprite,   NULL };
 
-// Other items
-Item tillSoil = {TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite};
-Item houseKey = {HOUSEKEY, 1, 20000, 0, 8000, 20, 0, HouseKeySprite, HouseKeySprite};
+// Other items remain unchanged
+Item tillSoil = { TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite };
+Item houseKey = { HOUSEKEY, 1, 75000, 0, 8000, 20, 0, HouseKeySprite, HouseKeySprite };
 
-uint32_t cropPlantTimes[10] = {0}; // Define the array to store planting timestamps
+uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
 
 CropTile cropTiles[10] = {
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
-    { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, true },
+    { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, true  },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
@@ -76,16 +77,39 @@ CropTile cropTiles[10] = {
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false }
 };
 
-// Define the shop inventory
+// Define the shop inventory array as before.
 Item shopItems[8];
 
-// Soil Spot Cost Function (Unchanged)
+
+// Revised Soil Spot Cost Function
+// Increase the multiplier to make expansion cost more, limiting rapid growth.
 int getTillSoilCost() {
     int baseCost = 100;
-    double multiplier = 1.50; // % increase per spot owned
+    double multiplier = 2.0; // Increased from 1.85 to 2.0 for higher cost per additional spot.
     int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
-    return ((cost + 5) / 10) * 10;  // Round to the nearest 10
+    return ((cost + 5) / 10) * 10;  // Round to the nearest 10.
 }
+
+
+// Revised Level-Up Function
+// Increase both the base XP and multiplier to require more effort per level.
+int gameLevelUp(void) {
+    int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
+    double xpMultiplier = 1 + 0.35 * player.level;
+    int xpNeededForNextLevel = baseXp * xpMultiplier;
+
+    if (player.xp >= xpNeededForNextLevel) {
+        displayLevelUp();
+        player.level++;
+        player.xp = 0;
+        ssd1306_UpdateScreen();
+        sound(levelUp);
+        while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
+        while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+    }
+    return xpNeededForNextLevel;
+}
+
 
 void displayLevelUp() {
     int rectWidth = 80, rectHeight = 26;
@@ -115,45 +139,31 @@ void displayLevelUp() {
     ssd1306_WriteString(rightStr, Font_7x10, White);
 }
 
-
-
-
-// Revised Level-Up Function
-int gameLevelUp(void){
-    int baseXp = 100 + (50 * player.level) + (10 * player.level * player.level);
-    double multiplier = 1 + 0.3 * player.level;
-    int xpNeededForNextLevel = baseXp * multiplier;
-    if (player.xp > xpNeededForNextLevel){
-        displayLevelUp();
-        player.level++;
-        player.xp = 0;
-    	ssd1306_UpdateScreen();
-        sound(levelUp);
-    	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
-    	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-    }
-    return xpNeededForNextLevel;
-}
-
 void initGame(){
     player.coordinates.x = 60;
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-	player.money = 20;
-	player.inWorld = CROP;
-	player.xp = 0;
-	player.level = 1;
-	player.soilSpots = 1;
+    player.money = 0;
+    player.inWorld = CROP;
+    player.xp = 0;
+    player.level = 1;
+    player.soilSpots = 1;
 
-	game.houseUnlocked = 0;
-	game.cropHouseLights = 0;
-	game.cropHouseIntro = 1;
+    game.houseUnlocked = 0;
+    game.cropHouseLights = 0;
+    game.cropHouseIntro = 1;
 
+    // Initialize player's inventory to empty.
     for (int i = 0; i < 9; i++) {
         player.inventory[i].item = NULL;
         player.inventory[i].quantity = 0;
     }
+    // Give the player 1 wheat seed in slot 0.
+    player.inventory[0].item = &wheatSeed;
+    player.inventory[0].quantity = 1;
+
+    // Initialize crop tiles.
     for (int i = 0; i < 10; i++) {
         cropTiles[i].crop.id = NONE;
         cropTiles[i].crop.sellValue = 0;
@@ -169,6 +179,7 @@ void initGame(){
         cropTiles[i].isTilled = (i == 2) ? true : false;
     }
 }
+
 
 void initShopItems(void) {
     shopItems[0] = wheatSeed;
