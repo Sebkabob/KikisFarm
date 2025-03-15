@@ -9,8 +9,6 @@
 // Forward declarations (prototypes)
 void drawSoil(void);
 void drawCrops(void);
-void cropSoftRefresh(void);
-void cropHardRefresh(void);
 void cropDisplay(void);
 void cropPlayerMovement(void);
 void cropPlayerAction(void);
@@ -100,8 +98,106 @@ int checkIfNearHouse(){
 }
 
 //------------------------------------------------------------------------------
+// Draws soil based on the number of tilled spots.
+//------------------------------------------------------------------------------
+void drawSoil(void) {
+    // Spot 3 -> corresponds to cropTiles[2]
+    if (player.soilSpots > 0) {
+        uint16_t color = (cropTiles[2].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc3, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 3
+    }
+    // Spot 2 -> corresponds to cropTiles[1]
+    if (player.soilSpots > 1) {
+        uint16_t color = (cropTiles[1].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc2, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 2
+    }
+    // Spot 4 -> corresponds to cropTiles[3]
+    if (player.soilSpots > 2) {
+        uint16_t color = (cropTiles[3].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc4, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 4
+    }
+    // Spot 8 -> corresponds to cropTiles[7]
+    if (player.soilSpots > 3) {
+        uint16_t color = (cropTiles[7].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc3, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 8
+    }
+    // Spot 9 -> corresponds to cropTiles[8]
+    if (player.soilSpots > 4) {
+        uint16_t color = (cropTiles[8].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc4, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 9
+    }
+    // Spot 7 -> corresponds to cropTiles[6]
+    if (player.soilSpots > 5) {
+        uint16_t color = (cropTiles[6].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc2, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 7
+    }
+    // Spot 5 -> corresponds to cropTiles[4]
+    if (player.soilSpots > 6) {
+        uint16_t color = (cropTiles[4].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc5, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 5
+    }
+    // Spot 1 -> corresponds to cropTiles[0]
+    if (player.soilSpots > 7) {
+        uint16_t color = (cropTiles[0].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc1, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 1
+    }
+    // Spot 10 -> corresponds to cropTiles[9]
+    if (player.soilSpots > 8) {
+        uint16_t color = (cropTiles[9].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc5, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 10
+    }
+    // Spot 6 -> corresponds to cropTiles[5]
+    if (player.soilSpots > 9) {
+        uint16_t color = (cropTiles[5].crop.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(cropSpotXc1, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 6
+    }
+}
+
+
+//------------------------------------------------------------------------------
+// Draws crops (currently only sugar).
+//------------------------------------------------------------------------------
+void drawCrops(void) {
+    // Loop through all 10 crop spots
+    for (int i = 0; i < 10; i++) {
+        // Only draw if the tile is tilled and a crop has been planted
+        if (cropTiles[i].isTilled && cropTiles[i].crop.id != NONE) {
+            int x = 0, y = 0;
+            // Determine drawing coordinates based on the crop spot number (i+1)
+            switch (i + 1) {
+                case 1:  x = cropSpotXc1; y = cropSpotYr1; break;
+                case 2:  x = cropSpotXc2; y = cropSpotYr1; break;
+                case 3:  x = cropSpotXc3; y = cropSpotYr1; break;
+                case 4:  x = cropSpotXc4; y = cropSpotYr1; break;
+                case 5:  x = cropSpotXc5; y = cropSpotYr1; break;
+                case 6:  x = cropSpotXc1; y = cropSpotYr2; break;
+                case 7:  x = cropSpotXc2; y = cropSpotYr2; break;
+                case 8:  x = cropSpotXc3; y = cropSpotYr2; break;
+                case 9:  x = cropSpotXc4; y = cropSpotYr2; break;
+                case 10: x = cropSpotXc5; y = cropSpotYr2; break;
+                default: break;
+            }
+
+            const unsigned char *spriteToDraw = NULL;
+            if (cropTiles[i].grown == 1) {
+                // Use getItemPointerFromID() to get the item pointer and then its sprite.
+                Item *itemPtr = getItemPointerFromID(cropTiles[i].crop.id);
+                if (itemPtr != NULL) {
+                    spriteToDraw = itemPtr->cropSprite;
+                }
+            } else {
+                // Crop is not fully grown: use the sprout sprite.
+                spriteToDraw = SproutSprite;
+            }
+
+            ssd1306_DrawBitmap(x, y, spriteToDraw, 18, 15, White);
+        }
+    }
+}
+
+
+//------------------------------------------------------------------------------
 // Full redraw of the scene: draws background, UI, and player sprite offscreen,
-// then calls a single ssd1306_UpdateScreen() to transfer the complete buffer over SPI.
 //------------------------------------------------------------------------------
 void cropDisplay(void) {
     // Draw static background elements.
@@ -110,32 +206,6 @@ void cropDisplay(void) {
 
     drawSoil();
     drawCrops();
-}
-
-
-//------------------------------------------------------------------------------
-// A soft refresh that quickly redraws the background and UI.
-//------------------------------------------------------------------------------
-void cropSoftRefresh(void) {
-    ssd1306_Fill(Black);
-    ssd1306_DrawBitmap(0, 0, CropWorldSprite, 128, 64, White);
-    ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
-    // Draw player assuming facing down (adjust if needed)
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-    ssd1306_UpdateScreen();
-}
-
-//------------------------------------------------------------------------------
-// A hard refresh that completely redraws the scene.
-//------------------------------------------------------------------------------
-void cropHardRefresh(void) {
-    ssd1306_Fill(Black);
-    ssd1306_DrawBitmap(0, 0, CropWorldSprite, 128, 64, White);
-    ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
-    ssd1306_UpdateScreen();
-    // Optionally erase the player sprite if ghosting appears:
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, Black);
 }
 
 //------------------------------------------------------------------------------
@@ -188,7 +258,7 @@ void cropPlant(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
-    	sound(inventoryOpen);
+        sound(inventoryOpen);
 
         // Let the player select a seed from the inventory
         while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
@@ -206,30 +276,11 @@ void cropPlant(){
                 }
             }
             if (slot != -1) {
-                // Convert the seed to its grown crop using a switch statement
-                Item crop;
-                switch (seedId) {
-                    case WHEATSEED:
-                        crop = wheat;
-                        break;
-                    case CORNSEED:
-                        crop = corn;
-                        break;
-                    case POTATOSEED:
-                        crop = potato;
-                        break;
-                    case CARROTSEED:
-                        crop = carrot;
-                        break;
-                    case PUMPKINSEED:
-                        crop = pumpkin;
-                        break;
-                    case SUGARSEED:
-                        crop = sugar;
-                        break;
-                    default:
-                        // If no matching crop, you might want to handle the error.
-                        return;
+                // Use the helper function to convert the seed to its grown crop.
+                Item crop = getGrownCrop(seedId);
+                if (crop.id == NONE) {
+                    // Handle error if the conversion failed.
+                    return;
                 }
 
                 // Plant the corresponding crop on the crop tile
@@ -250,49 +301,34 @@ void cropPlant(){
 }
 
 
+
 void cropHarvest(){
     refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
 
     if (spot != 0 && cropTiles[spot - 1].grown == 1) {
         // Play harvesting tones
-    	sound(harvest);
 
         Item *harvestedCrop = NULL;
         switch (cropTiles[spot - 1].crop.id) {
-            case WHEAT:
-                harvestedCrop = &wheat;
-                break;
-            case CORN:
-                harvestedCrop = &corn;
-                break;
-            case POTATO:
-                harvestedCrop = &potato;
-                break;
-            case CARROT:
-                harvestedCrop = &carrot;
-                break;
-            case PUMPKIN:
-                harvestedCrop = &pumpkin;
-                break;
-            case SUGAR:
-                harvestedCrop = &sugar;
-                break;
+            case WHEAT:       harvestedCrop = &wheat;   break;
+            case CORN:        harvestedCrop = &corn;    break;
+            case POTATO:      harvestedCrop = &potato;  break;
+            case CARROT:      harvestedCrop = &carrot;  break;
+            case PUMPKIN:     harvestedCrop = &pumpkin; break;
+            case SUGAR:       harvestedCrop = &sugar;   break;
             default:
-                return; // Invalid crop type, exit function.
+                // If no matching crop, handle the error.
+                return;
         }
 
-        // Attempt to add the harvested crop to the inventory.
         // If the inventory is full, play an error sound and exit.
         if (!addItemToInventory(player.inventory, harvestedCrop, 1)) {
         	sound(inventoryFull);
-            // Inventory is full; play error sound.
             return;
         }
 
-        // If the crop is successfully harvested:
-        // Optionally clear the crop (uncomment if desired)
-        // cropTiles[spot - 1].crop.id = NONE;
+    	sound(harvest);
 
         // Increase player's XP and reset crop state.
         player.xp += cropTiles[spot - 1].crop.xp;
@@ -397,114 +433,6 @@ void cropPlayerAction(void) {
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
     }
 }
-
-
-
-
-//------------------------------------------------------------------------------
-// Draws soil based on the number of tilled spots.
-//------------------------------------------------------------------------------
-void drawSoil(void) {
-    // Spot 3 -> corresponds to cropTiles[2]
-    if (player.soilSpots > 0) {
-        uint16_t color = (cropTiles[2].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc3, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 3
-    }
-    // Spot 2 -> corresponds to cropTiles[1]
-    if (player.soilSpots > 1) {
-        uint16_t color = (cropTiles[1].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc2, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 2
-    }
-    // Spot 4 -> corresponds to cropTiles[3]
-    if (player.soilSpots > 2) {
-        uint16_t color = (cropTiles[3].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc4, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 4
-    }
-    // Spot 8 -> corresponds to cropTiles[7]
-    if (player.soilSpots > 3) {
-        uint16_t color = (cropTiles[7].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc3, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 8
-    }
-    // Spot 9 -> corresponds to cropTiles[8]
-    if (player.soilSpots > 4) {
-        uint16_t color = (cropTiles[8].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc4, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 9
-    }
-    // Spot 7 -> corresponds to cropTiles[6]
-    if (player.soilSpots > 5) {
-        uint16_t color = (cropTiles[6].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc2, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 7
-    }
-    // Spot 5 -> corresponds to cropTiles[4]
-    if (player.soilSpots > 6) {
-        uint16_t color = (cropTiles[4].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc5, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 5
-    }
-    // Spot 1 -> corresponds to cropTiles[0]
-    if (player.soilSpots > 7) {
-        uint16_t color = (cropTiles[0].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc1, cropSpotYr1, TilledSoilSprite, 18, 15, color); // Spot 1
-    }
-    // Spot 10 -> corresponds to cropTiles[9]
-    if (player.soilSpots > 8) {
-        uint16_t color = (cropTiles[9].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc5, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 10
-    }
-    // Spot 6 -> corresponds to cropTiles[5]
-    if (player.soilSpots > 9) {
-        uint16_t color = (cropTiles[5].crop.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(cropSpotXc1, cropSpotYr2, TilledSoilSprite, 18, 15, color); // Spot 6
-    }
-}
-
-
-//------------------------------------------------------------------------------
-// Draws crops (currently only sugar).
-//------------------------------------------------------------------------------
-void drawCrops(void) {
-    // Loop through all 10 crop spots
-    for (int i = 0; i < 10; i++) {
-        // Only draw if the tile is tilled and a crop has been planted
-        if (cropTiles[i].isTilled && cropTiles[i].crop.id != NONE) {
-            int x = 0, y = 0;
-            // Determine drawing coordinates based on the crop spot number (i+1)
-            switch (i + 1) {
-                case 1:  x = cropSpotXc1; y = cropSpotYr1; break;
-                case 2:  x = cropSpotXc2; y = cropSpotYr1; break;
-                case 3:  x = cropSpotXc3; y = cropSpotYr1; break;
-                case 4:  x = cropSpotXc4; y = cropSpotYr1; break;
-                case 5:  x = cropSpotXc5; y = cropSpotYr1; break;
-                case 6:  x = cropSpotXc1; y = cropSpotYr2; break;
-                case 7:  x = cropSpotXc2; y = cropSpotYr2; break;
-                case 8:  x = cropSpotXc3; y = cropSpotYr2; break;
-                case 9:  x = cropSpotXc4; y = cropSpotYr2; break;
-                case 10: x = cropSpotXc5; y = cropSpotYr2; break;
-                default: break;
-            }
-
-            const unsigned char *spriteToDraw = NULL;
-            if (cropTiles[i].grown == 1) {
-                // Instead of using cropTiles[i].crop.sprite, look up the sprite by crop ID.
-                switch (cropTiles[i].crop.id) {
-                    case WHEAT:   spriteToDraw = WheatSprite;   break;
-                    case CORN:    spriteToDraw = CornSprite;    break;
-                    case POTATO:  spriteToDraw = PotatoSprite;  break;
-                    case CARROT:  spriteToDraw = CarrotSprite;  break;
-                    case PUMPKIN: spriteToDraw = PumpkinSprite; break;
-                    case SUGAR:   spriteToDraw = SugarSprite;   break;
-                    default:      spriteToDraw = SproutSprite;  break;
-                }
-            } else if (cropTiles[i].grown == 0) {
-                spriteToDraw = SproutSprite;
-            }
-
-            ssd1306_DrawBitmap(x, y, spriteToDraw, 18, 15, White);
-        }
-    }
-}
-
-
-
 
 //------------------------------------------------------------------------------
 // Main loop for the crop world: sets initial position and then repeatedly

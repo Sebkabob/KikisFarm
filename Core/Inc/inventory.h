@@ -7,6 +7,7 @@
 #include "sprites.h"
 
 const unsigned char* getItemTitle(ItemType itemType);
+void refreshInventory(InventorySlot inventory[]);
 bool isInventoryEmpty(InventorySlot inventory[]);
 void moveInventoryItemsTogether(InventorySlot inventory[]);
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity);

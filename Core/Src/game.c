@@ -42,26 +42,25 @@ Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots
 
 Game game;
 
-// Revised crop definitions for a more challenging, balanced game
 
-/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE     CROP SPRITE     ITEM ICON        */
-Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,   WheatSprite,    ItemIconWheat      };
-Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,   CornSprite,     ItemIconCorn       };
-Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,   PotatoSprite,   ItemIconPotato     };
-Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,   CarrotSprite,   ItemIconCarrot     };
-Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,   PumpkinSprite,  ItemIconPumpkin    };
-Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,   SugarSprite,    ItemIconSugar      };
+/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
+Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
+Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
 
-Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  SEED,    NULL,           WheatSeedSprite,   };
-Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  SEED,    NULL,  		 CornSeedSprite,    };
-Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  SEED,    NULL, 		     PotatoSeedSprite,  };
-Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, SEED,    NULL, 		     CarrotSeedSprite,  };
-Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, SEED,    NULL, 		     PumpkinSeedSprite, };
-Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, SEED,    NULL, 		     SugarSeedSprite,   };
+Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
 
-Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE, NULL,           TillSprite         };
-Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,    NULL,           HouseKeySprite     };
-//Item coffee   = { COFFEE,   30,  100,   0,  0,    4,  CONSUMABLE, NULL,           NULL,   NULL };
+Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
+Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
+//Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
 
@@ -81,9 +80,45 @@ CropTile cropTiles[10] = {
 // Define the shop inventory array as before.
 Item shopItems[8];
 
+Item* getItemPointerFromID(ItemType id) {
+    switch (id) {
+        case WHEAT:       return &wheat;
+        case CORN:        return &corn;
+        case POTATO:      return &potato;
+        case CARROT:      return &carrot;
+        case PUMPKIN:     return &pumpkin;
+        case SUGAR:       return &sugar;
+        case WHEATSEED:   return &wheatSeed;
+        case CORNSEED:    return &cornSeed;
+        case POTATOSEED:  return &potatoSeed;
+        case CARROTSEED:  return &carrotSeed;
+        case PUMPKINSEED: return &pumpkinSeed;
+        case SUGARSEED:   return &sugarSeed;
+        case TILLSOIL:    return &tillSoil;
+        case HOUSEKEY:    return &houseKey;
+        default:          return NULL;
+    }
+}
 
-// Revised Soil Spot Cost Function
-// Increase the multiplier to make expansion cost more, limiting rapid growth.
+Item getGrownCrop(ItemType seedId) {
+    switch (seedId) {
+        case WHEATSEED:   return wheat;
+        case CORNSEED:    return corn;
+        case POTATOSEED:  return potato;
+        case CARROTSEED:  return carrot;
+        case PUMPKINSEED: return pumpkin;
+        case SUGARSEED:   return sugar;
+        default:
+            // Return an "empty" crop when the seedId is invalid.
+            // You might alternatively handle this as an error.
+            {
+                Item empty = {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
+                return empty;
+            }
+    }
+}
+
+
 int getTillSoilCost() {
     int baseCost = 100;
     double multiplier = 2.0; // Increased from 1.85 to 2.0 for higher cost per additional spot.
@@ -91,9 +126,34 @@ int getTillSoilCost() {
     return ((cost + 5) / 10) * 10;  // Round to the nearest 10.
 }
 
+void displayLevelUp() {
+    int rectWidth = 80, rectHeight = 26;
+    int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
+    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
+    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
 
-// Revised Level-Up Function
-// Increase both the base XP and multiplier to require more effort per level.
+    const char *headerText = "Level Up!";
+    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
+    int headerY = rectY + 3;
+    ssd1306_SetCursor(headerX, headerY);
+    // Casting headerText to (char*) to match the expected parameter type.
+    ssd1306_WriteString((char*)headerText, Font_7x10, White);
+
+    char leftStr[12], rightStr[12];
+    // Use snprintf to avoid potential buffer overflow.
+    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
+    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
+
+    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
+    int startX = rectX + (rectWidth - totalWidth) / 2;
+    int levelY = headerY + 12;
+    ssd1306_SetCursor(startX, levelY);
+    ssd1306_WriteString(leftStr, Font_7x10, White);
+    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
+    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
+    ssd1306_WriteString(rightStr, Font_7x10, White);
+}
+
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
     double xpMultiplier = 1 + 0.35 * player.level;
@@ -111,33 +171,9 @@ int gameLevelUp(void) {
     return xpNeededForNextLevel;
 }
 
-
-void displayLevelUp() {
-    int rectWidth = 80, rectHeight = 26;
-    int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
-    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
-    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
-
-    const char *headerText = "Level Up!";
-    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
-    int headerY = rectY + 3;
-    ssd1306_SetCursor(headerX, headerY);
-    // Casting headerText to (char*) to match the expected parameter type.
-    ssd1306_WriteString((char*)headerText, Font_7x10, White);
-
-    char leftStr[10], rightStr[10];
-    // Use snprintf to avoid potential buffer overflow.
-    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
-    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
-
-    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
-    int startX = rectX + (rectWidth - totalWidth) / 2;
-    int levelY = headerY + 12;
-    ssd1306_SetCursor(startX, levelY);
-    ssd1306_WriteString(leftStr, Font_7x10, White);
-    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
-    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
-    ssd1306_WriteString(rightStr, Font_7x10, White);
+void gameStartup(){
+	pullEEPROM();
+	//refreshInventory(player.inventory);
 }
 
 void initGame(){
@@ -441,15 +477,6 @@ int gameMenu(){
     ssd1306_WriteString("main menu", Font_6x8, White);
     ssd1306_SetCursor(37, 38);
     ssd1306_WriteString("save game", Font_6x8, White);
-
-//    // Update battery life and display it in the top right corner (y ~2)
-//    int batteryVoltageHundred = updateBatteryLife();
-//    int wholePart = batteryVoltageHundred / 100;      // Integer part (e.g., 3)
-//    int fractionalPart = batteryVoltageHundred % 100;   // Fractional part (e.g., 45)
-//    char battStr[16];
-//    sprintf(battStr, "%d.%02dV", wholePart, fractionalPart);
-//    ssd1306_SetCursor(2, 28);
-//    ssd1306_WriteString(battStr, Font_6x8, White);
 
     // Update battery life and display it in the top right corner (y ~2)
     int batteryVoltagePercentage = updateBatteryLife();

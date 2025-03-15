@@ -139,7 +139,7 @@ void controlsTitle(){
 #if defined(CPP)
 void handleTitle() {
 
-	pullEEPROM();
+	gameStartup();
 
 	int menuSelect = 1;
 	ssd1306_Fill(Black);        // Clear the screen

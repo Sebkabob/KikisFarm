@@ -63,7 +63,7 @@ typedef enum {
 
 typedef enum {
 	HCROP,
-	SEED,
+	CROPSEED,
 	SERVICE,
 	CONSUMABLE,
 	ITEM
@@ -102,6 +102,7 @@ typedef struct {
     SubItemType subType;
     const unsigned char *cropSprite;     // Normal (grown) sprite
     const unsigned char *itemSprite; // Seed sprite (if applicable; NULL if not)
+    const unsigned char *titleSprite;
 } Item;
 
 typedef struct {
@@ -168,10 +169,15 @@ extern CropTile cropTiles[10];
 extern Direction cropDirection;
 
 
+Item* getItemPointerFromID(ItemType id);
+Item getGrownCrop(ItemType seedId);
+int getTillSoilCost(void);
+void displayLevelUp(void);
+int gameLevelUp(void);
+void gameStartup(void);
 void initGame(void);
 void initShopItems(void);
 void updateButtonFlags(void);
-int gameLevelUp(void);
 void cropGrowth(void);
 void gameLogic(void);
 void playerDisplay(void);
@@ -181,19 +187,6 @@ void cutToDark(int speed);
 void displayStats(void);
 int gameMenu(void);
 void gameOptions(void);
-bool cropObstacle(int x, int y);
-int checkIfOnCrop(void);
-void cropDisplay(void);
-void cropSoftRefresh(void);
-void cropHardRefresh(void);
-void cropPlayerMovement(void);
-void cropPlant(void);
-void cropHarvest(void);
-void cropDestroy(void);
-void cropPlayerAction(void);
-void drawSoil(void);
-void drawCrops(void);
-void handleCrop(void);
-int updateBatteryLife(void);
+
 
 #endif /* INC_GAME_H_ */

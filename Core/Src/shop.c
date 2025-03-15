@@ -72,7 +72,7 @@ void shopTextDraw(int itemSelect) {
             ssd1306_SetCursor(90 - (7 / 2), 39);
             ssd1306_WriteString("X", Font_7x10, White);
         } else {
-            char priceText[10];
+            char priceText[20];
             int dollars = price / 100;
             int cents = price % 100;
             // Format the price as dollars.cents with leading zeros
@@ -267,7 +267,7 @@ void shopBuy() {
 
 void drawSellValue(int itemSelect){
     int sellPrice;
-    char priceText[10];
+    char priceText[20];
     // If the player owns at least one of the item, calculate the total sell price.
     if(player.inventory[itemSelect - 1].quantity > 0) {
         sellPrice = player.inventory[itemSelect - 1].item->sellValue * player.inventory[itemSelect - 1].quantity;
