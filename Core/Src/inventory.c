@@ -1,31 +1,5 @@
 #include "inventory.h"
 
-void refreshInventory(InventorySlot inventory[]){
-    for (int i = 0; i < 9; i++) {
-        if (inventory[i].item == NULL)
-            continue;
-
-        ItemType itemType = inventory[i].item->id;
-        switch (itemType) {
-            case WHEAT:       inventory[i].item = &wheat;       break;
-            case CORN:        inventory[i].item = &corn;        break;
-            case POTATO:      inventory[i].item = &potato;      break;
-            case CARROT:      inventory[i].item = &carrot;      break;
-            case PUMPKIN:     inventory[i].item = &pumpkin;     break;
-            case SUGAR:       inventory[i].item = &sugar;       break;
-            case WHEATSEED:   inventory[i].item = &wheatSeed;   break;
-            case CORNSEED:    inventory[i].item = &cornSeed;    break;
-            case POTATOSEED:  inventory[i].item = &potatoSeed;  break;
-            case CARROTSEED:  inventory[i].item = &carrotSeed;  break;
-            case PUMPKINSEED: inventory[i].item = &pumpkinSeed; break;
-            case SUGARSEED:   inventory[i].item = &sugarSeed;   break;
-            case TILLSOIL:    inventory[i].item = &tillSoil;    break;
-            case HOUSEKEY:    inventory[i].item = &houseKey;    break;
-            default:          inventory[i].item = NULL;         break;
-        }
-    }
-}
-
 void drawInventoryIcons(int xMov, int yMov){
     // Draw the items in the inventory
     for (int i = 0; i < 9; i++) {

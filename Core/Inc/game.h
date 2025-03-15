@@ -169,6 +169,7 @@ extern CropTile cropTiles[10];
 extern Direction cropDirection;
 
 
+Item getGrownCrop(ItemType seedId);
 void initGame(void);
 void initShopItems(void);
 void updateButtonFlags(void);

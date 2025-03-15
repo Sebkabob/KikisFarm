@@ -103,23 +103,7 @@ void pullEEPROM(void) {
     HAL_Delay(10);
     // Restore the inventory pointers and quantities based on the saved data.
     for (int i = 0; i < 9; i++) {
-        switch (invSave[i].id) {
-            case WHEAT:       player.inventory[i].item = &wheat;       break;
-            case CORN:        player.inventory[i].item = &corn;        break;
-            case POTATO:      player.inventory[i].item = &potato;      break;
-            case CARROT:      player.inventory[i].item = &carrot;      break;
-            case PUMPKIN:     player.inventory[i].item = &pumpkin;     break;
-            case SUGAR:       player.inventory[i].item = &sugar;       break;
-            case WHEATSEED:   player.inventory[i].item = &wheatSeed;   break;
-            case CORNSEED:    player.inventory[i].item = &cornSeed;    break;
-            case POTATOSEED:  player.inventory[i].item = &potatoSeed;  break;
-            case CARROTSEED:  player.inventory[i].item = &carrotSeed;  break;
-            case PUMPKINSEED: player.inventory[i].item = &pumpkinSeed; break;
-            case SUGARSEED:   player.inventory[i].item = &sugarSeed;   break;
-            case TILLSOIL:    player.inventory[i].item = &tillSoil;    break;
-            case HOUSEKEY:    player.inventory[i].item = &houseKey;    break;
-            default:          player.inventory[i].item = NULL;         break;
-        }
+        player.inventory[i].item = getItemPointerFromID(invSave[i].id);
         player.inventory[i].quantity = invSave[i].quantity;
     }
 }

@@ -62,7 +62,6 @@ Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE,   NULL,    
 Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 //Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
 
-
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
 
 CropTile cropTiles[10] = {
@@ -81,6 +80,43 @@ CropTile cropTiles[10] = {
 // Define the shop inventory array as before.
 Item shopItems[8];
 
+Item* getItemPointerFromID(ItemType id) {
+    switch (id) {
+        case WHEAT:       return &wheat;
+        case CORN:        return &corn;
+        case POTATO:      return &potato;
+        case CARROT:      return &carrot;
+        case PUMPKIN:     return &pumpkin;
+        case SUGAR:       return &sugar;
+        case WHEATSEED:   return &wheatSeed;
+        case CORNSEED:    return &cornSeed;
+        case POTATOSEED:  return &potatoSeed;
+        case CARROTSEED:  return &carrotSeed;
+        case PUMPKINSEED: return &pumpkinSeed;
+        case SUGARSEED:   return &sugarSeed;
+        case TILLSOIL:    return &tillSoil;
+        case HOUSEKEY:    return &houseKey;
+        default:          return NULL;
+    }
+}
+
+Item getGrownCrop(ItemType seedId) {
+    switch (seedId) {
+        case WHEATSEED:   return wheat;
+        case CORNSEED:    return corn;
+        case POTATOSEED:  return potato;
+        case CARROTSEED:  return carrot;
+        case PUMPKINSEED: return pumpkin;
+        case SUGARSEED:   return sugar;
+        default:
+            // Return an "empty" crop when the seedId is invalid.
+            // You might alternatively handle this as an error.
+            {
+                Item empty = {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
+                return empty;
+            }
+    }
+}
 
 // Revised Soil Spot Cost Function
 // Increase the multiplier to make expansion cost more, limiting rapid growth.
@@ -142,7 +178,7 @@ void displayLevelUp() {
 
 void gameStartup(){
 	pullEEPROM();
-	refreshInventory(player.inventory);
+	//refreshInventory(player.inventory);
 }
 
 void initGame(){

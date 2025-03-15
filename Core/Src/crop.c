@@ -188,7 +188,7 @@ void cropPlant(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
-    	sound(inventoryOpen);
+        sound(inventoryOpen);
 
         // Let the player select a seed from the inventory
         while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
@@ -206,18 +206,11 @@ void cropPlant(){
                 }
             }
             if (slot != -1) {
-                // Convert the seed to its grown crop using a switch statement
-                Item crop;
-                switch (seedId) {
-                    case WHEATSEED:   crop = wheat;   break;
-                    case CORNSEED:    crop = corn;    break;
-                    case POTATOSEED:  crop = potato;  break;
-                    case CARROTSEED:  crop = carrot;  break;
-                    case PUMPKINSEED: crop = pumpkin; break;
-                    case SUGARSEED:   crop = sugar;   break;
-                    default:
-                        // If no matching crop, you might want to handle the error.
-                        return;
+                // Use the helper function to convert the seed to its grown crop.
+                Item crop = getGrownCrop(seedId);
+                if (crop.id == NONE) {
+                    // Handle error if the conversion failed.
+                    return;
                 }
 
                 // Plant the corresponding crop on the crop tile
@@ -236,6 +229,7 @@ void cropPlant(){
         }
     }
 }
+
 
 
 void cropHarvest(){
@@ -474,9 +468,6 @@ void drawCrops(void) {
         }
     }
 }
-
-
-
 
 //------------------------------------------------------------------------------
 // Main loop for the crop world: sets initial position and then repeatedly
