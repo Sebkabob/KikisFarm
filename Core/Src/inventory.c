@@ -1,25 +1,5 @@
 #include "inventory.h"
 
-const unsigned char* getItemTitle(ItemType itemType) {
-    switch (itemType) {
-    	case WHEAT: return WheatTitle;
-    	case CORN: return CornTitle;
-    	case POTATO: return PotatoTitle;
-    	case CARROT: return CarrotTitle;
-    	case PUMPKIN: return PumpkinTitle;
-    	case SUGAR: return SugarTitle;
-        case WHEATSEED: return WheatSeedsTitle;
-        case CORNSEED: return CornSeedsTitle;
-        case POTATOSEED: return PotatoSeedsTitle;
-        case CARROTSEED: return CarrotSeedsTitle;
-        case PUMPKINSEED: return PumpkinSeedsTitle;
-        case SUGARSEED: return SugarSeedsTitle;
-        case TILLSOIL: return TillMoreSoilTitle;
-        case HOUSEKEY: return HouseKeyTitle;
-        default: return NULL;
-    }
-}
-
 void refreshInventory(InventorySlot inventory[]){
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item == NULL)
@@ -43,6 +23,36 @@ void refreshInventory(InventorySlot inventory[]){
             case HOUSEKEY:    inventory[i].item = &houseKey;    break;
             default:          inventory[i].item = NULL;         break;
         }
+    }
+}
+
+void drawInventoryIcons(int xMov, int yMov){
+    // Draw the items in the inventory
+    for (int i = 0; i < 9; i++) {
+        if (player.inventory[i].item != NULL && player.inventory[i].item->id != NONE) {
+            xMov = ((i % 3) * 17);
+            yMov = ((i / 3) * 17);
+            const unsigned char *spriteToDraw;
+            if (player.inventory[i].item->itemSprite != NULL){
+                spriteToDraw = player.inventory[i].item->itemSprite;
+            	ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
+            }
+        }
+    }
+}
+
+void drawItemInfo(int itemSelect){
+    // Draw the title and quantity of the selected item
+    if (player.inventory[itemSelect - 1].item != NULL && player.inventory[itemSelect - 1].item->id != NONE) {
+        ssd1306_FillRectangle(57, 2, 121, 53, Black);
+        ssd1306_DrawBitmap(57, 2, player.inventory[itemSelect - 1].item->titleSprite, 65, 24, White);
+
+        char quantityText[10];
+        snprintf(quantityText, sizeof(quantityText), "x%02d", player.inventory[itemSelect - 1].quantity);
+        ssd1306_SetCursor(82, 25);
+        ssd1306_WriteString(quantityText, Font_6x8, White);
+    } else {
+        ssd1306_FillRectangle(57, 2, 121, 53, Black);
     }
 }
 
@@ -128,38 +138,6 @@ int hasItemInInventory(InventorySlot inventory[], ItemType itemType) {
     return 0; // Item not found
 }
 
-void drawInventoryIcons(int xMov, int yMov){
-    // Draw the items in the inventory
-    for (int i = 0; i < 9; i++) {
-        if (player.inventory[i].item != NULL && player.inventory[i].item->id != NONE) {
-            xMov = ((i % 3) * 17);
-            yMov = ((i / 3) * 17);
-            const unsigned char *spriteToDraw;
-            if (player.inventory[i].item->itemSprite != NULL){
-                spriteToDraw = player.inventory[i].item->itemSprite;
-            	ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
-            }
-        }
-    }
-}
-
-void drawItemInfo(int itemSelect){
-    // Draw the title and quantity of the selected item
-    if (player.inventory[itemSelect - 1].item != NULL && player.inventory[itemSelect - 1].item->id != NONE) {
-        ssd1306_FillRectangle(57, 2, 121, 53, Black);
-        const unsigned char *itemTitle = getItemTitle(player.inventory[itemSelect - 1].item->id);
-        if (itemTitle != NULL) {
-            ssd1306_DrawBitmap(57, 2, itemTitle, 65, 24, White);
-        }
-        char quantityText[10];
-        snprintf(quantityText, sizeof(quantityText), "x%02d", player.inventory[itemSelect - 1].quantity);
-        ssd1306_SetCursor(82, 25);
-        ssd1306_WriteString(quantityText, Font_6x8, White);
-    } else {
-        ssd1306_FillRectangle(57, 2, 121, 53, Black);
-    }
-}
-
 void drawCanPlant(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == CROPSEED){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
@@ -187,6 +165,8 @@ void drawCanConsume(int itemSelect){
 }
 
 int showInventory(int plantSeed) {
+
+	moveInventoryItemsTogether(player.inventory);
 
     int itemSelect = 1; // Start with the first item selected
     int moved = 1;      // Indicates that the selection box needs to be redrawn

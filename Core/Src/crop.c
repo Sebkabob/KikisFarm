@@ -244,43 +244,27 @@ void cropHarvest(){
 
     if (spot != 0 && cropTiles[spot - 1].grown == 1) {
         // Play harvesting tones
-    	sound(harvest);
 
         Item *harvestedCrop = NULL;
         switch (cropTiles[spot - 1].crop.id) {
-            case WHEAT:
-                harvestedCrop = &wheat;
-                break;
-            case CORN:
-                harvestedCrop = &corn;
-                break;
-            case POTATO:
-                harvestedCrop = &potato;
-                break;
-            case CARROT:
-                harvestedCrop = &carrot;
-                break;
-            case PUMPKIN:
-                harvestedCrop = &pumpkin;
-                break;
-            case SUGAR:
-                harvestedCrop = &sugar;
-                break;
+            case WHEAT:       harvestedCrop = &wheat;   break;
+            case CORN:        harvestedCrop = &corn;    break;
+            case POTATO:      harvestedCrop = &potato;  break;
+            case CARROT:      harvestedCrop = &carrot;  break;
+            case PUMPKIN:     harvestedCrop = &pumpkin; break;
+            case SUGAR:       harvestedCrop = &sugar;   break;
             default:
-                return; // Invalid crop type, exit function.
+                // If no matching crop, handle the error.
+                return;
         }
 
-        // Attempt to add the harvested crop to the inventory.
         // If the inventory is full, play an error sound and exit.
         if (!addItemToInventory(player.inventory, harvestedCrop, 1)) {
         	sound(inventoryFull);
-            // Inventory is full; play error sound.
             return;
         }
 
-        // If the crop is successfully harvested:
-        // Optionally clear the crop (uncomment if desired)
-        // cropTiles[spot - 1].crop.id = NONE;
+    	sound(harvest);
 
         // Increase player's XP and reset crop state.
         player.xp += cropTiles[spot - 1].crop.xp;
