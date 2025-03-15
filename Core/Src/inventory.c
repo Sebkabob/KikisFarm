@@ -108,9 +108,8 @@ void drawInventoryIcons(int xMov, int yMov){
             xMov = ((i % 3) * 17);
             yMov = ((i / 3) * 17);
             const unsigned char *spriteToDraw;
-            if (player.inventory[i].item->itemSprite != NULL) {
+            if (player.inventory[i].item->itemSprite != NULL)
                 spriteToDraw = player.inventory[i].item->itemSprite;
-            }
             ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
         }
     }

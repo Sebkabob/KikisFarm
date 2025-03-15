@@ -37,53 +37,53 @@ bool cropObstacle(int x, int y) {
 //------------------------------------------------------------------------------
 int checkIfOnCrop(void) {
     // Check if the player is on a crop spot and if the spot is unlocked
-    if (player.coordinates.x >= cropSpotXc1 - 2 && player.coordinates.x < cropSpotXc1 + 11 &&
-        player.coordinates.y >= cropSpotYr1 - 2 && player.coordinates.y <= cropSpotYr1 + 3) {
+    if (player.coordinates.x >= cropSpotXc1 - 3 && player.coordinates.x < cropSpotXc1 + 13 &&
+        player.coordinates.y >= cropSpotYr1 - 3 && player.coordinates.y <= cropSpotYr1 + 4) {
         if (player.soilSpots > 7) // Spot 1 is unlocked if soilSpots > 7
             return 1;
     }
-    if (player.coordinates.x >= cropSpotXc2 - 2 && player.coordinates.x < cropSpotXc2 + 11 &&
-        player.coordinates.y >= cropSpotYr1 - 2 && player.coordinates.y <= cropSpotYr1 + 3) {
+    if (player.coordinates.x >= cropSpotXc2 - 3 && player.coordinates.x < cropSpotXc2 + 13 &&
+        player.coordinates.y >= cropSpotYr1 - 3 && player.coordinates.y <= cropSpotYr1 + 4) {
         if (player.soilSpots > 1) // Spot 2 is unlocked if soilSpots > 1
             return 2;
     }
-    if (player.coordinates.x >= cropSpotXc3 - 2 && player.coordinates.x < cropSpotXc3 + 11 &&
-        player.coordinates.y >= cropSpotYr1 - 2 && player.coordinates.y <= cropSpotYr1 + 3) {
+    if (player.coordinates.x >= cropSpotXc3 - 3 && player.coordinates.x < cropSpotXc3 + 13 &&
+        player.coordinates.y >= cropSpotYr1 - 3 && player.coordinates.y <= cropSpotYr1 + 4) {
         if (player.soilSpots > 0) // Spot 3 is unlocked if soilSpots > 0
             return 3;
     }
-    if (player.coordinates.x >= cropSpotXc4 - 2 && player.coordinates.x < cropSpotXc4 + 11 &&
-        player.coordinates.y >= cropSpotYr1 - 2 && player.coordinates.y <= cropSpotYr1 + 3) {
+    if (player.coordinates.x >= cropSpotXc4 - 3 && player.coordinates.x < cropSpotXc4 + 13 &&
+        player.coordinates.y >= cropSpotYr1 - 3 && player.coordinates.y <= cropSpotYr1 + 4) {
         if (player.soilSpots > 2) // Spot 4 is unlocked if soilSpots > 2
             return 4;
     }
-    if (player.coordinates.x >= cropSpotXc5 - 2 && player.coordinates.x < cropSpotXc5 + 11 &&
-        player.coordinates.y >= cropSpotYr1 - 2 && player.coordinates.y <= cropSpotYr1 + 3) {
+    if (player.coordinates.x >= cropSpotXc5 - 3 && player.coordinates.x < cropSpotXc5 + 13 &&
+        player.coordinates.y >= cropSpotYr1 - 3 && player.coordinates.y <= cropSpotYr1 + 4) {
         if (player.soilSpots > 6) // Spot 5 is unlocked if soilSpots > 6
             return 5;
     }
-    if (player.coordinates.x >= cropSpotXc1 - 2 && player.coordinates.x < cropSpotXc1 + 11 &&
-        player.coordinates.y >= cropSpotYr2 - 2 && player.coordinates.y <= cropSpotYr2 + 3) {
+    if (player.coordinates.x >= cropSpotXc1 - 3 && player.coordinates.x < cropSpotXc1 + 13 &&
+        player.coordinates.y >= cropSpotYr2 - 3 && player.coordinates.y <= cropSpotYr2 + 4) {
         if (player.soilSpots > 9) // Spot 6 is unlocked if soilSpots > 9
             return 6;
     }
-    if (player.coordinates.x >= cropSpotXc2 - 2 && player.coordinates.x < cropSpotXc2 + 11 &&
-        player.coordinates.y >= cropSpotYr2 - 2 && player.coordinates.y <= cropSpotYr2 + 3) {
+    if (player.coordinates.x >= cropSpotXc2 - 3 && player.coordinates.x < cropSpotXc2 + 13 &&
+        player.coordinates.y >= cropSpotYr2 - 3 && player.coordinates.y <= cropSpotYr2 + 4) {
         if (player.soilSpots > 5) // Spot 7 is unlocked if soilSpots > 5
             return 7;
     }
-    if (player.coordinates.x >= cropSpotXc3 - 2 && player.coordinates.x < cropSpotXc3 + 11 &&
-        player.coordinates.y >= cropSpotYr2 - 2 && player.coordinates.y <= cropSpotYr2 + 3) {
+    if (player.coordinates.x >= cropSpotXc3 - 3 && player.coordinates.x < cropSpotXc3 + 13 &&
+        player.coordinates.y >= cropSpotYr2 - 3 && player.coordinates.y <= cropSpotYr2 + 4) {
         if (player.soilSpots > 3) // Spot 8 is unlocked if soilSpots > 3
             return 8;
     }
-    if (player.coordinates.x >= cropSpotXc4 - 2 && player.coordinates.x < cropSpotXc4 + 11 &&
-        player.coordinates.y >= cropSpotYr2 - 2 && player.coordinates.y <= cropSpotYr2 + 3) {
+    if (player.coordinates.x >= cropSpotXc4 - 3 && player.coordinates.x < cropSpotXc4 + 13 &&
+        player.coordinates.y >= cropSpotYr2 - 3 && player.coordinates.y <= cropSpotYr2 + 4) {
         if (player.soilSpots > 4) // Spot 9 is unlocked if soilSpots > 4
             return 9;
     }
-    if (player.coordinates.x >= cropSpotXc5 - 2 && player.coordinates.x < cropSpotXc5 + 11 &&
-        player.coordinates.y >= cropSpotYr2 - 2 && player.coordinates.y <= cropSpotYr2 + 3) {
+    if (player.coordinates.x >= cropSpotXc5 - 3 && player.coordinates.x < cropSpotXc5 + 13 &&
+        player.coordinates.y >= cropSpotYr2 - 3 && player.coordinates.y <= cropSpotYr2 + 4) {
         if (player.soilSpots > 8) // Spot 10 is unlocked if soilSpots > 8
             return 10;
     }

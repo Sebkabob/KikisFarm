@@ -49,18 +49,18 @@ Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,   WheatSprite
 Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,   CornSprite,     ItemIconCorn       };
 Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,   PotatoSprite,   ItemIconPotato     };
 Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,   CarrotSprite,   ItemIconCarrot     };
-Item pumpkin     = { PUMPKIN,     22,   0,    22,  70,  0,  HCROP,   PumpkinSprite,  ItemIconPumpkin    };
+Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,   PumpkinSprite,  ItemIconPumpkin    };
 Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,   SugarSprite,    ItemIconSugar      };
 
-Item wheatSeed   = { WHEATSEED,   3,    14,   0,   0,   1,  SEED,    NULL,           WheatSeedSprite,   };
-Item cornSeed    = { CORNSEED,    4,    35,   0,   0,   3,  SEED,    NULL,  		 CornSeedSprite,    };
-Item potatoSeed  = { POTATOSEED,  8,    50,   0,   0,   6,  SEED,    NULL, 		     PotatoSeedSprite,  };
-Item carrotSeed  = { CARROTSEED,  12,   90,   0,   0,   10, SEED,    NULL, 		     CarrotSeedSprite,  };
-Item pumpkinSeed = { PUMPKINSEED, 20,   170,  0,   0,   13, SEED,    NULL, 		     PumpkinSeedSprite, };
-Item sugarSeed   = { SUGARSEED,   30,   290,  0,   0,   16, SEED,    NULL, 		     SugarSeedSprite,   };
+Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  SEED,    NULL,           WheatSeedSprite,   };
+Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  SEED,    NULL,  		 CornSeedSprite,    };
+Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  SEED,    NULL, 		     PotatoSeedSprite,  };
+Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, SEED,    NULL, 		     CarrotSeedSprite,  };
+Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, SEED,    NULL, 		     PumpkinSeedSprite, };
+Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, SEED,    NULL, 		     SugarSeedSprite,   };
 
 Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE, NULL,           TillSprite         };
-Item houseKey    = { HOUSEKEY,    1,    75000,0,   8000,20, ITEM,    NULL,           HouseKeySprite     };
+Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,    NULL,           HouseKeySprite     };
 //Item coffee   = { COFFEE,   30,  100,   0,  0,    4,  CONSUMABLE, NULL,           NULL,   NULL };
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
@@ -145,10 +145,10 @@ void initGame(){
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-    player.money = 0;
+    player.money = 9999999;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 1;
+    player.level = 20;
     player.soilSpots = 1;
 
     game.houseUnlocked = 0;
@@ -176,7 +176,6 @@ void initGame(){
         cropTiles[i].crop.cropSprite = NULL;
         cropTiles[i].crop.itemSprite = NULL;
         cropTiles[i].grown = 0;
-        // Set tile 3 (index 2) to be tilled, others not:
         cropTiles[i].isTilled = (i == 2) ? true : false;
     }
 }
@@ -395,16 +394,19 @@ void displayStats(void) {
     // Ensure we don’t divide by zero
     if (xpNeededForNextLevel == 0) xpNeededForNextLevel = 1;
 
-    // Scale XP bar to a max width of 40 pixels
-    int levelBar = (player.xp * 40) / xpNeededForNextLevel;
-    if (levelBar > 40) levelBar = 40; // Clamp to max width
+    // Scale XP bar to a max width of 38 pixels (adjusted for the new bar size)
+    int levelBar = (player.xp * 38) / xpNeededForNextLevel;
+    if (levelBar > 38) levelBar = 38; // Clamp to max width
 
     // Draw the stats background in the lower 9 pixels (Y:55-64)
     ssd1306_FillRectangle(0, 55, 128, 64, White);
 
-    // Prepare and draw money text
-    sprintf(money, "$%07d", player.money);
-    ssd1306_SetCursor(79, 56);
+    // Convert player's money (in cents) to dollars and cents
+    int dollars = player.money / 100;
+    int cents = player.money % 100;
+    // Format the money with leading zeros: e.g., "$08.50"
+    sprintf(money, "$%05d.%02d", dollars, cents);
+    ssd1306_SetCursor(73, 56);
     ssd1306_WriteString(money, Font_6x8, Black);
 
     // Prepare and draw level text
@@ -413,13 +415,15 @@ void displayStats(void) {
     ssd1306_WriteString(level, Font_6x8, Black);
 
     // Draw XP bar background (empty bar)
-    ssd1306_FillRectangle(32, 57, 74, 61, Black);
+    ssd1306_FillRectangle(32, 57, 70, 61, Black);
 
     // Fill XP progress in the bar (if progress exists)
     if (levelBar > 0) {
         ssd1306_FillRectangle(33, 58, 33 + levelBar, 60, White);
     }
 }
+
+
 
 int gameMenu(){
     int menuselect = 1;

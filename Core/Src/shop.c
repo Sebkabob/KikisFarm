@@ -69,13 +69,16 @@ void shopTextDraw(int itemSelect) {
         }
 
         if (!canBuy) {
-            ssd1306_SetCursor(91 - (7 / 2), 39);
+            ssd1306_SetCursor(90 - (7 / 2), 39);
             ssd1306_WriteString("X", Font_7x10, White);
         } else {
             char priceText[10];
-            snprintf(priceText, sizeof(priceText), "$%d", price);
+            int dollars = price / 100;
+            int cents = price % 100;
+            // Format the price as dollars.cents with leading zeros
+            snprintf(priceText, sizeof(priceText), "$%d.%02d", dollars, cents);
             int textWidth = strlen(priceText) * 7;
-            int centeredX = 91 - (textWidth / 2);
+            int centeredX = 90 - (textWidth / 2);
             ssd1306_SetCursor(centeredX, 39);
             ssd1306_WriteString(priceText, Font_7x10, White);
         }
@@ -90,9 +93,10 @@ void shopTextDraw(int itemSelect) {
         ssd1306_FillRectangle(57, 2, 122, 53, Black);
     }
 
-    ssd1306_DrawRectangle(66, 35, 115, 51, White);
-    ssd1306_DrawRectangle(67, 36, 114, 50, White);
+    ssd1306_DrawRectangle(63, 35, 117, 51, White);
+    ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
+
 
 
 
@@ -266,20 +270,23 @@ void drawSellValue(int itemSelect){
     char priceText[10];
     // If the player owns at least one of the item, calculate the total sell price.
     if(player.inventory[itemSelect - 1].quantity > 0) {
-        sellPrice =  player.inventory[itemSelect - 1].item->sellValue * player.inventory[itemSelect - 1].quantity;
-        snprintf(priceText, sizeof(priceText), "+$%d", sellPrice);
+        sellPrice = player.inventory[itemSelect - 1].item->sellValue * player.inventory[itemSelect - 1].quantity;
+        int dollars = sellPrice / 100;
+        int cents = sellPrice % 100;
+        snprintf(priceText, sizeof(priceText), "+$%d.%02d", dollars, cents);
         int textWidth = strlen(priceText) * 7;
-        int centeredX = 91 - (textWidth / 2);
+        int centeredX = 90 - (textWidth / 2);
         ssd1306_SetCursor(centeredX, 39);
         ssd1306_WriteString(priceText, Font_7x10, White);
     } else {
-        ssd1306_SetCursor(91 - (7 / 2), 39);
+        ssd1306_SetCursor(90 - (7 / 2), 39);
         ssd1306_WriteString("X", Font_7x10, White);
     }
 
-    ssd1306_DrawRectangle(66, 35, 115, 51, White);
-    ssd1306_DrawRectangle(67, 36, 114, 50, White);
+    ssd1306_DrawRectangle(63, 35, 117, 51, White);
+    ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
+
 
 
 void shopSell(){
