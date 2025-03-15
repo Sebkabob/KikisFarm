@@ -29,6 +29,10 @@ extern int batteryLow;
 extern int batteryPercent;
 extern int selectedInventorySlot; // Track the selected slot in the inventory
 
+extern int FrameRate;
+extern int GrowSpeed;
+
+
 extern int A_Button_Flag;
 extern int B_Button_Flag;
 extern int START_Button_Flag;
@@ -53,13 +57,15 @@ typedef enum {
     POTATOSEED,
     CARROTSEED,
     PUMPKINSEED,
-    SUGARSEED
+    SUGARSEED,
+	COFFEE
 } ItemType;
 
 typedef enum {
 	HCROP,
 	SEED,
 	SERVICE,
+	CONSUMABLE,
 	ITEM
 } SubItemType;
 
@@ -68,6 +74,8 @@ typedef enum {
     CROP,
     SHOP,
 	CROPHOUSE,
+	HOUSEROOM,
+	BASEMENT,
     ORCHARD,
     FISHING
 } World;
@@ -92,8 +100,7 @@ typedef struct {
     int xp;
     int levelUnlock;
     SubItemType subType;
-    const unsigned char *sprite;     // Normal (grown) sprite
-    const unsigned char *seedSprite; // Seed sprite (if applicable; NULL if not)
+    const unsigned char *cropSprite;     // Normal (grown) sprite
     const unsigned char *itemSprite; // Seed sprite (if applicable; NULL if not)
 } Item;
 

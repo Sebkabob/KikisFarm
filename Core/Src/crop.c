@@ -519,7 +519,11 @@ void handleCrop() {
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = 23;  // ~30 FPS
+    const uint32_t FRAME_DELAY = FrameRate;  // ~30 FPS
+
+    GrowSpeed = 5; //Instant grow speed
+
+    game.houseUnlocked = 1;
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();

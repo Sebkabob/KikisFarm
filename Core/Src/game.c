@@ -31,6 +31,9 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
+int FrameRate = 20;	//lower is faster
+int GrowSpeed = 1;
+
 int worldBreak = 0;
 
 int refreshBackground = 0;
@@ -41,26 +44,24 @@ Game game;
 
 // Revised crop definitions for a more challenging, balanced game
 
-/*               CROP      SELL  BUY GROW XP  LV  TYPE   CROP SPRITE          ITEM ICON        */
-Item wheat   = { WHEAT,   5,    0,   3,   6,   0,  HCROP, WheatSprite,   NULL, ItemIconWheat };
-Item corn    = { CORN,    7,    0,   8,   10,  0,  HCROP, CornSprite,    NULL, ItemIconCorn };
-Item potato  = { POTATO,  12,   0,   12,  28,  0,  HCROP, PotatoSprite,  NULL, ItemIconPotato };
-Item carrot  = { CARROT,  18,   0,   15,  50,  0,  HCROP, CarrotSprite,  NULL, ItemIconCarrot };
-Item pumpkin = { PUMPKIN, 22,   0,   22,  70,  0,  HCROP, PumpkinSprite, NULL, ItemIconPumpkin };
-Item sugar   = { SUGAR,   45,   0,   25,  85,  0,  HCROP, SugarSprite,   NULL, ItemIconSugar };
+/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE     CROP SPRITE     ITEM ICON        */
+Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,   WheatSprite,    ItemIconWheat      };
+Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,   CornSprite,     ItemIconCorn       };
+Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,   PotatoSprite,   ItemIconPotato     };
+Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,   CarrotSprite,   ItemIconCarrot     };
+Item pumpkin     = { PUMPKIN,     22,   0,    22,  70,  0,  HCROP,   PumpkinSprite,  ItemIconPumpkin    };
+Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,   SugarSprite,    ItemIconSugar      };
 
+Item wheatSeed   = { WHEATSEED,   3,    14,   0,   0,   1,  SEED,    NULL,           WheatSeedSprite,   };
+Item cornSeed    = { CORNSEED,    4,    35,   0,   0,   3,  SEED,    NULL,  		 CornSeedSprite,    };
+Item potatoSeed  = { POTATOSEED,  8,    50,   0,   0,   6,  SEED,    NULL, 		     PotatoSeedSprite,  };
+Item carrotSeed  = { CARROTSEED,  12,   90,   0,   0,   10, SEED,    NULL, 		     CarrotSeedSprite,  };
+Item pumpkinSeed = { PUMPKINSEED, 20,   170,  0,   0,   13, SEED,    NULL, 		     PumpkinSeedSprite, };
+Item sugarSeed   = { SUGARSEED,   30,   290,  0,   0,   16, SEED,    NULL, 		     SugarSeedSprite,   };
 
-// Revised seeds: Adjusted buy values to reflect the new crop rewards.
-Item wheatSeed   = { WHEATSEED,   3,   14,   0,  0,  1, SEED, NULL, WheatSeedSprite,   NULL };
-Item cornSeed    = { CORNSEED,    4,   35,   0,  0,  3, SEED, NULL, CornSeedSprite,    NULL };
-Item potatoSeed  = { POTATOSEED,  8,   50,   0,  0,  6, SEED, NULL, PotatoSeedSprite,  NULL };
-Item carrotSeed  = { CARROTSEED,  12,  90,   0,  0,  10, SEED, NULL, CarrotSeedSprite,  NULL };
-Item pumpkinSeed = { PUMPKINSEED, 20,  170,  0,  0,  13, SEED, NULL, PumpkinSeedSprite, NULL };
-Item sugarSeed   = { SUGARSEED,   30,  290,  0,  0,  16, SEED, NULL, SugarSeedSprite,   NULL };
-
-// Other items remain unchanged
-Item tillSoil = { TILLSOIL, 0, 100, 0, 100, 1, 0, TillSprite, TillSprite };
-Item houseKey = { HOUSEKEY, 1, 75000, 0, 8000, 20, 0, HouseKeySprite, HouseKeySprite };
+Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE, NULL,           TillSprite         };
+Item houseKey    = { HOUSEKEY,    1,    75000,0,   8000,20, ITEM,    NULL,           HouseKeySprite     };
+//Item coffee   = { COFFEE,   30,  100,   0,  0,    4,  CONSUMABLE, NULL,           NULL,   NULL };
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
 
@@ -172,8 +173,8 @@ void initGame(){
         cropTiles[i].crop.xp = 0;
         cropTiles[i].crop.levelUnlock = 0;
         cropTiles[i].crop.subType = 0;
-        cropTiles[i].crop.sprite = NULL;
-        cropTiles[i].crop.seedSprite = NULL;
+        cropTiles[i].crop.cropSprite = NULL;
+        cropTiles[i].crop.itemSprite = NULL;
         cropTiles[i].grown = 0;
         // Set tile 3 (index 2) to be tilled, others not:
         cropTiles[i].isTilled = (i == 2) ? true : false;
@@ -242,7 +243,7 @@ void cropGrowth(){
         if (cropTiles[i].isTilled && cropTiles[i].crop.id != NONE && cropTiles[i].grown == 0) {
             // The crop's growTime is in game ticks (seconds).
             // Compare elapsed time (in ms) with growTime (converted to ms).
-            if (currentTime - cropPlantTimes[i] >= cropTiles[i].crop.growTime * 1000) {
+            if (currentTime - cropPlantTimes[i] >= (cropTiles[i].crop.growTime * 1000) / GrowSpeed) {
             	refreshBackground = 1;
                 cropTiles[i].grown = 1;
                 // (Optional: update the sprite or trigger additional logic here.)
@@ -254,6 +255,7 @@ void cropGrowth(){
 void gameLogic(){
 	gameLevelUp();
 	cropGrowth();
+	updateBatteryLife();
 }
 
 void playerDisplay(){

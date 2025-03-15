@@ -186,7 +186,7 @@ void shopBuy() {
     for (int i = 0; i < 8; i++) {
         xMov = ((i % 3) * 17);
         yMov = ((i / 3) * 17);
-        ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[i].seedSprite, 14, 14, White);
+        ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[i].itemSprite, 14, 14, White);
     }
 
     shopTextDraw(itemSelect);
@@ -501,7 +501,7 @@ void handleShop() {
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = 23;  // Update every 20 ms
+    const uint32_t FRAME_DELAY = FrameRate;  // Update every 20 ms
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();

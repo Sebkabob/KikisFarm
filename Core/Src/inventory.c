@@ -108,11 +108,8 @@ void drawInventoryIcons(int xMov, int yMov){
             xMov = ((i % 3) * 17);
             yMov = ((i / 3) * 17);
             const unsigned char *spriteToDraw;
-            if (player.inventory[i].item->seedSprite != NULL) {
-                spriteToDraw = player.inventory[i].item->seedSprite;
-            } else if (player.inventory[i].item->itemSprite != NULL) {
+            if (player.inventory[i].item->itemSprite != NULL) {
                 spriteToDraw = player.inventory[i].item->itemSprite;
-            	//spriteToDraw = ItemIconWheat;
             }
             ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
         }
@@ -140,6 +137,19 @@ void drawCanPlant(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == SEED){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
 	    ssd1306_WriteString("plant", Font_6x8, White);
+	} else {
+		ssd1306_SetCursor(91 - (7 / 2), 39);
+		ssd1306_WriteString("X", Font_7x10, White);
+	}
+
+    ssd1306_DrawRectangle(66, 35, 115, 51, White);
+    ssd1306_DrawRectangle(67, 36, 114, 50, White);
+}
+
+void drawCanConsume(int itemSelect){
+	if (player.inventory[itemSelect - 1].item->subType == CONSUMABLE){
+	    ssd1306_SetCursor(91 - ((int)strlen("drink") * 6 / 2), 40);
+	    ssd1306_WriteString("drink", Font_6x8, White);
 	} else {
 		ssd1306_SetCursor(91 - (7 / 2), 39);
 		ssd1306_WriteString("X", Font_7x10, White);
@@ -252,9 +262,12 @@ int showInventory(int plantSeed) {
 
             drawItemInfo(itemSelect);
 
-            if (plantSeed) drawCanPlant(itemSelect);
+            if (plantSeed) {
+            	drawCanPlant(itemSelect);
+            } else {
+            	//drawCanConsume(itemSelect);
+            }
 
-            HAL_Delay(5);
             ssd1306_UpdateScreen();
         }
     }

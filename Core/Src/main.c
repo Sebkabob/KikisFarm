@@ -12,7 +12,7 @@
   *	-THE HOUSE *
   *	-GAME PRICE OPTIMIZE *
   *	-MORE ITEMS
-  *	-LOW BATTERY SCREEN
+  *	-LOW BATTERY SCREEN *
   *	-ISSUE WITH HAVING JUST 1 SEED IN INVENTORY? AFTER VISTING BUY STORE THE ITEM COMES BACK
   *
   *
@@ -141,6 +141,15 @@ int updateBatteryLife(void){
         batteryPercent = newVal;
     }
 
+    while (batteryPercent < 5){
+    	ssd1306_Fill(Black);
+        ssd1306_SetCursor(31, 22);
+        ssd1306_WriteString("battery low", Font_6x8, White);
+        ssd1306_SetCursor(31, 34);
+        ssd1306_WriteString("plug in now", Font_6x8, White);
+        ssd1306_UpdateScreen();
+    }
+
     return newVal;
 }
 
@@ -239,6 +248,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  // Process the game state
+	  updateBatteryLife();
+
 	  switch (player.inWorld) {
 	  case TITLE:
 		  handleTitle();
