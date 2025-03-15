@@ -54,8 +54,9 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void pushEEPROM(void);
-void pullEEPROM(void);
+int chargePercentage(double adcValue);
+int chargeVoltage(double adcValue);
+int updateBatteryLife(void);
 void buzzer(uint16_t frequency, uint32_t duration);
 /* USER CODE END EFP */
 

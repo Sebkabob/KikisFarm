@@ -118,8 +118,7 @@ Item getGrownCrop(ItemType seedId) {
     }
 }
 
-// Revised Soil Spot Cost Function
-// Increase the multiplier to make expansion cost more, limiting rapid growth.
+
 int getTillSoilCost() {
     int baseCost = 100;
     double multiplier = 2.0; // Increased from 1.85 to 2.0 for higher cost per additional spot.
@@ -127,9 +126,34 @@ int getTillSoilCost() {
     return ((cost + 5) / 10) * 10;  // Round to the nearest 10.
 }
 
+void displayLevelUp() {
+    int rectWidth = 80, rectHeight = 26;
+    int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
+    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
+    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
 
-// Revised Level-Up Function
-// Increase both the base XP and multiplier to require more effort per level.
+    const char *headerText = "Level Up!";
+    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
+    int headerY = rectY + 3;
+    ssd1306_SetCursor(headerX, headerY);
+    // Casting headerText to (char*) to match the expected parameter type.
+    ssd1306_WriteString((char*)headerText, Font_7x10, White);
+
+    char leftStr[12], rightStr[12];
+    // Use snprintf to avoid potential buffer overflow.
+    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
+    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
+
+    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
+    int startX = rectX + (rectWidth - totalWidth) / 2;
+    int levelY = headerY + 12;
+    ssd1306_SetCursor(startX, levelY);
+    ssd1306_WriteString(leftStr, Font_7x10, White);
+    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
+    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
+    ssd1306_WriteString(rightStr, Font_7x10, White);
+}
+
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
     double xpMultiplier = 1 + 0.35 * player.level;
@@ -145,35 +169,6 @@ int gameLevelUp(void) {
         while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     }
     return xpNeededForNextLevel;
-}
-
-
-void displayLevelUp() {
-    int rectWidth = 80, rectHeight = 26;
-    int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
-    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
-    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
-
-    const char *headerText = "Level Up!";
-    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
-    int headerY = rectY + 3;
-    ssd1306_SetCursor(headerX, headerY);
-    // Casting headerText to (char*) to match the expected parameter type.
-    ssd1306_WriteString((char*)headerText, Font_7x10, White);
-
-    char leftStr[10], rightStr[10];
-    // Use snprintf to avoid potential buffer overflow.
-    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
-    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
-
-    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
-    int startX = rectX + (rectWidth - totalWidth) / 2;
-    int levelY = headerY + 12;
-    ssd1306_SetCursor(startX, levelY);
-    ssd1306_WriteString(leftStr, Font_7x10, White);
-    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
-    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
-    ssd1306_WriteString(rightStr, Font_7x10, White);
 }
 
 void gameStartup(){
@@ -482,15 +477,6 @@ int gameMenu(){
     ssd1306_WriteString("main menu", Font_6x8, White);
     ssd1306_SetCursor(37, 38);
     ssd1306_WriteString("save game", Font_6x8, White);
-
-//    // Update battery life and display it in the top right corner (y ~2)
-//    int batteryVoltageHundred = updateBatteryLife();
-//    int wholePart = batteryVoltageHundred / 100;      // Integer part (e.g., 3)
-//    int fractionalPart = batteryVoltageHundred % 100;   // Fractional part (e.g., 45)
-//    char battStr[16];
-//    sprintf(battStr, "%d.%02dV", wholePart, fractionalPart);
-//    ssd1306_SetCursor(2, 28);
-//    ssd1306_WriteString(battStr, Font_6x8, White);
 
     // Update battery life and display it in the top right corner (y ~2)
     int batteryVoltagePercentage = updateBatteryLife();
