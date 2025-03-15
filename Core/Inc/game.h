@@ -63,7 +63,7 @@ typedef enum {
 
 typedef enum {
 	HCROP,
-	SEED,
+	CROPSEED,
 	SERVICE,
 	CONSUMABLE,
 	ITEM
@@ -102,6 +102,7 @@ typedef struct {
     SubItemType subType;
     const unsigned char *cropSprite;     // Normal (grown) sprite
     const unsigned char *itemSprite; // Seed sprite (if applicable; NULL if not)
+    const unsigned char *titleSprite;
 } Item;
 
 typedef struct {

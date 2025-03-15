@@ -20,6 +20,33 @@ const unsigned char* getItemTitle(ItemType itemType) {
     }
 }
 
+void refreshInventory(InventorySlot inventory[]){
+    for (int i = 0; i < 9; i++) {
+        if (inventory[i].item == NULL)
+            continue;
+
+        ItemType itemType = inventory[i].item->id;
+        switch (itemType) {
+            case WHEAT:       inventory[i].item = &wheat;       break;
+            case CORN:        inventory[i].item = &corn;        break;
+            case POTATO:      inventory[i].item = &potato;      break;
+            case CARROT:      inventory[i].item = &carrot;      break;
+            case PUMPKIN:     inventory[i].item = &pumpkin;     break;
+            case SUGAR:       inventory[i].item = &sugar;       break;
+            case WHEATSEED:   inventory[i].item = &wheatSeed;   break;
+            case CORNSEED:    inventory[i].item = &cornSeed;    break;
+            case POTATOSEED:  inventory[i].item = &potatoSeed;  break;
+            case CARROTSEED:  inventory[i].item = &carrotSeed;  break;
+            case PUMPKINSEED: inventory[i].item = &pumpkinSeed; break;
+            case SUGARSEED:   inventory[i].item = &sugarSeed;   break;
+            case TILLSOIL:    inventory[i].item = &tillSoil;    break;
+            case HOUSEKEY:    inventory[i].item = &houseKey;    break;
+            default:          inventory[i].item = NULL;         break;
+        }
+    }
+}
+
+
 bool isInventoryEmpty(InventorySlot inventory[]) {
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item != NULL && inventory[i].item->id != NONE) {
@@ -108,9 +135,10 @@ void drawInventoryIcons(int xMov, int yMov){
             xMov = ((i % 3) * 17);
             yMov = ((i / 3) * 17);
             const unsigned char *spriteToDraw;
-            if (player.inventory[i].item->itemSprite != NULL)
+            if (player.inventory[i].item->itemSprite != NULL){
                 spriteToDraw = player.inventory[i].item->itemSprite;
-            ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
+            	ssd1306_DrawBitmap(8 + xMov, 4 + yMov, spriteToDraw, 14, 14, White);
+            }
         }
     }
 }
@@ -133,7 +161,7 @@ void drawItemInfo(int itemSelect){
 }
 
 void drawCanPlant(int itemSelect){
-	if (player.inventory[itemSelect - 1].item->subType == SEED){
+	if (player.inventory[itemSelect - 1].item->subType == CROPSEED){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
 	    ssd1306_WriteString("plant", Font_6x8, White);
 	} else {

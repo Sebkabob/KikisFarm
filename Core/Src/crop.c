@@ -209,24 +209,12 @@ void cropPlant(){
                 // Convert the seed to its grown crop using a switch statement
                 Item crop;
                 switch (seedId) {
-                    case WHEATSEED:
-                        crop = wheat;
-                        break;
-                    case CORNSEED:
-                        crop = corn;
-                        break;
-                    case POTATOSEED:
-                        crop = potato;
-                        break;
-                    case CARROTSEED:
-                        crop = carrot;
-                        break;
-                    case PUMPKINSEED:
-                        crop = pumpkin;
-                        break;
-                    case SUGARSEED:
-                        crop = sugar;
-                        break;
+                    case WHEATSEED:   crop = wheat;   break;
+                    case CORNSEED:    crop = corn;    break;
+                    case POTATOSEED:  crop = potato;  break;
+                    case CARROTSEED:  crop = carrot;  break;
+                    case PUMPKINSEED: crop = pumpkin; break;
+                    case SUGARSEED:   crop = sugar;   break;
                     default:
                         // If no matching crop, you might want to handle the error.
                         return;

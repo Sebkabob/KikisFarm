@@ -42,26 +42,26 @@ Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots
 
 Game game;
 
-// Revised crop definitions for a more challenging, balanced game
 
-/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE     CROP SPRITE     ITEM ICON        */
-Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,   WheatSprite,    ItemIconWheat      };
-Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,   CornSprite,     ItemIconCorn       };
-Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,   PotatoSprite,   ItemIconPotato     };
-Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,   CarrotSprite,   ItemIconCarrot     };
-Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,   PumpkinSprite,  ItemIconPumpkin    };
-Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,   SugarSprite,    ItemIconSugar      };
+/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
+Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
+Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
 
-Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  SEED,    NULL,           WheatSeedSprite,   };
-Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  SEED,    NULL,  		 CornSeedSprite,    };
-Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  SEED,    NULL, 		     PotatoSeedSprite,  };
-Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, SEED,    NULL, 		     CarrotSeedSprite,  };
-Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, SEED,    NULL, 		     PumpkinSeedSprite, };
-Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, SEED,    NULL, 		     SugarSeedSprite,   };
+Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
 
-Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE, NULL,           TillSprite         };
-Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,    NULL,           HouseKeySprite     };
-//Item coffee   = { COFFEE,   30,  100,   0,  0,    4,  CONSUMABLE, NULL,           NULL,   NULL };
+Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
+Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
+//Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
+
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
 
@@ -138,6 +138,11 @@ void displayLevelUp() {
     ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
     ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
     ssd1306_WriteString(rightStr, Font_7x10, White);
+}
+
+void gameStartup(){
+	pullEEPROM();
+	refreshInventory(player.inventory);
 }
 
 void initGame(){
