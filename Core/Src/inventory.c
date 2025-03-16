@@ -202,14 +202,7 @@ int showInventory(int plantSeed) {
             if (plantSeed == 1) {
                 // Check if the selected item is a valid seed
                 Item* selectedItem = player.inventory[itemSelect - 1].item;
-                if (selectedItem != NULL &&
-                    (selectedItem->id == WHEATSEED ||
-                     selectedItem->id == CORNSEED ||
-                     selectedItem->id == POTATOSEED ||
-                     selectedItem->id == CARROTSEED ||
-                     selectedItem->id == PUMPKINSEED ||
-                     selectedItem->id == SUGARSEED)) {
-
+                if (selectedItem->subType == CROPSEED) {
                     // Remove one unit of the seed from the inventory.
                 	return selectedItem->id;
                 } else {
