@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define TOTAL_SHOP_ITEMS 12   // Total items in the shop
+#define TOTAL_SHOP_ITEMS 12  // Total items in the shop 9, 12, 15, 18, 21
 #define VISIBLE_SHOP_ITEMS 9  // 3 x 3 grid
 
 void textSpeaking(const char *text, int speed, int fontSize, int wait);
@@ -85,7 +85,6 @@ void shopTextDraw(int itemSelect) {
     } else {
         ssd1306_FillRectangle(57, 2, 122, 53, Black);
     }
-
     ssd1306_DrawRectangle(63, 35, 117, 51, White);
     ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
@@ -166,23 +165,24 @@ bool shopNearSell(){
     );
 }
 
+
 void shopBuy() {
     initShopItems();
 
-    // Use a static scroll offset that persists during the shop session.
-    static int shopScrollOffset = 0;
+    // Reset scroll offset for each shop session.
+    int shopScrollOffset = 0;
 
-    // itemSelect is 1-indexed within the visible grid (from 1 to VISIBLE_SHOP_ITEMS)
+    // itemSelect is 1-indexed (values 1 to VISIBLE_SHOP_ITEMS)
     int itemSelect = 1;
     int moved = 1;
     int xMov, yMov;
     int prevXMov = 0, prevYMov = 0;
 
-    // Draw the background
+    // Draw the initial background and UI.
     ssd1306_FillRectangle(5, 1, 122, 55, Black);
     ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
 
-    // Draw the visible shop items using the current scroll offset.
+    // Draw visible shop items based on the current scroll offset.
     for (int i = 0; i < VISIBLE_SHOP_ITEMS; i++) {
         int index = shopScrollOffset + i;
         if (index >= TOTAL_SHOP_ITEMS)
@@ -193,7 +193,6 @@ void shopBuy() {
     }
 
     // Display the text/info for the currently selected item.
-    // Pass the actual shop index (1-indexed) = shopScrollOffset + itemSelect.
     shopTextDraw(shopScrollOffset + itemSelect);
     displayStats();
 
@@ -203,10 +202,24 @@ void shopBuy() {
     prevXMov = xMov;
     prevYMov = yMov;
     ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+
+    if (shopScrollOffset + VISIBLE_SHOP_ITEMS < TOTAL_SHOP_ITEMS)
+    	ssd1306_DrawBitmap(58, 51, downArrow, 3, 2, White);
+    if (shopScrollOffset > 0)
+    	ssd1306_DrawBitmap(58, 5, upArrow, 3, 2, White);
+
     ssd1306_UpdateScreen();
 
     while (1) {
-        // UP navigation: if on the top row and scrolling is possible, scroll up by one row (3 items).
+        // --- PRIORITIZE EXIT ---
+        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            sound(menuNav);
+            // Wait for B button release.
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            break;  // Exit shopBuy()
+        }
+
+        // --- NAVIGATION INPUTS ---
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
             sound(menuNav);
             moved = 1;
@@ -218,26 +231,21 @@ void shopBuy() {
             while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
         }
 
-        // DOWN navigation: if on the bottom row and more items exist, scroll down by one row (3 items).
         if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
             sound(menuNav);
             moved = 1;
             if (itemSelect > 6 && (shopScrollOffset + VISIBLE_SHOP_ITEMS) < TOTAL_SHOP_ITEMS) {
                 shopScrollOffset += 3;
-                // Clamp so we don't overshoot.
-                if (shopScrollOffset + VISIBLE_SHOP_ITEMS > TOTAL_SHOP_ITEMS) {
+                if (shopScrollOffset + VISIBLE_SHOP_ITEMS > TOTAL_SHOP_ITEMS)
                     shopScrollOffset = TOTAL_SHOP_ITEMS - VISIBLE_SHOP_ITEMS;
-                }
             } else if (itemSelect <= 6) {
                 itemSelect += 3;
-                if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS) {
+                if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS)
                     itemSelect = TOTAL_SHOP_ITEMS - shopScrollOffset;
-                }
             }
             while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
         }
 
-        // LEFT navigation (within the visible grid).
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
             sound(menuNav);
             moved = 1;
@@ -245,28 +253,16 @@ void shopBuy() {
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
 
-        // RIGHT navigation (within the visible grid).
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
             sound(menuNav);
             moved = 1;
             itemSelect += 1;
-            if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS) {
+            if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS)
                 itemSelect = TOTAL_SHOP_ITEMS - shopScrollOffset;
-            }
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
         }
 
-        // Exit the shop on B button press.
-        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-            sound(menuNav);
-            shopHardRefresh();
-            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-            break;
-        }
-
-        // Purchase the selected item on A button press.
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-            // Calculate the actual shop item index (1-indexed) for shopBuyItem.
             int actualIndex = shopScrollOffset + itemSelect;
             int didItBuy = shopBuyItem(&player.money, player.level, player.inventory, actualIndex);
             if (didItBuy) {
@@ -278,14 +274,12 @@ void shopBuy() {
             moved = 1;
         }
 
-        // Redraw the UI if any movement occurred.
+        // --- REDRAW UI IF NEEDED ---
         if (moved) {
             moved = 0;
-            // Clear and redraw the board background.
             ssd1306_FillRectangle(5, 1, 122, 55, Black);
             ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
 
-            // Redraw the visible shop items using the updated scroll offset.
             for (int i = 0; i < VISIBLE_SHOP_ITEMS; i++) {
                 int index = shopScrollOffset + i;
                 if (index >= TOTAL_SHOP_ITEMS)
@@ -295,45 +289,29 @@ void shopBuy() {
                 ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[index].itemSprite, 14, 14, White);
             }
 
-            // Erase the previous selection rectangle.
+            // Erase previous selection rectangle.
             ssd1306_DrawRectangle(8 + prevXMov, 4 + prevYMov, 21 + prevXMov, 17 + prevYMov, Black);
 
-            // Recalculate the selection rectangle based on the visible grid.
+            // Recalculate new selection rectangle.
             xMov = ((itemSelect - 1) % 3) * 17;
             yMov = ((itemSelect - 1) / 3) * 17;
             prevXMov = xMov;
             prevYMov = yMov;
 
-            // Update the item information display with the actual index.
             shopTextDraw(shopScrollOffset + itemSelect);
             displayStats();
 
-            // Draw the new selection rectangle.
             ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
 
-            // Draw arrow indicators:
-            // Draw down arrow if there are more items below.
-            if ((shopScrollOffset + VISIBLE_SHOP_ITEMS) < TOTAL_SHOP_ITEMS) {
-                ssd1306_Line(58, 50, 60, 50, White);
-                ssd1306_DrawPixel(59, 51, White);
-            } else {
-                ssd1306_Line(58, 50, 60, 50, Black);
-                ssd1306_DrawPixel(59, 51, Black);
-            }
-            // Draw up arrow if there are items above.
-            if (shopScrollOffset > 0) {
-                ssd1306_Line(58, 5, 60, 5, White);
-                ssd1306_DrawPixel(59, 4, White);
-            } else {
-                ssd1306_Line(58, 5, 60, 5, Black);
-                ssd1306_DrawPixel(59, 4, Black);
-            }
+            if (shopScrollOffset + VISIBLE_SHOP_ITEMS < TOTAL_SHOP_ITEMS)
+            	ssd1306_DrawBitmap(58, 51, downArrow, 3, 2, White);
+            if (shopScrollOffset > 0)
+            	ssd1306_DrawBitmap(58, 5, upArrow, 3, 2, White);
 
             ssd1306_UpdateScreen();
         }
     }
 }
-
 
 
 void drawSellValue(int itemSelect){

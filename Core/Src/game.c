@@ -42,23 +42,25 @@ Player player;
 
 Game game;
 /*                   ITEM         SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item wheat       = { WHEAT,       5,    0,     3,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item wheat       = { WHEAT,       5,    0,     2,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
 Item corn        = { CORN,        7,    0,     8,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
 Item potato      = { POTATO,      12,   0,     12,  28,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
 Item carrot      = { CARROT,      18,   0,     15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item tomato      = { TOMATO,      20,   0,     18,  60,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
 Item pumpkin     = { PUMPKIN,     25,   0,     22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
-Item sugar       = { SUGAR,       45,   0,     25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
-Item mint        = { MINT,        35,   0,     15,  65,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
-Item saffron     = { SAFFRON,     35,   0,     15,  65,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
+Item mint        = { MINT,        35,   0,     20,  75,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item sugar       = { SUGAR,       40,   0,     25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item saffron     = { SAFFRON,     80,   0,     15,  50,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
-Item wheatSeed   = { WHEATSEED,   5,    30,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
-Item cornSeed    = { CORNSEED,    20,   75,    0,   0,   3,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
-Item potatoSeed  = { POTATOSEED,  50,   125,   0,   0,   6,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
-Item carrotSeed  = { CARROTSEED,  60,   210,   0,   0,   10, CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
-Item pumpkinSeed = { PUMPKINSEED, 80,   300,   0,   0,   12, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
-Item mintSeed    = { MINTSEED,    90,   375,   0,   0,   14, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
-Item sugarSeed   = { SUGARSEED,   125,  450,   0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
-Item saffronSeed = { SAFFRONSEED, 200,  600,   0,   0,   18, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
+Item wheatSeed   = { WHEATSEED,   5,    75,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed    = { CORNSEED,    20,   85,    0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed  = { POTATOSEED,  50,   150,   0,   0,   4,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed  = { CARROTSEED,  60,   225,   0,   0,   7,  CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item tomatoSeed  = { TOMATOSEED,  70,   275,   0,   0,   9,  CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
+Item pumpkinSeed = { PUMPKINSEED, 80,   325,   0,   0,   11, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item mintSeed    = { MINTSEED,    90,   400,   0,   0,   13, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
+Item sugarSeed   = { SUGARSEED,   125,  525,   0,   0,   15, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item saffronSeed = { SAFFRONSEED, 200,  700,   0,   0,   17, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
 
 Item tillSoil    = { TILLSOIL,    0,    100,   0,   0,   1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
 
@@ -89,15 +91,14 @@ void initShopItems(void) {
     shopItems[1]  = cornSeed;
     shopItems[2]  = potatoSeed;
     shopItems[3]  = carrotSeed;
-    shopItems[4]  = pumpkinSeed;
-    shopItems[5]  = mintSeed;
-    shopItems[6]  = sugarSeed;
-    shopItems[7]  = saffronSeed;
-    shopItems[8]  = tillSoil;
-    shopItems[9]  = houseKey;
-    shopItems[10] = tillSoil;
+    shopItems[4]  = tomatoSeed;
+    shopItems[5]  = pumpkinSeed;
+    shopItems[6]  = mintSeed;
+    shopItems[7]  = sugarSeed;
+    shopItems[8]  = saffronSeed;
+    shopItems[9]  = tillSoil;
+    shopItems[10]  = houseKey;
     shopItems[11] = tillSoil;
-    shopItems[12] = tillSoil;
 }
 
 Item* getItemPointerFromID(ItemType id) {
@@ -106,6 +107,7 @@ Item* getItemPointerFromID(ItemType id) {
         case CORN:        return &corn;
         case POTATO:      return &potato;
         case CARROT:      return &carrot;
+        case TOMATO:      return &tomato;
         case PUMPKIN:     return &pumpkin;
         case MINT:        return &mint;
         case SUGAR:       return &sugar;
@@ -114,6 +116,7 @@ Item* getItemPointerFromID(ItemType id) {
         case CORNSEED:    return &cornSeed;
         case POTATOSEED:  return &potatoSeed;
         case CARROTSEED:  return &carrotSeed;
+        case TOMATOSEED:  return &tomatoSeed;
         case PUMPKINSEED: return &pumpkinSeed;
         case MINTSEED:    return &mintSeed;
         case SUGARSEED:   return &sugarSeed;
@@ -130,6 +133,7 @@ Item getGrownCrop(ItemType seedId) {
         case CORNSEED:    return corn;
         case POTATOSEED:  return potato;
         case CARROTSEED:  return carrot;
+        case TOMATOSEED:  return tomato;
         case PUMPKINSEED: return pumpkin;
         case MINTSEED:    return mint;
         case SUGARSEED:   return sugar;
@@ -304,7 +308,7 @@ void cropGrowth(){
 void gameLogic(){
 	gameLevelUp();
 	cropGrowth();
-	updateBatteryLife();
+	//updateBatteryLife();
 }
 
 void playerDisplay(){

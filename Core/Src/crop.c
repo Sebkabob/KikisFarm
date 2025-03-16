@@ -316,6 +316,7 @@ void cropHarvest(){
             case CORN:        harvestedCrop = &corn;    break;
             case POTATO:      harvestedCrop = &potato;  break;
             case CARROT:      harvestedCrop = &carrot;  break;
+            case TOMATO:      harvestedCrop = &tomato;  break;
             case PUMPKIN:     harvestedCrop = &pumpkin; break;
             case MINT:        harvestedCrop = &mint;    break;
             case SUGAR:       harvestedCrop = &sugar;   break;

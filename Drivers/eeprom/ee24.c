@@ -64,28 +64,28 @@ void pullEEPROM(void) {
 
     // Read soundOn from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(soundOn);
 
     // Read player info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(player);
 
     // Read cropTiles info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(cropTiles);
 
     // Read game info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(game);
@@ -98,7 +98,7 @@ void pullEEPROM(void) {
     InventorySaveSlot invSave[9];
     // Read the inventory save data from EEPROM.
     if (!EE24_Read(&hee24, addr, (uint8_t*)invSave, sizeof(invSave), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     // Restore the inventory pointers and quantities based on the saved data.
@@ -115,28 +115,28 @@ void pushEEPROM(void) {
 
     // Write soundOn to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&soundOn, sizeof(soundOn), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(soundOn);
 
     // Write player info to EEPROM (note: inventory pointers are saved here but will be overridden)
     if (!EE24_Write(&hee24, addr, (uint8_t *)&player, sizeof(player), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(player);
 
     // Write cropTiles info to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(cropTiles);
 
     // Write game info to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
     addr += sizeof(game);
@@ -159,7 +159,7 @@ void pushEEPROM(void) {
     }
     // Write the inventory save data to EEPROM.
     if (!EE24_Write(&hee24, addr, (uint8_t*)invSave, sizeof(invSave), 1000)) {
-        buzzer(100, 300);
+        //buzzer(100, 300);
     }
     HAL_Delay(10);
 }
