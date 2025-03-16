@@ -36,6 +36,7 @@ void shopHardRefresh(){
 }
 
 void shopTextDraw(int itemSelect) {
+
     if (itemSelect > 0 && itemSelect <= TOTAL_SHOP_ITEMS) {
         ssd1306_FillRectangle(57, 2, 121, 53, Black);
         ssd1306_DrawBitmap(57, 2, shopItems[itemSelect - 1].titleSprite, 65, 24, White);
@@ -223,7 +224,7 @@ void shopBuy() {
             moved = 1;
             if (itemSelect > 6 && (shopScrollOffset + VISIBLE_SHOP_ITEMS) < TOTAL_SHOP_ITEMS) {
                 shopScrollOffset += 3;
-                // Clamp to ensure we don’t overshoot the available items.
+                // Clamp so we don't overshoot.
                 if (shopScrollOffset + VISIBLE_SHOP_ITEMS > TOTAL_SHOP_ITEMS) {
                     shopScrollOffset = TOTAL_SHOP_ITEMS - VISIBLE_SHOP_ITEMS;
                 }
@@ -277,7 +278,7 @@ void shopBuy() {
             moved = 1;
         }
 
-        // Redraw the UI if anything moved.
+        // Redraw the UI if any movement occurred.
         if (moved) {
             moved = 0;
             // Clear and redraw the board background.
@@ -309,10 +310,30 @@ void shopBuy() {
 
             // Draw the new selection rectangle.
             ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+
+            // Draw arrow indicators:
+            // Draw down arrow if there are more items below.
+            if ((shopScrollOffset + VISIBLE_SHOP_ITEMS) < TOTAL_SHOP_ITEMS) {
+                ssd1306_Line(58, 50, 60, 50, White);
+                ssd1306_DrawPixel(59, 51, White);
+            } else {
+                ssd1306_Line(58, 50, 60, 50, Black);
+                ssd1306_DrawPixel(59, 51, Black);
+            }
+            // Draw up arrow if there are items above.
+            if (shopScrollOffset > 0) {
+                ssd1306_Line(58, 5, 60, 5, White);
+                ssd1306_DrawPixel(59, 4, White);
+            } else {
+                ssd1306_Line(58, 5, 60, 5, Black);
+                ssd1306_DrawPixel(59, 4, Black);
+            }
+
             ssd1306_UpdateScreen();
         }
     }
 }
+
 
 
 void drawSellValue(int itemSelect){

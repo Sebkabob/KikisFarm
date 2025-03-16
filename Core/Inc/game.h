@@ -53,6 +53,7 @@ typedef enum {
     PUMPKIN,
     SUGAR,
 	SAFFRON,
+	MINT,
     WHEATSEED,
     CORNSEED,
     POTATOSEED,
@@ -60,6 +61,7 @@ typedef enum {
     PUMPKINSEED,
     SUGARSEED,
 	SAFFRONSEED,
+	MINTSEED,
 	COFFEE
 } ItemType;
 
@@ -158,8 +160,8 @@ extern int refreshBackground;
 
 extern Item shopItems[];
 
-extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron;
-extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed, saffronSeed;
+extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron, mint;
+extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed, saffronSeed, mintSeed;
 extern Item tillSoil, houseKey;
 
 extern Player player;

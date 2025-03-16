@@ -48,18 +48,22 @@ Item potato      = { POTATO,      12,   0,     12,  28,  0,  HCROP,     PotatoSp
 Item carrot      = { CARROT,      18,   0,     15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
 Item pumpkin     = { PUMPKIN,     25,   0,     22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
 Item sugar       = { SUGAR,       45,   0,     25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
-Item saffron     = { SAFFRON,     35,   0,     15,  65,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle       };
+Item mint        = { MINT,        35,   0,     15,  65,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item saffron     = { SAFFRON,     35,   0,     15,  65,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
 Item wheatSeed   = { WHEATSEED,   5,    30,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
 Item cornSeed    = { CORNSEED,    20,   75,    0,   0,   3,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
 Item potatoSeed  = { POTATOSEED,  50,   125,   0,   0,   6,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
 Item carrotSeed  = { CARROTSEED,  60,   210,   0,   0,   10, CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
-Item pumpkinSeed = { PUMPKINSEED, 80,   325,   0,   0,   13, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
-Item sugarSeed   = { SUGARSEED,   100,  450,   0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item pumpkinSeed = { PUMPKINSEED, 80,   300,   0,   0,   12, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item mintSeed    = { MINTSEED,    90,   375,   0,   0,   14, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
+Item sugarSeed   = { SUGARSEED,   125,  450,   0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
 Item saffronSeed = { SAFFRONSEED, 200,  600,   0,   0,   18, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
 
 Item tillSoil    = { TILLSOIL,    0,    100,   0,   0,   1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
+
 Item houseKey    = { HOUSEKEY,    9999, 90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
+
 //Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
@@ -81,18 +85,19 @@ CropTile cropTiles[10] = {
 Item shopItems[12];
 
 void initShopItems(void) {
-    shopItems[0] = wheatSeed;
-    shopItems[1] = cornSeed;
-    shopItems[2] = potatoSeed;
-    shopItems[3] = carrotSeed;
-    shopItems[4] = pumpkinSeed;
-    shopItems[5] = sugarSeed;
-    shopItems[6] = saffronSeed;
-    shopItems[7] = tillSoil;
-    shopItems[8] = houseKey;
-    shopItems[9] = tillSoil;
+    shopItems[0]  = wheatSeed;
+    shopItems[1]  = cornSeed;
+    shopItems[2]  = potatoSeed;
+    shopItems[3]  = carrotSeed;
+    shopItems[4]  = pumpkinSeed;
+    shopItems[5]  = mintSeed;
+    shopItems[6]  = sugarSeed;
+    shopItems[7]  = saffronSeed;
+    shopItems[8]  = tillSoil;
+    shopItems[9]  = houseKey;
     shopItems[10] = tillSoil;
     shopItems[11] = tillSoil;
+    shopItems[12] = tillSoil;
 }
 
 Item* getItemPointerFromID(ItemType id) {
@@ -102,6 +107,7 @@ Item* getItemPointerFromID(ItemType id) {
         case POTATO:      return &potato;
         case CARROT:      return &carrot;
         case PUMPKIN:     return &pumpkin;
+        case MINT:        return &mint;
         case SUGAR:       return &sugar;
         case SAFFRON:     return &saffron;
         case WHEATSEED:   return &wheatSeed;
@@ -109,6 +115,7 @@ Item* getItemPointerFromID(ItemType id) {
         case POTATOSEED:  return &potatoSeed;
         case CARROTSEED:  return &carrotSeed;
         case PUMPKINSEED: return &pumpkinSeed;
+        case MINTSEED:    return &mintSeed;
         case SUGARSEED:   return &sugarSeed;
         case SAFFRONSEED: return &saffronSeed;
         case TILLSOIL:    return &tillSoil;
@@ -124,6 +131,7 @@ Item getGrownCrop(ItemType seedId) {
         case POTATOSEED:  return potato;
         case CARROTSEED:  return carrot;
         case PUMPKINSEED: return pumpkin;
+        case MINTSEED:    return mint;
         case SUGARSEED:   return sugar;
         case SAFFRONSEED: return saffron;
         default:
