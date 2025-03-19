@@ -7,14 +7,8 @@
   *
   *	LEFT TO DO:
   *
-  *	-LORE *
-  *	-SOUND DESIGN *
-  *	-THE HOUSE *
-  *	-GAME PRICE OPTIMIZE *
-  *	-MORE ITEMS
-  *	-LOW BATTERY SCREEN *
-  *	-ISSUE WITH HAVING JUST 1 SEED IN INVENTORY? AFTER VISTING BUY STORE THE ITEM COMES BACK
-  *
+  *	-1 MORE ITEMS
+  *	-XP BAR GLITCH
   *
   ******************************************************************************
   */

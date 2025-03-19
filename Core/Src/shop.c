@@ -6,16 +6,8 @@
 #include <stdbool.h>
 #include <math.h>
 
-const unsigned char *itemTitles[] = {
-    WheatSeedsTitle,
-    CornSeedsTitle,
-    PotatoSeedsTitle,
-    CarrotSeedsTitle,
-    PumpkinSeedsTitle,
-    SugarSeedsTitle,
-    TillMoreSoilTitle,
-    HouseKeyTitle
-};
+#define TOTAL_SHOP_ITEMS 12  // Total items in the shop 9, 12, 15, 18, 21
+#define VISIBLE_SHOP_ITEMS 9  // 3 x 3 grid
 
 void textSpeaking(const char *text, int speed, int fontSize, int wait);
 
@@ -44,9 +36,10 @@ void shopHardRefresh(){
 }
 
 void shopTextDraw(int itemSelect) {
-    if (itemSelect > 0 && itemSelect <= 8) {
+
+    if (itemSelect > 0 && itemSelect <= TOTAL_SHOP_ITEMS) {
         ssd1306_FillRectangle(57, 2, 121, 53, Black);
-        ssd1306_DrawBitmap(57, 2, itemTitles[itemSelect - 1], 65, 24, White);
+        ssd1306_DrawBitmap(57, 2, shopItems[itemSelect - 1].titleSprite, 65, 24, White);
 
         bool canBuy = false;
         int price = 0;
@@ -92,16 +85,12 @@ void shopTextDraw(int itemSelect) {
     } else {
         ssd1306_FillRectangle(57, 2, 122, 53, Black);
     }
-
     ssd1306_DrawRectangle(63, 35, 117, 51, White);
     ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
 
-
-
-
 int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect) {
-    if (itemSelect < 1 || itemSelect > 8) {
+    if (itemSelect < 1 || itemSelect > TOTAL_SHOP_ITEMS) {
         return 0; // Invalid selection.
     }
 
@@ -176,89 +165,149 @@ bool shopNearSell(){
     );
 }
 
+
 void shopBuy() {
     initShopItems();
 
+    // Reset scroll offset for each shop session.
+    int shopScrollOffset = 0;
+
+    // itemSelect is 1-indexed (values 1 to VISIBLE_SHOP_ITEMS)
     int itemSelect = 1;
     int moved = 1;
     int xMov, yMov;
     int prevXMov = 0, prevYMov = 0;
 
+    // Draw the initial background and UI.
     ssd1306_FillRectangle(5, 1, 122, 55, Black);
     ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
 
-    for (int i = 0; i < 8; i++) {
+    // Draw visible shop items based on the current scroll offset.
+    for (int i = 0; i < VISIBLE_SHOP_ITEMS; i++) {
+        int index = shopScrollOffset + i;
+        if (index >= TOTAL_SHOP_ITEMS)
+            break;
         xMov = ((i % 3) * 17);
         yMov = ((i / 3) * 17);
-        ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[i].itemSprite, 14, 14, White);
+        ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[index].itemSprite, 14, 14, White);
     }
 
-    shopTextDraw(itemSelect);
+    // Display the text/info for the currently selected item.
+    shopTextDraw(shopScrollOffset + itemSelect);
     displayStats();
 
+    // Draw the initial selection rectangle.
     xMov = ((itemSelect - 1) % 3) * 17;
     yMov = ((itemSelect - 1) / 3) * 17;
     prevXMov = xMov;
     prevYMov = yMov;
-
     ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+
+    if (shopScrollOffset + VISIBLE_SHOP_ITEMS < TOTAL_SHOP_ITEMS)
+    	ssd1306_DrawBitmap(58, 51, downArrow, 3, 2, White);
+    if (shopScrollOffset > 0)
+    	ssd1306_DrawBitmap(58, 5, upArrow, 3, 2, White);
+
     ssd1306_UpdateScreen();
 
     while (1) {
-        if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
-        	sound(menuNav);;
+        // --- PRIORITIZE EXIT ---
+        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            sound(menuNav);
+            // Wait for B button release.
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+            break;  // Exit shopBuy()
+        }
+
+        // --- NAVIGATION INPUTS ---
+        if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
+            sound(menuNav);
             moved = 1;
-            itemSelect -= 3;
+            if (itemSelect <= 3 && shopScrollOffset >= 3) {
+                shopScrollOffset -= 3;
+            } else if (itemSelect > 3) {
+                itemSelect -= 3;
+            }
             while (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
         }
-        if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0 && itemSelect < 7) {
-        	sound(menuNav);
+
+        if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
+            sound(menuNav);
             moved = 1;
-            itemSelect += 3;
+            if (itemSelect > 6 && (shopScrollOffset + VISIBLE_SHOP_ITEMS) < TOTAL_SHOP_ITEMS) {
+                shopScrollOffset += 3;
+                if (shopScrollOffset + VISIBLE_SHOP_ITEMS > TOTAL_SHOP_ITEMS)
+                    shopScrollOffset = TOTAL_SHOP_ITEMS - VISIBLE_SHOP_ITEMS;
+            } else if (itemSelect <= 6) {
+                itemSelect += 3;
+                if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS)
+                    itemSelect = TOTAL_SHOP_ITEMS - shopScrollOffset;
+            }
             while (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
         }
+
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0 && (itemSelect % 3) != 1) {
-        	sound(menuNav);
+            sound(menuNav);
             moved = 1;
             itemSelect -= 1;
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
         }
+
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0 && (itemSelect % 3) != 0) {
-        	sound(menuNav);
+            sound(menuNav);
             moved = 1;
             itemSelect += 1;
+            if (shopScrollOffset + itemSelect > TOTAL_SHOP_ITEMS)
+                itemSelect = TOTAL_SHOP_ITEMS - shopScrollOffset;
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
         }
 
-        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-        	sound(menuNav);
-            shopHardRefresh();
-            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-            break;
-        }
-
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-            int didItBuy = shopBuyItem(&player.money, player.level, player.inventory, itemSelect);
-            if (didItBuy){
-            	sound(buyItem);
-            }
-            else {
-            	sound(cantBuy);
+            int actualIndex = shopScrollOffset + itemSelect;
+            int didItBuy = shopBuyItem(&player.money, player.level, player.inventory, actualIndex);
+            if (didItBuy) {
+                sound(buyItem);
+            } else {
+                sound(cantBuy);
             }
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             moved = 1;
         }
 
+        // --- REDRAW UI IF NEEDED ---
         if (moved) {
             moved = 0;
+            ssd1306_FillRectangle(5, 1, 122, 55, Black);
+            ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
+
+            for (int i = 0; i < VISIBLE_SHOP_ITEMS; i++) {
+                int index = shopScrollOffset + i;
+                if (index >= TOTAL_SHOP_ITEMS)
+                    break;
+                xMov = ((i % 3) * 17);
+                yMov = ((i / 3) * 17);
+                ssd1306_DrawBitmap(8 + xMov, 4 + yMov, shopItems[index].itemSprite, 14, 14, White);
+            }
+
+            // Erase previous selection rectangle.
             ssd1306_DrawRectangle(8 + prevXMov, 4 + prevYMov, 21 + prevXMov, 17 + prevYMov, Black);
+
+            // Recalculate new selection rectangle.
             xMov = ((itemSelect - 1) % 3) * 17;
             yMov = ((itemSelect - 1) / 3) * 17;
             prevXMov = xMov;
             prevYMov = yMov;
-            shopTextDraw(itemSelect);
+
+            shopTextDraw(shopScrollOffset + itemSelect);
             displayStats();
+
             ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
+
+            if (shopScrollOffset + VISIBLE_SHOP_ITEMS < TOTAL_SHOP_ITEMS)
+            	ssd1306_DrawBitmap(58, 51, downArrow, 3, 2, White);
+            if (shopScrollOffset > 0)
+            	ssd1306_DrawBitmap(58, 5, upArrow, 3, 2, White);
+
             ssd1306_UpdateScreen();
         }
     }

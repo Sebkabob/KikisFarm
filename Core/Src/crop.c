@@ -91,7 +91,7 @@ int checkIfOnCrop(void) {
 int checkIfNearHouse(){
     if (player.coordinates.x >= OB1_X && player.coordinates.x < OB1_X + OB1_W &&
         player.coordinates.y >= OB1_Y && player.coordinates.y <= OB1_Y + OB1_H + 2
-		&& game.houseUnlocked) {
+		&& hasItemInInventory(player.inventory, HOUSEKEY) > 0) {
         return 1;
     }
     return 0;
@@ -201,7 +201,8 @@ void drawCrops(void) {
 //------------------------------------------------------------------------------
 void cropDisplay(void) {
     // Draw static background elements.
-    if (!game.houseUnlocked) ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
+    if (!hasItemInInventory(player.inventory, HOUSEKEY))
+    	ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
     ssd1306_DrawBitmap(0, 0, CropWorldSprite, 128, 64, White);
 
     drawSoil();
@@ -315,8 +316,11 @@ void cropHarvest(){
             case CORN:        harvestedCrop = &corn;    break;
             case POTATO:      harvestedCrop = &potato;  break;
             case CARROT:      harvestedCrop = &carrot;  break;
+            case TOMATO:      harvestedCrop = &tomato;  break;
             case PUMPKIN:     harvestedCrop = &pumpkin; break;
+            case MINT:        harvestedCrop = &mint;    break;
             case SUGAR:       harvestedCrop = &sugar;   break;
+            case SAFFRON:     harvestedCrop = &saffron; break;
             default:
                 // If no matching crop, handle the error.
                 return;
@@ -449,7 +453,7 @@ void handleCrop() {
     uint32_t lastFrameTime = HAL_GetTick();
     const uint32_t FRAME_DELAY = FrameRate;  // ~30 FPS
 
-    GrowSpeed = 5; //Instant grow speed
+    GrowSpeed = 1; //normal
 
     game.houseUnlocked = 1;
 

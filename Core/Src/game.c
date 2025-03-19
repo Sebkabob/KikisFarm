@@ -38,28 +38,34 @@ int worldBreak = 0;
 
 int refreshBackground = 0;
 
-Player player = { .inWorld = TITLE, .money = 12, .xp = 0, .level = 1, .soilSpots = 1};
+Player player;
 
 Game game;
+/*                   ITEM         SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
+Item wheat       = { WHEAT,       5,    0,     2,   5,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item corn        = { CORN,        7,    0,     5,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
+Item potato      = { POTATO,      12,   0,     10,  20,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot      = { CARROT,      15,   0,     14,  30,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item tomato      = { TOMATO,      18,   0,     18,  40,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
+Item pumpkin     = { PUMPKIN,     25,   0,     25,  55,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item mint        = { MINT,        20,   0,     20,  50,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item sugar       = { SUGAR,       15,   0,     5,   20,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item saffron     = { SAFFRON,     40,   0,     15,  55,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
+Item wheatSeed   = { WHEATSEED,   50,   95,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed    = { CORNSEED,    100,  185,   0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed  = { POTATOSEED,  150,  275,   0,   0,   4,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed  = { CARROTSEED,  200,  380,   0,   0,   6,  CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item tomatoSeed  = { TOMATOSEED,  225,  425,   0,   0,   9,  CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
+Item pumpkinSeed = { PUMPKINSEED, 250,  475,   0,   0,   11, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item mintSeed    = { MINTSEED,    275,  550,   0,   0,   13, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
+Item sugarSeed   = { SUGARSEED,   350,  675,   0,   0,   15, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item saffronSeed = { SAFFRONSEED, 500,  1000,  0,   0,   17, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
 
-/*                   ITEM         SELL  BUY   GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item wheat       = { WHEAT,       5,    0,    3,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
-Item corn        = { CORN,        7,    0,    8,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
-Item potato      = { POTATO,      12,   0,    12,  28,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
-Item carrot      = { CARROT,      18,   0,    15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
-Item pumpkin     = { PUMPKIN,     25,   0,    22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
-Item sugar       = { SUGAR,       45,   0,    25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item tillSoil    = { TILLSOIL,    0,    100,   0,   0,   1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
 
-Item wheatSeed   = { WHEATSEED,   5,    30,   0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
-Item cornSeed    = { CORNSEED,    20,   75,   0,   0,   3,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
-Item potatoSeed  = { POTATOSEED,  50,   125,  0,   0,   6,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
-Item carrotSeed  = { CARROTSEED,  60,   210,  0,   0,   10, CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
-Item pumpkinSeed = { PUMPKINSEED, 80,   325,  0,   0,   13, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
-Item sugarSeed   = { SUGARSEED,   100,  450,  0,   0,   16, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item houseKey    = { HOUSEKEY,    50000,90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 
-Item tillSoil    = { TILLSOIL,    0,    100,  0,   100, 1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
-Item houseKey    = { HOUSEKEY,    55000,90000,0,   8000,20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 //Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting timestamps
@@ -78,7 +84,22 @@ CropTile cropTiles[10] = {
 };
 
 // Define the shop inventory array as before.
-Item shopItems[8];
+Item shopItems[12];
+
+void initShopItems(void) {
+    shopItems[0]  = wheatSeed;
+    shopItems[1]  = cornSeed;
+    shopItems[2]  = potatoSeed;
+    shopItems[3]  = carrotSeed;
+    shopItems[4]  = tomatoSeed;
+    shopItems[5]  = pumpkinSeed;
+    shopItems[6]  = mintSeed;
+    shopItems[7]  = sugarSeed;
+    shopItems[8]  = saffronSeed;
+    shopItems[9]  = tillSoil;
+    shopItems[10]  = houseKey;
+    shopItems[11] = tillSoil;
+}
 
 Item* getItemPointerFromID(ItemType id) {
     switch (id) {
@@ -86,14 +107,20 @@ Item* getItemPointerFromID(ItemType id) {
         case CORN:        return &corn;
         case POTATO:      return &potato;
         case CARROT:      return &carrot;
+        case TOMATO:      return &tomato;
         case PUMPKIN:     return &pumpkin;
+        case MINT:        return &mint;
         case SUGAR:       return &sugar;
+        case SAFFRON:     return &saffron;
         case WHEATSEED:   return &wheatSeed;
         case CORNSEED:    return &cornSeed;
         case POTATOSEED:  return &potatoSeed;
         case CARROTSEED:  return &carrotSeed;
+        case TOMATOSEED:  return &tomatoSeed;
         case PUMPKINSEED: return &pumpkinSeed;
+        case MINTSEED:    return &mintSeed;
         case SUGARSEED:   return &sugarSeed;
+        case SAFFRONSEED: return &saffronSeed;
         case TILLSOIL:    return &tillSoil;
         case HOUSEKEY:    return &houseKey;
         default:          return NULL;
@@ -106,8 +133,11 @@ Item getGrownCrop(ItemType seedId) {
         case CORNSEED:    return corn;
         case POTATOSEED:  return potato;
         case CARROTSEED:  return carrot;
+        case TOMATOSEED:  return tomato;
         case PUMPKINSEED: return pumpkin;
+        case MINTSEED:    return mint;
         case SUGARSEED:   return sugar;
+        case SAFFRONSEED: return saffron;
         default:
             // Return an "empty" crop when the seedId is invalid.
             // You might alternatively handle this as an error.
@@ -156,7 +186,7 @@ void displayLevelUp() {
 
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
-    double xpMultiplier = 1 + 0.35 * player.level;
+    double xpMultiplier = 1 + 0.40 * player.level;
     int xpNeededForNextLevel = baseXp * xpMultiplier;
 
     if (player.xp >= xpNeededForNextLevel) {
@@ -181,10 +211,10 @@ void initGame(){
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-    player.money = 9999999;
+    player.money = 0;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 20;
+    player.level = 1;
     player.soilSpots = 1;
 
     game.houseUnlocked = 0;
@@ -214,18 +244,6 @@ void initGame(){
         cropTiles[i].grown = 0;
         cropTiles[i].isTilled = (i == 2) ? true : false;
     }
-}
-
-
-void initShopItems(void) {
-    shopItems[0] = wheatSeed;
-    shopItems[1] = cornSeed;
-    shopItems[2] = potatoSeed;
-    shopItems[3] = carrotSeed;
-    shopItems[4] = pumpkinSeed;
-    shopItems[5] = sugarSeed;
-    shopItems[6] = tillSoil;
-    shopItems[7] = houseKey;
 }
 
 void updateButtonFlags(){
@@ -290,7 +308,7 @@ void cropGrowth(){
 void gameLogic(){
 	gameLevelUp();
 	cropGrowth();
-	updateBatteryLife();
+	//updateBatteryLife();
 }
 
 void playerDisplay(){
