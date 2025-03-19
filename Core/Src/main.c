@@ -7,9 +7,8 @@
   *
   *	LEFT TO DO:
   *
-  *	-2 MORE ITEMS *
-  *	-BROKEN SHOP ARROWS
-  *
+  *	-1 MORE ITEMS
+  *	-XP BAR GLITCH
   *
   ******************************************************************************
   */

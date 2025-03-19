@@ -453,7 +453,7 @@ void handleCrop() {
     uint32_t lastFrameTime = HAL_GetTick();
     const uint32_t FRAME_DELAY = FrameRate;  // ~30 FPS
 
-    GrowSpeed = 5; //Instant grow speed
+    GrowSpeed = 1; //normal
 
     game.houseUnlocked = 1;
 

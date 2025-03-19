@@ -42,29 +42,29 @@ Player player;
 
 Game game;
 /*                   ITEM         SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item wheat       = { WHEAT,       5,    0,     2,   6,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
-Item corn        = { CORN,        7,    0,     8,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
-Item potato      = { POTATO,      12,   0,     12,  28,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
-Item carrot      = { CARROT,      18,   0,     15,  50,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
-Item tomato      = { TOMATO,      20,   0,     18,  60,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
-Item pumpkin     = { PUMPKIN,     25,   0,     22,  70,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
-Item mint        = { MINT,        35,   0,     20,  75,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
-Item sugar       = { SUGAR,       40,   0,     25,  85,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
-Item saffron     = { SAFFRON,     80,   0,     15,  50,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
+Item wheat       = { WHEAT,       5,    0,     2,   5,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item corn        = { CORN,        7,    0,     5,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
+Item potato      = { POTATO,      12,   0,     10,  20,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot      = { CARROT,      15,   0,     14,  30,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item tomato      = { TOMATO,      18,   0,     18,  40,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
+Item pumpkin     = { PUMPKIN,     25,   0,     25,  55,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item mint        = { MINT,        20,   0,     20,  50,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item sugar       = { SUGAR,       15,   0,     5,   20,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item saffron     = { SAFFRON,     40,   0,     15,  55,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
-Item wheatSeed   = { WHEATSEED,   5,    75,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
-Item cornSeed    = { CORNSEED,    20,   85,    0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
-Item potatoSeed  = { POTATOSEED,  50,   150,   0,   0,   4,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
-Item carrotSeed  = { CARROTSEED,  60,   225,   0,   0,   7,  CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
-Item tomatoSeed  = { TOMATOSEED,  70,   275,   0,   0,   9,  CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
-Item pumpkinSeed = { PUMPKINSEED, 80,   325,   0,   0,   11, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
-Item mintSeed    = { MINTSEED,    90,   400,   0,   0,   13, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
-Item sugarSeed   = { SUGARSEED,   125,  525,   0,   0,   15, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
-Item saffronSeed = { SAFFRONSEED, 200,  700,   0,   0,   17, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
+Item wheatSeed   = { WHEATSEED,   50,   95,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed    = { CORNSEED,    100,  185,   0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed  = { POTATOSEED,  150,  275,   0,   0,   4,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed  = { CARROTSEED,  200,  380,   0,   0,   6,  CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item tomatoSeed  = { TOMATOSEED,  225,  425,   0,   0,   9,  CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
+Item pumpkinSeed = { PUMPKINSEED, 250,  475,   0,   0,   11, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item mintSeed    = { MINTSEED,    275,  550,   0,   0,   13, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
+Item sugarSeed   = { SUGARSEED,   350,  675,   0,   0,   15, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item saffronSeed = { SAFFRONSEED, 500,  1000,  0,   0,   17, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
 
 Item tillSoil    = { TILLSOIL,    0,    100,   0,   0,   1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
 
-Item houseKey    = { HOUSEKEY,    9999, 90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
+Item houseKey    = { HOUSEKEY,    50000,90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 
 //Item coffee    = { COFFEE,      30,   100,  0,   0,   4,  CONSUMABLE,NULL,           NULL,                NULL };
 
@@ -186,7 +186,7 @@ void displayLevelUp() {
 
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
-    double xpMultiplier = 1 + 0.35 * player.level;
+    double xpMultiplier = 1 + 0.40 * player.level;
     int xpNeededForNextLevel = baseXp * xpMultiplier;
 
     if (player.xp >= xpNeededForNextLevel) {
@@ -211,10 +211,10 @@ void initGame(){
     player.coordinates.y = 10;
     player.direction = DOWN;
 
-    player.money = 9999999;
+    player.money = 0;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 20;
+    player.level = 1;
     player.soilSpots = 1;
 
     game.houseUnlocked = 0;
