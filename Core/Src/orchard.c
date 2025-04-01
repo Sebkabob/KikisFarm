@@ -13,15 +13,7 @@
 
 #define NEAR_THRESHOLD 1
 
-void orchardDisplay(){
-    // Draw the house background bitmap
-    ssd1306_DrawBitmap(0, 0, OrchardWorldSprite, 128, 64, White);
-
-    char coordString[20];
-    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-    ssd1306_SetCursor(0, 0);
-    ssd1306_WriteString(coordString, Font_6x8, White);
-}
+extern TreeTile treeTiles[];
 
 bool orchardObstacle(int x, int y) {
 
@@ -45,6 +37,42 @@ bool nearXXX() {
         return true;
 
     return false;
+}
+
+//------------------------------------------------------------------------------
+// Draws soil based on the number of tilled spots.
+//------------------------------------------------------------------------------
+void drawTreeSpot(void) {
+    // Spot 1 -> corresponds to treeTiles[0]
+    if (player.soilSpots > 10) {
+        uint16_t color = (treeTiles[0].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc6, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 1
+    }
+    // Spot 2 -> corresponds to treeTiles[1]
+    if (player.soilSpots > 11) {
+        uint16_t color = (treeTiles[1].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc5, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 2
+    }
+    // Spot 3 -> corresponds to treeTiles[2]
+    if (player.soilSpots > 12) {
+        uint16_t color = (treeTiles[2].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc4, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 3
+    }
+    // Spot 4 -> corresponds to treeTiles[3]
+    if (player.soilSpots > 13) {
+        uint16_t color = (treeTiles[3].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc3, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 4
+    }
+    // Spot 5 -> corresponds to treeTiles[4]
+    if (player.soilSpots > 14) {
+        uint16_t color = (treeTiles[4].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc2, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 5
+    }
+    // Spot 6 -> corresponds to treeTiles[5]
+    if (player.soilSpots > 15) {
+        uint16_t color = (treeTiles[5].tree.id != NONE) ? Black : White;
+        ssd1306_DrawBitmap(treeSpotXc1, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 6
+    }
 }
 
 void orchardPlayerMovement(){
@@ -85,6 +113,18 @@ void orchardPlayerMovement(){
         if (nextX < RIGHT_WORLD_EDGE && !orchardObstacle(nextX, player.coordinates.y))
             player.coordinates.x = nextX;
     }
+}
+
+void orchardDisplay(){
+    // Draw the house background bitmap
+    ssd1306_DrawBitmap(0, 0, OrchardWorldSprite, 128, 64, White);
+
+    drawTreeSpot();
+
+    char coordString[20];
+    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
+    ssd1306_SetCursor(0, 0);
+    ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 void orchardPlayerAction(){

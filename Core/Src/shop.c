@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#define TOTAL_SHOP_ITEMS 12  // Total items in the shop 9, 12, 15, 18, 21
+#define TOTAL_SHOP_ITEMS 18  // Total items in the shop 9, 12, 15, 18, 21
 #define VISIBLE_SHOP_ITEMS 9  // 3 x 3 grid
 
 void textSpeaking(const char *text, int speed, int fontSize, int wait);
@@ -47,8 +47,8 @@ void shopTextDraw(int itemSelect) {
         if (shopItems[itemSelect - 1].id == TILLSOIL) {
             price = getTillSoilCost();
             canBuy = (player.level >= shopItems[itemSelect - 1].levelUnlock);
-            if (player.soilSpots >= 10) {
-                canBuy = false; // Cannot buy more than 9 TillSoil items.
+            if (player.soilSpots >= 16) {
+                canBuy = false; // Cannot buy more than 15 TillSoil items.
             }
         } else {
             price = shopItems[itemSelect - 1].buyValue;
@@ -68,8 +68,12 @@ void shopTextDraw(int itemSelect) {
             char priceText[20];
             int dollars = price / 100;
             int cents = price % 100;
-            // Format the price as dollars.cents with leading zeros
-            snprintf(priceText, sizeof(priceText), "$%d.%02d", dollars, cents);
+            // If price is greater than 99999, drop the decimal place and only show dollars
+            if (price > 99999) {
+                snprintf(priceText, sizeof(priceText), "$%d", dollars);
+            } else {
+                snprintf(priceText, sizeof(priceText), "$%d.%02d", dollars, cents);
+            }
             int textWidth = strlen(priceText) * 7;
             int centeredX = 90 - (textWidth / 2);
             ssd1306_SetCursor(centeredX, 39);
@@ -89,6 +93,7 @@ void shopTextDraw(int itemSelect) {
     ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
 
+
 int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect) {
     if (itemSelect < 1 || itemSelect > TOTAL_SHOP_ITEMS) {
         return 0; // Invalid selection.
@@ -97,7 +102,7 @@ int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect
     Item *selectedItem = &shopItems[itemSelect - 1];
 
     // Check if the item is TillSoil and if the player has reached the maximum.
-    if (selectedItem->id == TILLSOIL && player.soilSpots >= 10) {
+    if (selectedItem->id == TILLSOIL && player.soilSpots >= 16) {
         return 0;
     }
 
@@ -322,7 +327,12 @@ void drawSellValue(int itemSelect){
         sellPrice = player.inventory[itemSelect - 1].item->sellValue * player.inventory[itemSelect - 1].quantity;
         int dollars = sellPrice / 100;
         int cents = sellPrice % 100;
-        snprintf(priceText, sizeof(priceText), "+$%d.%02d", dollars, cents);
+        // If sellPrice is above 9999, show only the dollar amount.
+        if(sellPrice > 9999) {
+            snprintf(priceText, sizeof(priceText), "+$%d", dollars);
+        } else {
+            snprintf(priceText, sizeof(priceText), "+$%d.%02d", dollars, cents);
+        }
         int textWidth = strlen(priceText) * 7;
         int centeredX = 90 - (textWidth / 2);
         ssd1306_SetCursor(centeredX, 39);
@@ -335,6 +345,7 @@ void drawSellValue(int itemSelect){
     ssd1306_DrawRectangle(63, 35, 117, 51, White);
     ssd1306_DrawRectangle(64, 36, 116, 50, White);
 }
+
 
 
 

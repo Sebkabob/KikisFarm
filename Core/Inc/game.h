@@ -77,7 +77,17 @@ typedef enum {
 	SAFFRONSEED,
 	MINTSEED,
 	TOMATOSEED,
-	COFFEE
+	APPLE,
+	ORANGE,
+	BANANA,
+	CHERRY,
+	MONEY,
+	APPLESAPLING,
+	ORANGESAPLING,
+	BANANASAPLING,
+	CHERRYSAPLING,
+	MONEYSAPLING,
+	BOAT
 } ItemType;
 
 typedef enum {
@@ -85,7 +95,9 @@ typedef enum {
 	CROPSEED,
 	SERVICE,
 	CONSUMABLE,
-	ITEM
+	ITEM,
+	HFRUIT,
+	SAPLING
 } SubItemType;
 
 typedef enum {

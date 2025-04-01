@@ -79,5 +79,22 @@ extern const unsigned char upArrow[];
 extern const unsigned char TheHouse[];
 
 extern const unsigned char OrchardWorldSprite[];
+extern const unsigned char TreeSpot[];
+extern const unsigned char AppleSaplingSprite[];
+extern const unsigned char BananaSaplingSprite[];
+extern const unsigned char CherrySaplingSprite[];
+extern const unsigned char OrangeSaplingSprite[];
+extern const unsigned char MoneySaplingSprite[];
+extern const unsigned char BoatItemSprite[];
+
+extern const unsigned char AppleSaplingTitle[];
+extern const unsigned char BananaSaplingTitle[];
+extern const unsigned char BoatTitle[];
+extern const unsigned char MoneySaplingTitle[];
+extern const unsigned char CherrySaplingTitle[];
+extern const unsigned char OrangeSaplingTitle[];
+
+
+
 
 #endif /* INC_SPRITES_H_ */

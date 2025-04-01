@@ -10,6 +10,16 @@
 
 #include <stdbool.h>
 
+#define treeSpotXc1 1
+#define treeSpotXc2 19
+#define treeSpotXc3 37
+#define treeSpotXc4 55
+#define treeSpotXc5 73
+#define treeSpotXc6 91
+
+#define treeSpotYr1	22
+#define treeSpotYr2 29
+
 void orchardDisplay(void);
 bool orchardObstacle(int x, int y);
 bool nearXXX(void);
