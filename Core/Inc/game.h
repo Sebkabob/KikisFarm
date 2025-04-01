@@ -130,6 +130,8 @@ typedef struct {
 
 // Attributes of the game
 typedef struct {
+	int ticks;
+	int day;
     int houseUnlocked;		//1 if the player buys the key
     int firstIntro;			//0 once the intro has been seen
     int cropHouseIntro;		//0 once the intro has been seen
@@ -188,6 +190,7 @@ void cropGrowth(void);
 void gameLogic(void);
 void playerDisplay(void);
 void playerErase(void);
+void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
 void textSpeaking(const char *text, int voice, int speed, int button);
 void cutToDark(int speed);
 void displayStats(void);

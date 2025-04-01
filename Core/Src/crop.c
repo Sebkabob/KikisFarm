@@ -426,6 +426,7 @@ void cropPlayerAction(void) {
         while (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0);
         statbarShow = 0;
         refreshBackground = 1;
+        sound(menuOpen);
         int p = gameMenu();  // Assume gameMenu() returns a flag.
         if (p)
             leaveWorld = 1;
@@ -488,7 +489,7 @@ void handleCrop() {
         // Exit condition: if player goes across bridge
         if (player.coordinates.y < 0) {
             player.inWorld = SHOP;
-            player.coordinates.x = 58;
+            player.coordinates.x = 60;
             player.coordinates.y = 48;
             player.direction = UP;
             break;

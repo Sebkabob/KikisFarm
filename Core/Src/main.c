@@ -135,6 +135,10 @@ int updateBatteryLife(void){
         batteryPercent = newVal;
     }
 
+    if(batteryPercent >= 100){
+    	batteryPercent = 99;
+    }
+
     while (batteryPercent < 5){
     	ssd1306_Fill(Black);
         ssd1306_SetCursor(31, 22);
