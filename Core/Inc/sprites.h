@@ -78,4 +78,6 @@ extern const unsigned char upArrow[];
 
 extern const unsigned char TheHouse[];
 
+extern const unsigned char OrchardWorldSprite[];
+
 #endif /* INC_SPRITES_H_ */

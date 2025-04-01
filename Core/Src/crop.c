@@ -207,6 +207,11 @@ void cropDisplay(void) {
 
     drawSoil();
     drawCrops();
+
+    char coordString[20];
+    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
+    ssd1306_SetCursor(0, 0);
+    ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 //------------------------------------------------------------------------------
@@ -464,16 +469,11 @@ void handleCrop() {
             // Process input and update state only once per frame
         	ssd1306_Fill(Black);
 
-        	if (refreshBackground){
-        		refreshBackground = 0;
-        		cropDisplay();
-        		ssd1306_CopyBuffer();
-        	}
+        	cropDisplay();
 
         	updateButtonFlags();
         	cropPlayerMovement();
 
-            ORBuffer();
         	playerDisplay();
 
         	cropPlayerAction();
@@ -492,6 +492,12 @@ void handleCrop() {
             player.coordinates.x = 60;
             player.coordinates.y = 48;
             player.direction = UP;
+            break;
+        }
+
+        if (player.coordinates.x >= RIGHT_WORLD_EDGE - 1) {
+            player.inWorld = ORCHARD;
+            player.coordinates.x = 3;
             break;
         }
     }

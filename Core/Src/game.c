@@ -217,7 +217,7 @@ void initGame(){
     player.soilSpots = 1;
 
     game.houseUnlocked = 0;
-    game.cropHouseLights = 0;
+    game.mileStone = NEW_GAME;
     game.cropHouseIntro = 1;
 
     game.day = 1;
@@ -620,9 +620,9 @@ void displayStats(void) {
     // Ensure we don’t divide by zero
     if (xpNeededForNextLevel == 0) xpNeededForNextLevel = 1;
 
-    // Scale XP bar to a max width of 38 pixels (adjusted for the new bar size)
-    int levelBar = (player.xp * 38) / xpNeededForNextLevel;
-    if (levelBar > 38) levelBar = 38; // Clamp to max width
+    // Scale XP bar to a max width of 37 pixels (adjusted for the new bar size)
+    int levelBar = (player.xp * 37) / xpNeededForNextLevel;
+    if (levelBar > 37) levelBar = 37; // Clamp to max width
 
     // Draw the stats background in the lower 9 pixels (Y:55-64)
     ssd1306_FillRectangle(0, 55, 128, 64, White);

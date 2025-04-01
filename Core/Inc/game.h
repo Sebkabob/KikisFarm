@@ -13,8 +13,21 @@
 
 #define TOP_SCREEN_EDGE 0
 #define BOTTOM_WORLD_EDGE 54
-#define LEFT_WORLD_EDGE 0
-#define RIGHT_WORLD_EDGE 120
+#define LEFT_WORLD_EDGE -1
+#define RIGHT_WORLD_EDGE 121
+
+#define NEW_GAME 				0
+#define FIRST_CROP_PLANTED 		5
+#define FIRST_CROP_HARVEST 		10
+#define FIRST_SHOP_VISIT 		15
+#define FIRST_SELL_VISIT 		20
+#define HOUSE_KEY_BOUGHT 		25
+#define HOUSE_ENTERED 			30
+#define MAP_ACQUIRED 			35
+#define ORCHARD_ENTERED 		40
+#define FIRST_TREE_PLANTED 		45
+#define FIRST_TREE_HARVESTED	50
+#define BOAT_ACQUIRED			55
 
 // ONLY DEFINE 1 //
 #define CPP		//ssd1306 lib
@@ -135,7 +148,7 @@ typedef struct {
     int houseUnlocked;		//1 if the player buys the key
     int firstIntro;			//0 once the intro has been seen
     int cropHouseIntro;		//0 once the intro has been seen
-    int cropHouseLights;
+    int mileStone;
 } Game;
 
 // Attributes of a croptile
@@ -144,6 +157,13 @@ typedef struct {
     int grown;      // Growth progress (0 if not planted)
     bool isTilled;  // Whether the soil is tilled
 } CropTile;
+
+// Attributes of a croptile
+typedef struct {
+    Item tree;      // The tree planted (if any)
+    int grown;      // Growth progress (0 if not planted)
+    bool isTilled;  // Whether the soil is tilled
+} TreeTile;
 
 // Parameters for initializing crop world
 typedef struct {

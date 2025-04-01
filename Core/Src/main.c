@@ -27,6 +27,7 @@
 #include "title.h"
 #include "crop.h"
 #include "shop.h"
+#include "orchard.h"
 #include "crop_house.h"
 /* USER CODE END Includes */
 
@@ -260,6 +261,9 @@ int main(void)
 		  break;
 	  case CROPHOUSE:
 		  handleCropHouse();
+		  break;
+	  case ORCHARD:
+		  handleOrchard();
 		  break;
 	  default:
 		  player.inWorld = TITLE;
