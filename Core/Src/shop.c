@@ -542,6 +542,7 @@ void shopPlayerAction(){
         while(HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0);
         shopSoftRefresh();
         statbarShow = 0;
+        sound(menuOpen);
         int p = gameMenu();
         shopHardRefresh();
         if(p) leaveWorld = 1;

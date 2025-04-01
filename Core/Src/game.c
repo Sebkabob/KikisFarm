@@ -44,13 +44,13 @@ Game game;
 /*                   ITEM         SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
 Item wheat       = { WHEAT,       5,    0,     2,   5,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
 Item corn        = { CORN,        7,    0,     5,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
-Item potato      = { POTATO,      12,   0,     10,  20,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
-Item carrot      = { CARROT,      15,   0,     14,  30,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
-Item tomato      = { TOMATO,      18,   0,     18,  40,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
-Item pumpkin     = { PUMPKIN,     25,   0,     25,  55,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
-Item mint        = { MINT,        20,   0,     20,  50,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
-Item sugar       = { SUGAR,       15,   0,     5,   20,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
-Item saffron     = { SAFFRON,     40,   0,     15,  55,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
+Item potato      = { POTATO,      12,   0,     8,   20,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot      = { CARROT,      15,   0,     12,  30,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item tomato      = { TOMATO,      18,   0,     16,  40,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
+Item pumpkin     = { PUMPKIN,     25,   0,     22,  55,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item mint        = { MINT,        20,   0,     18,  50,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item sugar       = { SUGAR,       14,   0,     4,   22,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item saffron     = { SAFFRON,     35,   0,     15,  55,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
 Item wheatSeed   = { WHEATSEED,   50,   95,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
 Item cornSeed    = { CORNSEED,    100,  185,   0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
@@ -203,12 +203,11 @@ int gameLevelUp(void) {
 
 void gameStartup(){
 	pullEEPROM();
-	//refreshInventory(player.inventory);
 }
 
 void initGame(){
     player.coordinates.x = 60;
-    player.coordinates.y = 10;
+    player.coordinates.y = 14;
     player.direction = DOWN;
 
     player.money = 0;
@@ -220,6 +219,9 @@ void initGame(){
     game.houseUnlocked = 0;
     game.cropHouseLights = 0;
     game.cropHouseIntro = 1;
+
+    game.day = 1;
+    game.ticks = 0;
 
     // Initialize player's inventory to empty.
     for (int i = 0; i < 9; i++) {
@@ -305,10 +307,28 @@ void cropGrowth(){
     }
 }
 
+void gameTime() {
+    static uint32_t lastTick = 0;  // Store the time at which the counter was last incremented
+    uint32_t currentTime = HAL_GetTick();  // Get the current time in milliseconds
+
+    // Check if 1000 ms (1 second) has elapsed since last increment
+    if (currentTime - lastTick >= 1000) {
+        game.ticks++;             // Increment the ticks counter
+        lastTick = currentTime;   // Update lastTick to the current time
+
+        // If game.ticks reaches 1440 (24 minutes), increment game.day and reset ticks
+        if (game.ticks >= 1440) {
+            game.day++;        // Increment the day counter
+            game.ticks = 0;     // Reset ticks to start counting the next day
+        }
+    }
+}
+
+
 void gameLogic(){
+	gameTime();
 	gameLevelUp();
 	cropGrowth();
-	//updateBatteryLife();
 }
 
 void playerDisplay(){
@@ -346,6 +366,168 @@ void playerErase(){
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, Black);
 }
 
+void textSpeakingFullScreen(const char *text, int voice, int speed, int button) {
+    // Wait until button is released before starting
+    while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+
+    int length = strlen(text);
+    int maxLength = 120;  // Limit text length to 120 characters
+    if (length > maxLength) length = maxLength;
+
+    // Clear the entire display and draw a border
+    ssd1306_FillRectangle(0, 0, 128, 64, Black);
+    ssd1306_DrawRectangle(0, 0, 127, 63, White);
+    ssd1306_UpdateScreen();
+
+    int x = 4, y = 4;
+    int max_line_chars = 20;    // Maximum characters per line
+    int current_line_chars = 0; // Count of characters in the current line
+    int skip = 0;             // Flag for skipping typewriter animation
+
+    ssd1306_SetCursor(x, y);
+
+    int i = 0;
+    while (i < length) {
+        // Check if the user pressed the button to skip animation
+        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && button) {
+            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+            skip = 1;
+            break;
+        }
+
+        // If the current character is a space, print it (if it fits)
+        if (text[i] == ' ') {
+            if (current_line_chars + 1 > max_line_chars) {
+                // Move to next line if space doesn't fit
+                y += 10;
+                x = 4;
+                ssd1306_SetCursor(x, y);
+                current_line_chars = 0;
+            }
+            ssd1306_WriteChar(' ', Font_6x8, White);
+            ssd1306_UpdateScreen();
+            HAL_Delay(200 / speed);
+            current_line_chars++;
+            i++;
+            continue;
+        }
+
+        // Determine the length of the next word (until a space or end-of-string)
+        int wordStart = i;
+        int wordLength = 0;
+        while ((i + wordLength) < length && text[i + wordLength] != ' ') {
+            wordLength++;
+        }
+
+        // If not at the beginning of a line, check if adding a space and this word exceeds the line length.
+        if (current_line_chars > 0 && (current_line_chars + 1 + wordLength) > max_line_chars) {
+            // Start a new line
+            y += 10;
+            x = 4;
+            ssd1306_SetCursor(x, y);
+            current_line_chars = 0;
+        }
+
+        // Print the word character-by-character with sound and delay
+        for (int j = 0; j < wordLength; j++) {
+            if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && button) {
+                while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+                skip = 1;
+                break;
+            }
+            if (text[wordStart + j] != ' ') {
+                buzzer(voice, 150 / speed);
+            }
+            ssd1306_WriteChar(text[wordStart + j], Font_6x8, White);
+            ssd1306_UpdateScreen();
+            HAL_Delay(200 / speed);
+            current_line_chars++;
+        }
+        i = wordStart + wordLength;
+        if (skip) break;
+
+        // After the word, if there's a space in the source text, print one
+        if (i < length && text[i] == ' ') {
+            if (current_line_chars + 1 > max_line_chars) {
+                // New line if space won't fit
+                y += 10;
+                x = 4;
+                ssd1306_SetCursor(x, y);
+                current_line_chars = 0;
+            } else {
+                ssd1306_WriteChar(' ', Font_6x8, White);
+                ssd1306_UpdateScreen();
+                HAL_Delay(200 / speed);
+                current_line_chars++;
+            }
+            // Skip any additional consecutive spaces
+            while (i < length && text[i] == ' ') {
+                i++;
+            }
+        }
+    }
+
+    if (skip) {
+        // If skipping animation, clear the screen and print the text immediately with word wrapping
+        ssd1306_FillRectangle(0, 0, 128, 64, Black);
+        ssd1306_DrawRectangle(0, 0, 127, 63, White);
+        ssd1306_UpdateScreen();
+
+        x = 4; y = 4; current_line_chars = 0;
+        ssd1306_SetCursor(x, y);
+        i = 0;
+        while (i < length) {
+            if (text[i] == ' ') {
+                if (current_line_chars + 1 > max_line_chars) {
+                    y += 10;
+                    x = 4;
+                    ssd1306_SetCursor(x, y);
+                    current_line_chars = 0;
+                }
+                ssd1306_WriteChar(' ', Font_6x8, White);
+                current_line_chars++;
+                i++;
+                continue;
+            }
+            int wordStart = i;
+            int wordLength = 0;
+            while ((i + wordLength) < length && text[i + wordLength] != ' ') {
+                wordLength++;
+            }
+            if (current_line_chars > 0 && (current_line_chars + 1 + wordLength) > max_line_chars) {
+                y += 10;
+                x = 4;
+                ssd1306_SetCursor(x, y);
+                current_line_chars = 0;
+            }
+            for (int j = 0; j < wordLength; j++) {
+                ssd1306_WriteChar(text[wordStart + j], Font_6x8, White);
+                current_line_chars++;
+            }
+            i = wordStart + wordLength;
+            if (i < length && text[i] == ' ') {
+                if (current_line_chars + 1 > max_line_chars) {
+                    y += 10;
+                    x = 4;
+                    ssd1306_SetCursor(x, y);
+                    current_line_chars = 0;
+                } else {
+                    ssd1306_WriteChar(' ', Font_6x8, White);
+                    current_line_chars++;
+                }
+                while (i < length && text[i] == ' ') {
+                    i++;
+                }
+            }
+        }
+        ssd1306_UpdateScreen();
+    }
+
+    // Wait until the button is released before finishing
+    while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
+}
+
+
 
 void textSpeaking(const char *text, int voice, int speed, int button) {
 	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
@@ -379,17 +561,13 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
             skip = 1;  // User pressed A, skip animation
             break;
         }
-
         if (text[i] != ' ') {
             buzzer(voice, 150 / speed);
         }
-
         ssd1306_WriteChar(text[i], Font_6x8, White);
         ssd1306_UpdateScreen();
         HAL_Delay(200 / speed);
-
         charCount++;
-
         if (charCount >= 20) {
             y += 10;
             x = 4;
@@ -397,21 +575,17 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
             charCount = 0;
         }
     }
-
     if (skip) {
         // Instantly display full text
         ssd1306_FillRectangle(0, startY - 2, 128, 64, Black);
         ssd1306_DrawRectangle(0, startY - 2, 128 - 1, 64 - 1, White);
-
         x = 4;
         y = startY;
         charCount = 0;
-
         ssd1306_SetCursor(x, y);
         for (int i = 0; i < length; i++) {
             ssd1306_WriteChar(text[i], Font_6x8, White);
             charCount++;
-
             if (charCount >= 20) {
                 y += 10;
                 x = 4;
@@ -419,10 +593,8 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
                 charCount = 0;
             }
         }
-
         ssd1306_UpdateScreen();
     }
-
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
 }
 
@@ -477,16 +649,47 @@ void displayStats(void) {
     }
 }
 
+void drawMenuSideFeatures(){
+    // Define the "day" label and compute its width.
+    // For Font_6x8, each character is approximately 6 pixels wide.
+    char daysLabel[] = "Day";
+    int daysLabelWidth = strlen(daysLabel) * 6; // e.g., 4 characters * 6 = 24 pixels
 
+    // Position the "day" label on the right side.
+    // Here, we place it 2 pixels from the right edge.
+    int daysLabelX = 128 - daysLabelWidth - 8;
+    ssd1306_SetCursor(daysLabelX, 22);
+    ssd1306_WriteString(daysLabel, Font_6x8, White);
 
-int gameMenu(){
-    int menuselect = 1;
-    sound(menuOpen);
+    // Format the day number.
+    char daysStr[16];
+    sprintf(daysStr, "%d", game.day);
+    int daysStrWidth = strlen(daysStr) * 6;
 
+    // Center the day number below the "day" label.
+    int daysStrX = daysLabelX + (daysLabelWidth - daysStrWidth) / 2;
+    ssd1306_SetCursor(daysStrX, 32);
+    ssd1306_WriteString(daysStr, Font_6x8, White);
+
+    ssd1306_DrawRectangle(7-1, 27-1, 27-1, 37-1, White);
+    ssd1306_DrawRectangle(27-1, 30-1, 29-1, 34-1, White);
+
+    // Update battery life and display it in the top right corner (y ~2)
+    int batteryVoltagePercentage = updateBatteryLife();
+    char battStr[16];
+    sprintf(battStr, "%02d%%", batteryVoltagePercentage);
+    ssd1306_SetCursor(8, 28);
+    ssd1306_WriteString(battStr, Font_6x8, White);
+
+}
+
+void menuItemsDraw(){
     // Clear only the menu area (y=15 to 48) so we can use the top area for battery info
     ssd1306_FillRectangle(0, 15, 127, 48, Black);
     ssd1306_Line(0, 15, 128, 15, White);
     ssd1306_Line(0, 48, 128, 48, White);
+
+    drawMenuSideFeatures();
 
     // Draw menu items
     ssd1306_SetCursor(43, 18);
@@ -496,17 +699,16 @@ int gameMenu(){
     ssd1306_SetCursor(37, 38);
     ssd1306_WriteString("save game", Font_6x8, White);
 
-    // Update battery life and display it in the top right corner (y ~2)
-    int batteryVoltagePercentage = updateBatteryLife();
-    char battStr[16];
-    sprintf(battStr, "%d%%", batteryVoltagePercentage);
-    ssd1306_SetCursor(8, 28);
-    ssd1306_WriteString(battStr, Font_6x8, White);
-
     // Draw the initial selection rectangle around the "options" option
     ssd1306_DrawRectangle(35, 27-10, 91, 36-10, White);
     ssd1306_UpdateScreen();
     ssd1306_DrawRectangle(35, 27-10, 91, 36-10, Black);
+}
+
+int gameMenu(){
+    int menuselect = 1;
+
+    menuItemsDraw();
 
     while(1){
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
@@ -734,18 +936,6 @@ void gameOptions(void) {
         }
     }
 
-    // After exiting, redraw the main menu elements.
-    ssd1306_FillRectangle(0, 15, 127, 48, Black);
-    ssd1306_Line(0, 15, 128, 15, White);
-    ssd1306_Line(0, 48, 128, 48, White);
-    ssd1306_SetCursor(37, 38);
-    ssd1306_WriteString("save game", Font_6x8, White);
-    ssd1306_SetCursor(37, 28);
-    ssd1306_WriteString("main menu", Font_6x8, White);
-    ssd1306_SetCursor(43, 18);
-    ssd1306_WriteString("options", Font_6x8, White);
-    ssd1306_DrawRectangle(35, 17, 91, 26, White);
-    ssd1306_UpdateScreen();
-    ssd1306_DrawRectangle(35, 17, 91, 26, Black);
+    menuItemsDraw();
 }
 

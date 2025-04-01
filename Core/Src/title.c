@@ -4,52 +4,46 @@
 #include "title.h"
 
 void gameIntro(){
-    int voice1 = 600;  // Voice for character 1
-    int voice2 = 200;  // Voice for character 2
+    int voice1 = 400;  // Voice for character 1
+    int voice2 = 120;  // Voice for character 2]
+    int speed = 7;
 
     ssd1306_Fill(Black);
     ssd1306_UpdateScreen();
-    HAL_Delay(1000);
+    textSpeakingFullScreen("oh good you're awake, "
+    		"please get back to farming right away!"
+    		" You've been out for hours again...", voice2, speed, 1);
 
-    // Character 1: "Whats going on... Where am I?"
-    textSpeaking("Whats going on... Where am I?", voice1, 5, 1);
+    textSpeakingFullScreen("you really gotta stop doing this, "
+    		"I'm getting worried about you!", voice2, speed, 1);
 
-    // Character 2: "You have been transported to planet 43X"
-    textSpeaking("You have been transported to planet 43X", voice2, 5, 1);
-    // Character 2: "We need you to farm"
-    textSpeaking("We need you to farm", voice2, 5, 1);
+    textSpeakingFullScreen("anyways, in case you don't remember,"
+    		" you're here to farm!"
+    		" I gave you some seeds to plant", voice2, speed, 1);
 
-    ssd1306_Fill(Black);
-    ssd1306_UpdateScreen();
-    HAL_Delay(1000);
+    textSpeakingFullScreen("press B to check your inventory, "
+    		"and stand over an empty crop spot"
+    		" and press A to plant seeds", voice2, speed, 1);
 
-    // Character 1: "Farm? What are you talking about"
-    textSpeaking("Farm? What are you talking about", voice1, 5, 1);
-    // Character 2: "..."
-    textSpeaking("...", voice2, 5, 1);
+    textSpeakingFullScreen("crops grow within a few seconds "
+    		"so don't be impatient! Press A to harvest a crop "
+    		"once it has grown.", voice2, speed, 1);
 
-    ssd1306_Fill(Black);
-    ssd1306_UpdateScreen();
-    HAL_Delay(1000);
+    textSpeakingFullScreen("you can sell crops and buy new ones"
+    		" when you level up and get some money.", voice2, speed, 1);
 
-    // Character 1: "What is going on?? What is happening"
-    textSpeaking("What is going on?? What is happening", voice1, 5, 1);
-    // Character 2: "You have been transferred to this district, we need you to start farming immediately"
-    textSpeaking("You have been transferred to this district, we need you to start farming immediately", voice2, 5, 1);
+    textSpeakingFullScreen("hold B while standing over an existing "
+    		"crop to destroy it, "
+    		"and try and get back in your house alright?", voice2, speed, 1);
 
-    ssd1306_Fill(Black);
-    ssd1306_UpdateScreen();
-    HAL_Delay(1000);
-
-    // Character 1: "What?????"
-    textSpeaking("What?????", voice1, 5, 1);
-
-    ssd1306_Fill(Black);
+    textSpeakingFullScreen("anyways, take care of yourself, "
+    		"please don't do that again, "
+    		"I feel like you're not the same anymore...", voice2, speed, 1);
 }
 
 
 int areYouSureMenu(){
-    int menuSelect = 2;  // Default: yes selected
+    int menuSelect = 1;  // Default: no selected
 
     // Draw the static text once.
     ssd1306_Fill(Black);
@@ -65,7 +59,7 @@ int areYouSureMenu(){
     ssd1306_WriteString("no", Font_7x10, White);
 
     // Draw initial selection rectangle around "yes"
-    ssd1306_DrawRectangle(18, 48, 42, 62, White);
+    ssd1306_DrawRectangle(92, 48, 109, 62, White);
     ssd1306_UpdateScreen();
 
     sound(areYouSure);
@@ -132,7 +126,7 @@ void controlsTitle(){
 	ssd1306_Fill(Black);        // Clear the screen
 	ssd1306_DrawBitmap(0, 0, ControlsTitle, 128, 64, White);
 	ssd1306_UpdateScreen();
-	HAL_Delay(1000);
+	HAL_Delay(250);
 	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
 }
 
@@ -183,11 +177,10 @@ void handleTitle() {
         	int areYouSure = areYouSureMenu();
         	if(areYouSure){
             	cutToDark(75);
-            	//gameIntro();
             	controlsTitle();
+            	gameIntro();
             	initGame();
             	pushEEPROM();
-            	//player.inWorld = CROP;
             	return;
         	} else {
         		return;
