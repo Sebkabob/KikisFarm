@@ -94,7 +94,30 @@ extern const unsigned char MoneySaplingTitle[];
 extern const unsigned char CherrySaplingTitle[];
 extern const unsigned char OrangeSaplingTitle[];
 
+extern const unsigned char AppleTreeSprite[];
+extern const unsigned char BananaTreeSprite[];
+extern const unsigned char EmptyTreeSprite[];
+extern const unsigned char CherryTreeSprite[];
+extern const unsigned char MoneyTreeSprite[];
+extern const unsigned char OrangeTreeSprite[];
+extern const unsigned char EraseTreeSprite[];
+extern const unsigned char SaplingTreeSprite[];
+extern const unsigned char SproutTreeSprite[];
 
+extern const unsigned char AppleItemSprite[];
+extern const unsigned char BananaItemSprite[];
+extern const unsigned char CherryItemSprite[];
+extern const unsigned char OrangeItemSprite[];
 
+extern const unsigned char CherryTitle[];
+extern const unsigned char BananaTitle[];
+extern const unsigned char OrangeTitle[];
+extern const unsigned char AppleTitle[];
+
+extern const unsigned char TheMap[];
+extern const unsigned char ShopsTitle[];
+extern const unsigned char OrchardTitle[];
+extern const unsigned char CropFarmTitle[];
+extern const unsigned char FishingTitle[];
 
 #endif /* INC_SPRITES_H_ */

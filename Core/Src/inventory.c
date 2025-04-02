@@ -112,8 +112,21 @@ int hasItemInInventory(InventorySlot inventory[], ItemType itemType) {
     return 0; // Item not found
 }
 
-void drawCanPlant(int itemSelect){
+void drawCanPlantCrop(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == CROPSEED){
+	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
+	    ssd1306_WriteString("plant", Font_6x8, White);
+	} else {
+		ssd1306_SetCursor(91 - (7 / 2), 39);
+		ssd1306_WriteString("X", Font_7x10, White);
+	}
+
+    ssd1306_DrawRectangle(66, 35, 115, 51, White);
+    ssd1306_DrawRectangle(67, 36, 114, 50, White);
+}
+
+void drawCanPlantSapling(int itemSelect){
+	if (player.inventory[itemSelect - 1].item->subType == SAPLING){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
 	    ssd1306_WriteString("plant", Font_6x8, White);
 	} else {
@@ -205,10 +218,17 @@ int showInventory(int plantSeed) {
                 if (selectedItem->subType == CROPSEED) {
                     // Remove one unit of the seed from the inventory.
                 	return selectedItem->id;
-                } else {
-                    // Optionally, you could provide feedback if the selected item is not a valid seed.
                 }
-            } else {
+            }
+            else if (plantSeed == 2) {
+                // Check if the selected item is a valid sapling
+                Item* selectedItem = player.inventory[itemSelect - 1].item;
+                if (selectedItem->subType == SAPLING) {
+                    // Remove one unit of the sapling from the inventory.
+                	return selectedItem->id;
+                }
+            }
+            else {
                 // Handle normal inventory selection if needed.
                 moved = 1; // Ensure redraw after selection.
             }
@@ -236,10 +256,14 @@ int showInventory(int plantSeed) {
 
             drawItemInfo(itemSelect);
 
-            if (plantSeed) {
-            	drawCanPlant(itemSelect);
-            } else {
-            	//drawCanConsume(itemSelect);
+            if (plantSeed == 1) {
+            	drawCanPlantCrop(itemSelect);
+            }
+            else if (plantSeed == 2){
+            	drawCanPlantSapling(itemSelect);
+            }
+            else {
+            		//drawCanConsume(itemSelect);
             }
 
             ssd1306_UpdateScreen();

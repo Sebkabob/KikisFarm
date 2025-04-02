@@ -546,6 +546,7 @@ void shopPlayerAction(){
 
     if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
+        theMap();
     }
 
     if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) { //menu mode

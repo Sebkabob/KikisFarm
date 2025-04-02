@@ -200,6 +200,7 @@ void cropHousePlayerAction(){
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
+        theMap();
     }
 }
 

@@ -15,6 +15,8 @@
 
 extern TreeTile treeTiles[];
 
+Item getGrownSapling(ItemType saplingId);
+
 bool orchardObstacle(int x, int y) {
 
 	//Obstacle 1: Water
@@ -37,6 +39,47 @@ bool nearXXX() {
         return true;
 
     return false;
+}
+
+
+//------------------------------------------------------------------------------
+// Checks if the player is on one of the tree spots.
+// Returns a number 1-10 if on a spot, 0 otherwise.
+//------------------------------------------------------------------------------
+int checkIfOnTreeSpot(void) {
+    // Check if the player is on a tree spot and if the spot is unlocked
+    if (player.coordinates.x >= treeSpotXc1 - 3 && player.coordinates.x < treeSpotXc1 + 18 &&
+        player.coordinates.y >= treeSpotYr2 - 10 && player.coordinates.y <= treeSpotYr2 - 6) {
+        if (player.soilSpots > 15) // Spot 6 is unlocked if soilSpots > 15
+            return 6;
+    }
+    if (player.coordinates.x >= treeSpotXc2 - 3 && player.coordinates.x < treeSpotXc2 + 18 &&
+        player.coordinates.y >= treeSpotYr1 - 10 && player.coordinates.y <= treeSpotYr1 - 6) {
+        if (player.soilSpots > 14) // Spot 5 is unlocked if soilSpots > 14
+            return 5;
+    }
+    if (player.coordinates.x >= treeSpotXc3 - 3 && player.coordinates.x < treeSpotXc3 + 18 &&
+        player.coordinates.y >= treeSpotYr2 - 10 && player.coordinates.y <= treeSpotYr2 - 6) {
+        if (player.soilSpots > 13) // Spot 4 is unlocked if soilSpots > 13
+            return 4;
+    }
+    if (player.coordinates.x >= treeSpotXc4 - 3 && player.coordinates.x < treeSpotXc4 + 18 &&
+        player.coordinates.y >= treeSpotYr1 - 10 && player.coordinates.y <= treeSpotYr1 - 6) {
+        if (player.soilSpots > 12) // Spot 3 is unlocked if soilSpots > 12
+            return 3;
+    }
+    if (player.coordinates.x >= treeSpotXc5 - 3 && player.coordinates.x < treeSpotXc5 + 18 &&
+        player.coordinates.y >= treeSpotYr2 - 10 && player.coordinates.y <= treeSpotYr2 - 6) {
+        if (player.soilSpots > 11) // Spot 2 is unlocked if soilSpots > 11
+            return 2;
+    }
+    if (player.coordinates.x >= treeSpotXc6 - 3 && player.coordinates.x < treeSpotXc6 + 18 &&
+        player.coordinates.y >= treeSpotYr1 - 10 && player.coordinates.y <= treeSpotYr1 - 6) {
+        if (player.soilSpots > 10) // Spot 1 is unlocked if soilSpots > 10
+            return 1;
+    }
+
+    return 0; // Not on a sapling spot or the spot is not unlocked
 }
 
 //------------------------------------------------------------------------------
@@ -115,16 +158,111 @@ void orchardPlayerMovement(){
     }
 }
 
+//------------------------------------------------------------------------------
+// Draws trees
+//------------------------------------------------------------------------------
+void drawTrees(void) {
+    // Loop through all 10 crop spots
+    for (int i = 0; i < 10; i++) {
+        // Only draw if the tile is tilled and a crop has been planted
+        if (treeTiles[i].isTilled && treeTiles[i].tree.id != NONE) {
+            int x = 0, y = 0;
+            // Determine drawing coordinates based on the crop spot number (i+1)
+            switch (i + 1) {
+                case 1:  x = treeSpotXc1; y = treeSpotYr2 - 22; break;
+                case 2:  x = treeSpotXc2; y = treeSpotYr1 - 22; break;
+                case 3:  x = treeSpotXc3; y = treeSpotYr2 - 22; break;
+                case 4:  x = treeSpotXc4; y = treeSpotYr1 - 22; break;
+                case 5:  x = treeSpotXc5; y = treeSpotYr2 - 22; break;
+                case 6:  x = treeSpotXc6; y = treeSpotYr1 - 22; break;
+                default: break;
+            }
+
+            const unsigned char *spriteToDraw = NULL;
+            if (treeTiles[i].grown == 0) {
+                // Use getItemPointerFromID() to get the item pointer and then its sprite.
+                Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
+                if (itemPtr != NULL) {
+                    spriteToDraw = itemPtr->cropSprite;
+                }
+            } else {
+                // Crop is not fully grown: use the sprout sprite.
+                spriteToDraw = SproutSprite;
+            }
+            Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
+            if (itemPtr != NULL) {
+                spriteToDraw = itemPtr->cropSprite;
+            }
+            ssd1306_DrawBitmap(x, y, spriteToDraw, 17, 26, White);
+        }
+    }
+}
+
 void orchardDisplay(){
     // Draw the house background bitmap
     ssd1306_DrawBitmap(0, 0, OrchardWorldSprite, 128, 64, White);
 
     drawTreeSpot();
+    drawTrees();
+
+    int tree = checkIfOnTreeSpot();
+        char treeSpot[20];
+        sprintf(treeSpot, "%d", tree);
+        ssd1306_SetCursor(0, 0);
+        ssd1306_WriteString(treeSpot, Font_6x8, White);
+
 
     char coordString[20];
     sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-    ssd1306_SetCursor(0, 0);
+    ssd1306_SetCursor(50, 0);
     ssd1306_WriteString(coordString, Font_6x8, White);
+}
+
+void treePlant(){
+    int spot = checkIfOnTreeSpot();  // Returns a number 1–10 if on a valid sapling spot.
+    // If no grown sapling, allow planting if the spot is empty
+    if (spot != 0 && treeTiles[spot - 1].tree.id == NONE) {
+        sound(inventoryOpen);
+
+        // Let the player select a seed from the inventory
+        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            HAL_Delay(10);
+        }
+
+        ItemType saplingId = showInventory(2);
+        // If a valid seed id was returned, find the corresponding inventory slot
+        if (saplingId != NONE) {
+            int slot = -1;
+            for (int i = 0; i < 9; i++) {
+                if (player.inventory[i].item != NULL &&
+                    player.inventory[i].item->id == saplingId) {
+                    slot = i;
+                    break;
+                }
+            }
+            if (slot != -1) {
+                // Use the helper function to convert the seed to its grown sapling.
+                Item sapling = getGrownSapling(saplingId);
+                if (sapling.id == NONE) {
+                    // Handle error if the conversion failed.
+                    return;
+                }
+
+                // Plant the corresponding sapling on the sapling tile
+                treeTiles[spot - 1].tree = sapling;
+                treeTiles[spot - 1].grown = 0;
+                treeTiles[spot - 1].isTilled = true;
+
+                // Record the time when the sapling was planted
+                cropPlantTimes[spot - 1] = HAL_GetTick();
+
+                // Remove one unit of the seed from the player's inventory
+                removeItemFromInventory(player.inventory,
+                                        player.inventory[slot].item->id,
+                                        1);
+            }
+        }
+    }
 }
 
 void orchardPlayerAction(){
@@ -133,7 +271,19 @@ void orchardPlayerAction(){
     if (A_Button_Flag) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-        if (nearXXX()) textSpeaking("testing breaker 9 9", 150, 8, 1);
+
+        int spot = checkIfOnTreeSpot();  // Returns a number 1–6 if on a valid tree spot.
+        if (spot != 0) {
+            // If a grown sapling exists, harvest it.
+            if (treeTiles[spot - 1].grown == 4) {
+                //treeHarvest();
+            }
+            // Otherwise, if the spot is empty, plant a seed.
+            else if (treeTiles[spot - 1].tree.id == NONE) {
+                treePlant();
+            }
+        }
+
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     }
 
@@ -161,6 +311,7 @@ void orchardPlayerAction(){
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
+        theMap();
     }
 }
 

@@ -155,7 +155,7 @@ void drawSoil(void) {
 
 
 //------------------------------------------------------------------------------
-// Draws crops (currently only sugar).
+// Draws crops
 //------------------------------------------------------------------------------
 void drawCrops(void) {
     // Loop through all 10 crop spots
@@ -260,7 +260,6 @@ void cropPlayerMovement(void) {
 
 
 void cropPlant(){
-    refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
@@ -441,6 +440,7 @@ void cropPlayerAction(void) {
     if (START_Button_Flag) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
+        theMap();
     }
 }
 

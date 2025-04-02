@@ -31,7 +31,7 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
-int FrameRate = 20;	//lower is faster
+int FrameRate = 22;	//lower is faster
 int GrowSpeed = 1;
 
 int worldBreak = 0;
@@ -67,10 +67,11 @@ Item tillSoil      = { TILLSOIL,      0,    100,   0,   0,   1,  SERVICE,   NULL
 Item houseKey      = { HOUSEKEY,      50000,90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 
 /*                     ITEM           SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item apple         = { APPLE,         5,    0,     2,   5,   0,  HFRUIT,    WheatSprite,    ItemIconWheat,       WheatTitle       };
-Item orange        = { ORANGE,        7,    0,     5,   10,  0,  HFRUIT,    CornSprite,     ItemIconCorn,        CornTitle        };
-Item banana        = { BANANA,        12,   0,     8,   20,  0,  HFRUIT,    PotatoSprite,   ItemIconPotato,      PotatoTitle      };
-Item cherry        = { CHERRY,        15,   0,     12,  30,  0,  HFRUIT,    CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item apple         = { APPLE,         5,    0,     2,   5,   0,  HFRUIT,    AppleTreeSprite,AppleItemSprite,     AppleTitle       };
+Item orange        = { ORANGE,        7,    0,     5,   10,  0,  HFRUIT,    OrangeTreeSprite,OrangeItemSprite,   OrangeTitle      };
+Item banana        = { BANANA,        12,   0,     8,   20,  0,  HFRUIT,    BananaTreeSprite,BananaItemSprite,   BananaTitle      };
+Item cherry        = { CHERRY,        15,   0,     12,  30,  0,  HFRUIT,    CherryTreeSprite,CherryItemSprite,   CherryTitle      };
+Item money         = { MONEY,         0,    0,     12,  30,  0,  HFRUIT,    NULL,   		NULL,                CarrotTitle      };
 
 Item appleSapling  = { APPLESAPLING,  15000,30000, 0,   0,   20, SAPLING,  	NULL,           AppleSaplingSprite,  AppleSaplingTitle  };
 Item orangeSapling = { ORANGESAPLING, 30000,50000, 0,   0,   22, SAPLING,  	NULL,           OrangeSaplingSprite, OrangeSaplingTitle   };
@@ -188,7 +189,7 @@ Item getGrownCrop(ItemType seedId) {
     }
 }
 
-Item getGrownSapling (ItemType saplingId) {
+Item getGrownSapling(ItemType saplingId) {
 	if (saplingId == MONEYSAPLING) {
 		Item money = {MONEY, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
 		return money;
@@ -432,8 +433,6 @@ void playerDisplay(){
     		              player.coordinates.x + 5, player.coordinates.y + 5, Black);
 
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, White);
-
-
 }
 
 void playerErase(){
@@ -449,6 +448,112 @@ void playerErase(){
 
     // Draw the player sprite.
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, Black);
+}
+
+void theMap(){
+	World worldToGoTo;
+	int worldSelect = 0;
+
+	  switch (player.inWorld) {
+	  case CROP:
+		  worldSelect = 2;
+		  break;
+	  case SHOP:
+		  worldSelect = 1;
+		  break;
+	  case CROPHOUSE:
+		  worldSelect = 2;
+		  break;
+	  case ORCHARD:
+		  worldSelect = 3;
+		  break;
+	  case FISHING:
+		  worldSelect = 4;
+		  break;
+        }
+	while(1){
+	    // A button
+	    if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+	    	leaveWorld = 1;
+            player.coordinates.x = 60;
+            player.coordinates.y = 36;
+	    	player.inWorld = worldToGoTo;
+	    	break;
+	    }
+
+	    // B Button
+	    if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+	    	break;
+	    }
+
+	    // START button
+	    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
+	    	while(HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
+	    	break;
+	    }
+
+	    // SELECT button
+	    if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 1);
+	    	break;
+	    }
+
+	    // UP button
+	    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
+	    	if (worldSelect > 1)
+	    		worldSelect--;
+	    }
+
+		// DOWN button
+	    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
+	    	if (worldSelect < 4)
+	    		worldSelect++;
+	    }
+
+	    // LEFT button
+	    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
+	    	if (worldSelect > 1)
+	    		worldSelect--;
+	    }
+
+	    // RIGHT button
+	    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+	    	while(HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
+	    	if (worldSelect < 4)
+	    		worldSelect++;
+	    }
+		switch (worldSelect) {
+		case 1:
+			ssd1306_DrawBitmap(128-62, 0, ShopsTitle, 62, 27, White);
+			ssd1306_DrawBitmap(30, 6, KikiDownSprite, 9, 11, White);
+			worldToGoTo = SHOP;
+			break;
+		case 2:
+			ssd1306_DrawBitmap(128-62, 0, CropFarmTitle, 62, 27, White);
+			ssd1306_DrawBitmap(35, 38, KikiDownSprite, 9, 11, White);
+			worldToGoTo = CROP;
+			break;
+		case 3:
+			ssd1306_DrawBitmap(128-62, 0, OrchardTitle, 62, 27, White);
+			ssd1306_DrawBitmap(75, 44, KikiDownSprite, 9, 11, White);
+			worldToGoTo = ORCHARD;
+			break;
+		case 4:
+			ssd1306_DrawBitmap(128-62, 0, FishingTitle, 62, 27, White);
+			ssd1306_DrawBitmap(118, 47, KikiDownSprite, 9, 11, White);
+			worldToGoTo = FISHING;
+			break;
+	        }
+
+		ssd1306_DrawBitmap(0, 0, TheMap, 128, 64, White);
+	    ssd1306_UpdateScreen();
+	    ssd1306_Fill(Black);
+	}
 }
 
 void textSpeakingFullScreen(const char *text, int voice, int speed, int button) {
