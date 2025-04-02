@@ -10,6 +10,7 @@ extern const unsigned char KikiDownSprite[];
 extern const unsigned char KikiUpSprite[];
 extern const unsigned char KikiLeftSprite[];
 extern const unsigned char KikiRightSprite[];
+extern const unsigned char KikiBackErase[];
 extern const unsigned char ShopWorldSprite[];
 extern const unsigned char BoardSprite[];
 

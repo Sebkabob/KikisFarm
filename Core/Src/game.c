@@ -479,6 +479,8 @@ void theMap(){
             player.coordinates.x = 60;
             player.coordinates.y = 36;
 	    	player.inWorld = worldToGoTo;
+	    	//cutToDark(20);
+	    	HAL_Delay(50);
 	    	break;
 	    }
 
@@ -527,30 +529,35 @@ void theMap(){
 	    	if (worldSelect < 4)
 	    		worldSelect++;
 	    }
+	    ssd1306_DrawBitmap(0, 0, TheMap, 128, 64, White);
 		switch (worldSelect) {
 		case 1:
 			ssd1306_DrawBitmap(128-62, 0, ShopsTitle, 62, 27, White);
+			ssd1306_DrawBitmap(30, 6, KikiBackErase, 9, 11, Black);
 			ssd1306_DrawBitmap(30, 6, KikiDownSprite, 9, 11, White);
 			worldToGoTo = SHOP;
 			break;
 		case 2:
 			ssd1306_DrawBitmap(128-62, 0, CropFarmTitle, 62, 27, White);
+			ssd1306_DrawBitmap(35, 38, KikiBackErase, 9, 11, Black);
 			ssd1306_DrawBitmap(35, 38, KikiDownSprite, 9, 11, White);
 			worldToGoTo = CROP;
 			break;
 		case 3:
 			ssd1306_DrawBitmap(128-62, 0, OrchardTitle, 62, 27, White);
+			ssd1306_DrawBitmap(75, 44, KikiBackErase, 9, 11, Black);
 			ssd1306_DrawBitmap(75, 44, KikiDownSprite, 9, 11, White);
 			worldToGoTo = ORCHARD;
 			break;
 		case 4:
 			ssd1306_DrawBitmap(128-62, 0, FishingTitle, 62, 27, White);
+			ssd1306_DrawBitmap(118, 47, KikiBackErase, 9, 11, Black);
 			ssd1306_DrawBitmap(118, 47, KikiDownSprite, 9, 11, White);
 			worldToGoTo = FISHING;
 			break;
 	        }
 
-		ssd1306_DrawBitmap(0, 0, TheMap, 128, 64, White);
+
 	    ssd1306_UpdateScreen();
 	    ssd1306_Fill(Black);
 	}
