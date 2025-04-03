@@ -300,27 +300,34 @@ void treeHarvest(){
 
     if (spot != 0 && treeTiles[spot - 1].grown == 3) {
         // Play harvesting tones
-        if (treeTiles[spot - 1].tree.id == MONEY) {
-            // Instead of adding an item, add the sell value of money to player's money.
-            player.money += money.sellValue;
-        } else {
-            Item *harvestedTree = NULL;
-            switch (treeTiles[spot - 1].tree.id) {
-                case APPLE:   harvestedTree = &apple;   break;
-                case ORANGE:  harvestedTree = &orange;  break;
-                case BANANA:  harvestedTree = &banana;  break;
-                case CHERRY:  harvestedTree = &cherry;  break;
-                default:
-                    // If no matching crop, handle the error.
-                    return;
-            }
-
-            // If the inventory is full, play an error sound and exit.
-            // levelUnlock in this case used as amount of fruit per harvest
-            if (!addItemToInventory(player.inventory, harvestedTree, harvestedTree->levelUnlock)) {
-                sound(inventoryFull);
+        Item *harvestedTree = NULL;
+        switch (treeTiles[spot - 1].tree.id) {
+            case APPLE:   harvestedTree = &apple;   break;
+            case ORANGE:  harvestedTree = &orange;  break;
+            case BANANA:  harvestedTree = &banana;  break;
+            case CHERRY:  harvestedTree = &cherry;  break;
+            case MONEY:   harvestedTree = &money;   break;
+            default:
+                // If no matching crop, handle the error.
                 return;
-            }
+        }
+
+        // If this is a money tree, add the sell value to player's money.
+        if (treeTiles[spot - 1].tree.id == MONEY) {
+            sound(harvest);
+            player.xp += treeTiles[spot - 1].tree.xp;
+            treeTiles[spot - 1].grown = 2;
+            // For money trees, reset the timer with an extra delay (e.g., add an extra 1 second delay)
+            treePlantTimes[spot - 1] = HAL_GetTick() + 1000;
+            player.money += money.sellValue;
+            ssd1306_UpdateScreen();
+            return;
+        }
+
+        // For non-money trees, add the harvested item to the inventory.
+        if (!addItemToInventory(player.inventory, harvestedTree, harvestedTree->levelUnlock)) {
+            sound(inventoryFull);
+            return;
         }
 
         sound(harvest);
@@ -333,8 +340,6 @@ void treeHarvest(){
         ssd1306_UpdateScreen();
     }
 }
-
-
 
 void orchardPlayerAction(){
 

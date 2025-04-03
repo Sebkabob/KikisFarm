@@ -7,8 +7,7 @@
   *
   *	LEFT TO DO:
   *
-  *	-1 MORE ITEMS
-  *	-XP BAR GLITCH
+  *	-money tree stays fruited
   *
   ******************************************************************************
   */

@@ -192,24 +192,15 @@ Item getGrownCrop(ItemType seedId) {
 }
 
 Item getGrownSapling(ItemType saplingId) {
-	if (saplingId == MONEYSAPLING) {
-		Item money = {MONEY, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
-		return money;
-	}
-
     switch (saplingId) {
         case APPLESAPLING:  return apple;
         case ORANGESAPLING: return orange;
         case BANANASAPLING: return banana;
         case CHERRYSAPLING: return cherry;
-        case MONEYSAPLING:  return money;
+        case MONEYSAPLING:  return money;   // uses the correct item from game.c
         default:
-            // Return an "empty" crop when the seedId is invalid.
-            // You might alternatively handle this as an error.
-            {
-                Item empty = {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
-                return empty;
-            }
+            Item empty = {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
+            return empty;
     }
 }
 
