@@ -32,8 +32,8 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
-int FrameRate = 22;	//lower is faster
-int GrowSpeed = 1; //higher is fast
+int FrameRate = 12;	//lower is faster
+int GrowSpeed = 1; //higher is faster
 
 int worldBreak = 0;
 
@@ -42,45 +42,45 @@ int refreshBackground = 0;
 Player player;
 
 Game game;
-/*                     ITEM           SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item wheat         = { WHEAT,         5,    0,     2,   5,   0,  HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
-Item corn          = { CORN,          7,    0,     5,   10,  0,  HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
-Item potato        = { POTATO,        12,   0,     8,   20,  0,  HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
-Item carrot        = { CARROT,        15,   0,     12,  30,  0,  HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
-Item tomato        = { TOMATO,        18,   0,     16,  40,  0,  HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
-Item pumpkin       = { PUMPKIN,       25,   0,     22,  55,  0,  HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
-Item mint          = { MINT,          20,   0,     18,  50,  0,  HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
-Item sugar         = { SUGAR,         14,   0,     4,   22,  0,  HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
-Item saffron       = { SAFFRON,       35,   0,     15,  55,  0,  HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
+/*                     ITEM           SELL  BUY    GROW XP   LV   TYPE       CROP SPRITE     ITEM ICON            TITLE            */
+Item wheat         = { WHEAT,         5,    0,     2,   5,   0,   HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
+Item corn          = { CORN,          7,    0,     5,   10,  0,   HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
+Item potato        = { POTATO,        12,   0,     8,   20,  0,   HCROP,     PotatoSprite,   ItemIconPotato,      PotatoTitle      };
+Item carrot        = { CARROT,        15,   0,     12,  30,  0,   HCROP,     CarrotSprite,   ItemIconCarrot,      CarrotTitle      };
+Item tomato        = { TOMATO,        18,   0,     16,  40,  0,   HCROP,     TomatoSprite,   ItemIconTomato,      TomatoTitle      };
+Item pumpkin       = { PUMPKIN,       25,   0,     22,  55,  0,   HCROP,     PumpkinSprite,  ItemIconPumpkin,     PumpkinTitle     };
+Item mint          = { MINT,          20,   0,     18,  50,  0,   HCROP,     MintSprite,     ItemIconMint,        MintTitle        };
+Item sugar         = { SUGAR,         14,   0,     4,   22,  0,   HCROP,     SugarSprite,    ItemIconSugar,       SugarTitle       };
+Item saffron       = { SAFFRON,       35,   0,     15,  55,  0,   HCROP,     SaffronSprite,  ItemIconSaffron,     SaffronTitle     };
 
-Item wheatSeed     = { WHEATSEED,     50,   95,    0,   0,   1,  CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
-Item cornSeed      = { CORNSEED,      100,  185,   0,   0,   2,  CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
-Item potatoSeed    = { POTATOSEED,    150,  275,   0,   0,   4,  CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
-Item carrotSeed    = { CARROTSEED,    200,  380,   0,   0,   6,  CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
-Item tomatoSeed    = { TOMATOSEED,    225,  425,   0,   0,   9,  CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
-Item pumpkinSeed   = { PUMPKINSEED,   250,  475,   0,   0,   11, CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
-Item mintSeed      = { MINTSEED,      275,  550,   0,   0,   13, CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
-Item sugarSeed     = { SUGARSEED,     350,  675,   0,   0,   15, CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
-Item saffronSeed   = { SAFFRONSEED,   500,  1000,  0,   0,   17, CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
+Item wheatSeed     = { WHEATSEED,     50,   95,    0,   0,   1,   CROPSEED,  NULL,           WheatSeedSprite,     WheatSeedsTitle  };
+Item cornSeed      = { CORNSEED,      100,  185,   0,   0,   2,   CROPSEED,  NULL,           CornSeedSprite,      CornSeedsTitle   };
+Item potatoSeed    = { POTATOSEED,    150,  275,   0,   0,   4,   CROPSEED,  NULL,           PotatoSeedSprite,    PotatoSeedsTitle };
+Item carrotSeed    = { CARROTSEED,    200,  380,   0,   0,   6,   CROPSEED,  NULL,           CarrotSeedSprite,    CarrotSeedsTitle };
+Item tomatoSeed    = { TOMATOSEED,    225,  425,   0,   0,   9,   CROPSEED,  NULL,           TomatoSeedSprite,    TomatoSeedsTitle };
+Item pumpkinSeed   = { PUMPKINSEED,   250,  475,   0,   0,   11,  CROPSEED,  NULL,           PumpkinSeedSprite,   PumpkinSeedsTitle};
+Item mintSeed      = { MINTSEED,      275,  550,   0,   0,   13,  CROPSEED,  NULL,           MintSeedSprite,      MintSeedsTitle   };
+Item sugarSeed     = { SUGARSEED,     350,  675,   0,   0,   15,  CROPSEED,  NULL,           SugarSeedSprite,     SugarSeedsTitle  };
+Item saffronSeed   = { SAFFRONSEED,   500,  1000,  0,   0,   17,  CROPSEED,  NULL,           SaffronSeedSprite,   SaffronSeedsTitle};
 
-Item tillSoil      = { TILLSOIL,      0,    100,   0,   0,   1,  SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
+Item tillSoil      = { TILLSOIL,      0,    100,   0,   0,   1,   SERVICE,   NULL,           TillSprite,          TillMoreSoilTitle };
 
-Item houseKey      = { HOUSEKEY,      50000,90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
+Item houseKey      = { HOUSEKEY,      50000,90000, 0,   0,   20,  ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 
-/*                     ITEM           SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item apple         = { APPLE,         8,    0,     20,  200,  6,  HFRUIT,    AppleTreeSprite, AppleItemSprite,    AppleTitle       };
+/*                     ITEM           SELL  BUY    GROW XP  YIELD TYPE       CROP SPRITE     ITEM ICON            TITLE            */
+Item apple         = { APPLE,         5,    0,     20,  200,  6,  HFRUIT,    AppleTreeSprite, AppleItemSprite,    AppleTitle       };
 Item orange        = { ORANGE,        12,   0,     35,  400,  4,  HFRUIT,    OrangeTreeSprite,OrangeItemSprite,   OrangeTitle      };
-Item banana        = { BANANA,        25,   0,     50,  1000, 4,  HFRUIT,    BananaTreeSprite,BananaItemSprite,   BananaTitle      };
-Item cherry        = { CHERRY,        20,   0,     80,  2000, 17, HFRUIT,    CherryTreeSprite,CherryItemSprite,   CherryTitle      };
-Item money         = { MONEY,         1000, 0,     120, 1000, 0,  HFRUIT,    MoneyTreeSprite, NULL,               NULL      };
+Item banana        = { BANANA,        25,   0,     50,  600,  4,  HFRUIT,    BananaTreeSprite,BananaItemSprite,   BananaTitle      };
+Item cherry        = { CHERRY,        20,   0,     80,  800,  17, HFRUIT,    CherryTreeSprite,CherryItemSprite,   CherryTitle      };
+Item money         = { MONEY,         100,  0,     100, 400,  5,  HFRUIT,    MoneyTreeSprite, MoneyItemSprite,    MoneyTitle       };
 
-Item appleSapling  = { APPLESAPLING,  15000,20000, 0,   0,   20,  SAPLING,  	NULL,           AppleSaplingSprite,  AppleSaplingTitle  };
-Item orangeSapling = { ORANGESAPLING, 30000,40000, 0,   0,   22,  SAPLING,  	NULL,           OrangeSaplingSprite, OrangeSaplingTitle   };
-Item bananaSapling = { BANANASAPLING, 40000,50000, 0,   0,   24,  SAPLING,  	NULL,           BananaSaplingSprite, BananaSaplingTitle };
-Item cherrySapling = { CHERRYSAPLING, 50000,60000, 0,   0,   26,  SAPLING,  	NULL,           CherrySaplingSprite, CherrySaplingTitle };
-Item moneySapling  = { MONEYSAPLING,  50000,80000, 0,   0,   28,  SAPLING,  	NULL,           MoneySaplingSprite,  MoneySaplingTitle };
+Item appleSapling  = { APPLESAPLING,  15000,20000, 0,   0,   20,  SAPLING,   NULL,           AppleSaplingSprite,  AppleSaplingTitle  };
+Item orangeSapling = { ORANGESAPLING, 30000,40000, 0,   0,   22,  SAPLING,   NULL,           OrangeSaplingSprite, OrangeSaplingTitle   };
+Item bananaSapling = { BANANASAPLING, 40000,50000, 0,   0,   24,  SAPLING,   NULL,           BananaSaplingSprite, BananaSaplingTitle };
+Item cherrySapling = { CHERRYSAPLING, 50000,60000, 0,   0,   26,  SAPLING,   NULL,           CherrySaplingSprite, CherrySaplingTitle };
+Item moneySapling  = { MONEYSAPLING,  50000,99999, 0,   0,   28,  SAPLING,   NULL,           MoneySaplingSprite,  MoneySaplingTitle };
 
-Item boat		   = { BOAT,  		  90000,400000,0,   0,   30, ITEM,  	NULL,           BoatItemSprite,  	 BoatTitle };
+Item boat		   = { BOAT,  		  90000,600000,0,   0,   34,  ITEM,  	 NULL,           BoatItemSprite,  	 BoatTitle };
 
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting time stamps
@@ -102,7 +102,7 @@ CropTile cropTiles[10] = {
 TreeTile treeTiles[6] = {
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
-    { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false  },
+    { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false },
     { {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL}, 0, false }
@@ -197,7 +197,7 @@ Item getGrownSapling(ItemType saplingId) {
         case ORANGESAPLING: return orange;
         case BANANASAPLING: return banana;
         case CHERRYSAPLING: return cherry;
-        case MONEYSAPLING:  return money;   // uses the correct item from game.c
+        case MONEYSAPLING:  return money;
         default:
             Item empty = {NONE, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL};
             return empty;
@@ -206,16 +206,16 @@ Item getGrownSapling(ItemType saplingId) {
 
 int getTillSoilCost() {
     int baseCost = 100;
-    double multiplier = 1.9; // Increased from 1.85 to 2.0 for higher cost per additional spot.
+    double multiplier = 1.9;
     int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
-    return ((cost + 5) / 10) * 10;  // Round to the nearest 10.
+    return ((cost + 5) / 10) * 10;
 }
 
 int getTreeSpotCost() {
     int baseCost = 100;
-    double multiplier = 2.0; // Increased from 1.85 to 2.0 for higher cost per additional spot.
+    double multiplier = 2.0;
     int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
-    return ((cost + 5) / 10) * 10;  // Round to the nearest 10.
+    return ((cost + 5) / 10) * 10;
 }
 
 void displayLevelUp() {

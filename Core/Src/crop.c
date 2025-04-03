@@ -378,15 +378,6 @@ void cropPlayerAction(void) {
     if (A_Button_Flag) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-
-        if (checkIfNearHouse()){
-        	player.inWorld = CROPHOUSE;
-            player.coordinates.x = 60;
-            player.coordinates.y = 40;
-            player.direction = UP;
-            leaveWorld = 1;
-        }
-
         int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
         if (spot != 0) {
             // If a grown crop exists, harvest it.
@@ -397,6 +388,13 @@ void cropPlayerAction(void) {
             else if (cropTiles[spot - 1].crop.id == NONE) {
                 cropPlant();
             }
+        }
+        if (checkIfNearHouse()){
+        	player.inWorld = CROPHOUSE;
+            player.coordinates.x = 60;
+            player.coordinates.y = 40;
+            player.direction = UP;
+            leaveWorld = 1;
         }
     }
 

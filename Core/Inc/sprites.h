@@ -110,11 +110,13 @@ extern const unsigned char AppleItemSprite[];
 extern const unsigned char BananaItemSprite[];
 extern const unsigned char CherryItemSprite[];
 extern const unsigned char OrangeItemSprite[];
+extern const unsigned char MoneyItemSprite[];
 
 extern const unsigned char CherryTitle[];
 extern const unsigned char BananaTitle[];
 extern const unsigned char OrangeTitle[];
 extern const unsigned char AppleTitle[];
+extern const unsigned char MoneyTitle[];
 
 extern const unsigned char TheMap[];
 extern const unsigned char ShopsTitle[];

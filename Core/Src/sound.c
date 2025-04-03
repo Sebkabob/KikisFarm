@@ -132,9 +132,9 @@ const uint16_t levelUp[][2] = {
 
 // harvest (alternate): a bright, upbeat sequence.
 const uint16_t harvest[][2] = {
-    {G4, 60},
-    {B4, 60},
-    {D5, 60},
+    {G4, 50},
+    {B4, 50},
+    {D5, 50},
     {0,  0}
 };
 
