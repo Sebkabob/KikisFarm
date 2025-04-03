@@ -187,20 +187,76 @@ void mapInteract(){
 void booksOfLore(){
 	textSpeaking("most of these are   porn, weird.", 150, 8, 1);
 	textSpeaking("there is a diary    here though...", 150, 8, 1);
+	textSpeaking("jeez this thing is  wordy, get ready    for a read", 150, 8, 1);
     textSpeakingFullScreen("1/1/2293 - Entry 1", 100, 10, 1);
     textSpeakingFullScreen("Hello, my name is Kiki, I am writing this diary to keep track of things!" , 100, 10, 1);
     textSpeakingFullScreen("So far the farm seems to be doing very well, everyone is getting fed." , 100, 10, 1);
     textSpeakingFullScreen("We have had some minor set backs but as of now everything is going good!" , 100, 10, 1);
-    textSpeakingFullScreen("Tom is doing well, I dont know how he has so much money to keep buying everyones stuff but he seems happy!" , 100, 10, 1);
-    textSpeakingFullScreen("I just finished building this house, I'm pretty proud of it :)" , 100, 10, 1);
-    textSpeakingFullScreen("I have absolutely no idea how Mary has so much stuff to sell, like seriouly how did you get all that in here?" , 100, 10, 1);
     textSpeakingFullScreen("Anyways, thats all for now, ciao!" , 100, 10, 1);
 
-    textSpeakingFullScreen("2/23/2293 - Entry 2", 100, 10, 1);
+    textSpeakingFullScreen("2/4/2293 - Entry 2", 100, 10, 1);
     textSpeakingFullScreen("Hello diary, its been about a month now, we recently started planting seeds at the orchard." , 100, 10, 1);
     textSpeakingFullScreen("The soil here is super fertile! with how well the farm has been doing I hope these seeds take!" , 100, 10, 1);
-    textSpeakingFullScreen("" , 100, 10, 1);
-    textSpeakingFullScreen("" , 100, 10, 1);
+    textSpeakingFullScreen("Tom the shopkeeper is feeling a little ill, I hope he feels better soon!" , 100, 10, 1);
+
+    textSpeakingFullScreen("3/21/2293 - Entry 3", 100, 10, 1);
+    textSpeakingFullScreen("The orchard is doing amazing!!! The trees are bearing great fruit, it sure is a morale boost" , 100, 10, 1);
+    textSpeakingFullScreen("On a less positive note... Tom is really really sick, he has not been able to tend to the shop" , 100, 10, 1);
+    textSpeakingFullScreen("... his wife Mary has been taking care of his shop in the meantime, I really hope he gets better" , 100, 10, 1);
+    textSpeakingFullScreen("Oh... Mary just called, I guess thats all for today" , 100, 10, 1);
+
+    textSpeakingFullScreen("6/3/2293 - Entry 4", 100, 10, 1);
+    textSpeakingFullScreen("I forgot about this thing already, whoops" , 100, 10, 1);
+    textSpeakingFullScreen("Tom just died. People have been losing hope around here, I never accounted for this to happen" , 100, 10, 1);
+    textSpeakingFullScreen("... so soon. Mary has taken over both shops and I can tell its really getting to her." , 100, 10, 1);
+    textSpeakingFullScreen("It may be time to start trying to finish my helper bots, she could really use the help." , 100, 10, 1);
+    textSpeakingFullScreen("God let there be hope..." , 100, 10, 1);
+
+    textSpeakingFullScreen("9/13/2293 - Entry 5", 100, 10, 1);
+    textSpeakingFullScreen("I finished my first model of my helper bot. I modeled artificial skin to it" , 100, 10, 1);
+    textSpeakingFullScreen("I was able to use my old scans of people to create a perfect replica of him..." , 100, 10, 1);
+    textSpeakingFullScreen("This feels so wrong, but Mary seems to be a lot more at ease these days." , 100, 10, 1);
+    textSpeakingFullScreen("Am I pushing the limits?" , 100, 10, 1);
+
+    textSpeakingFullScreen("11/2/2293 - Entry 6", 100, 10, 1);
+    textSpeakingFullScreen("Tom's helper bot is remarkably still working great." , 100, 10, 1);
+    textSpeakingFullScreen("Its super eerie seeing Mary so in love with it, she kisses him every day." , 100, 10, 1);
+    textSpeakingFullScreen("Mary seems to have lost it a little, clinging on to shards of Tom' memory." , 100, 10, 1);
+    textSpeakingFullScreen("She has been super scattered, she has been selling the wrong things to people." , 100, 10, 1);
+    textSpeakingFullScreen("I think I even saw her eating raw seeds, super weird stuff." , 100, 10, 1);
+
+    textSpeakingFullScreen("5/6/2294 - Entry 7", 100, 10, 1);
+    textSpeakingFullScreen("Mary has lost her mind." , 100, 10, 1);
+    textSpeakingFullScreen("She truly is not herself, all the denial has finally washed away." , 100, 10, 1);
+    textSpeakingFullScreen("She has not left her house in 2 months." , 100, 10, 1);
+    textSpeakingFullScreen("Every time I check up on her she just stares at the wall... all day long." , 100, 10, 1);
+    textSpeakingFullScreen("I programmed Tom's helper bot to tend to both stores..." , 100, 10, 1);
+    textSpeakingFullScreen("although I think his system is overloaded, he over heats constantly." , 100, 10, 1);
+    textSpeakingFullScreen("Maybe its time for a Mary helper bot, I'm sure she wouldn't mind." , 100, 10, 1);
+    textSpeakingFullScreen("Not like she's really around much anyway..." , 100, 10, 1);
+
+    textSpeakingFullScreen("7/4/2294 - Entry 8", 100, 10, 1);
+    textSpeakingFullScreen("The Mary helper bot has beeen running the store great!" , 100, 10, 1);
+    textSpeakingFullScreen("After hours I programmed her bot to help feed and bathe her, she still is not right..." , 100, 10, 1);
+    textSpeakingFullScreen("It has been 4 months now. Mary is still cooped up in there." , 100, 10, 1);
+    textSpeakingFullScreen("I have been talking a lot to the helper bots, they're kind of my only company these days" , 100, 10, 1);
+    textSpeakingFullScreen("It just isn't the same anymore... Things started so well." , 100, 10, 1);
+    textSpeakingFullScreen("Am I an idiot for thinking we could survive after the war? Should we have just killed ourselves?" , 100, 10, 1);
+
+    textSpeakingFullScreen("3/21/2295 - Entry 9", 100, 10, 1);
+    textSpeakingFullScreen("Mary died this morning." , 100, 10, 1);
+    textSpeakingFullScreen("Can't say much has changed, life has still been going on" , 100, 10, 1);
+    textSpeakingFullScreen("I created 2 more robots to help me tend to my needs, one is equipped for medical services" , 100, 10, 1);
+    textSpeakingFullScreen("... you know, in case I get sick too." , 100, 10, 1);
+    textSpeakingFullScreen("The other one is my partner. I need someone to love me." , 100, 10, 1);
+    textSpeakingFullScreen("I really feel myself slipping... I don't know if I can go on" , 100, 10, 1);
+
+    textSpeakingFullScreen("5/1/2295 - Entry 10", 100, 10, 1);
+    textSpeakingFullScreen("I cant take this anymore." , 100, 10, 1);
+    textSpeakingFullScreen("Not another day can go by, I need a change now or else." , 100, 10, 1);
+    textSpeakingFullScreen("I have started on a memory wiping device, I'm going to test it this afternoon." , 100, 10, 1);
+    textSpeakingFullScreen("Hopefully this will help me forget." , 100, 10, 1);
+    textSpeakingFullScreen("(There are no more entries after this.)" , 100, 10, 1);
 }
 
 void cropHousePlayerAction(){

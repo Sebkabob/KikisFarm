@@ -193,6 +193,69 @@ void drawTrees(void) {
     }
 }
 
+void drawBlockingTrees(){
+    for (int i = 0; i < 6; i++) {
+        if (!treeTiles[i].isTilled || treeTiles[i].tree.id == NONE)
+            continue;
+
+        int spot = i + 1;
+        int x = 0, y = 0;
+        bool shouldDraw = false;
+
+        // Even spots: 2, 4, 6 use treeSpotYr2.
+        if (spot % 2 == 0) {
+            if (player.coordinates.y < 22) {
+                shouldDraw = true;
+                switch (spot) {
+                    case 2:  x = treeSpotXc5 + 3; y = treeSpotYr2 - 22; break;
+                    case 4:  x = treeSpotXc3 + 3; y = treeSpotYr2 - 22; break;
+                    case 6:  x = treeSpotXc1 + 3; y = treeSpotYr2 - 22; break;
+                    default: break;
+                }
+            }
+        }
+        // Odd spots: 1, 3, 5 use treeSpotYr1.
+        else {
+            if (player.coordinates.y < 15) {
+                shouldDraw = true;
+                switch (spot) {
+                    case 1:  x = treeSpotXc6 + 3; y = treeSpotYr1 - 22; break;
+                    case 3:  x = treeSpotXc4 + 3; y = treeSpotYr1 - 22; break;
+                    case 5:  x = treeSpotXc2 + 3; y = treeSpotYr1 - 22; break;
+                    default: break;
+                }
+            }
+        }
+
+        if (shouldDraw) {
+            // Draw the sprite based on the growth stage (same logic as in drawTrees)
+            switch (treeTiles[i].grown) {
+                case 0:
+                    ssd1306_DrawBitmap(x + 6, y + 24, SproutTreeSprite, 5, 2, White);
+                    break;
+                case 1:
+                    ssd1306_DrawBitmap(x + 6, y + 16, SaplingTreeSprite, 6, 10, White);
+                    break;
+                case 2:
+                    ssd1306_DrawBitmap(x, y, EraseTreeSprite, 17, 26, Black);
+                    ssd1306_DrawBitmap(x, y, EmptyTreeSprite, 17, 26, White);
+                    break;
+                case 3: {
+                    Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
+                    if (itemPtr != NULL && itemPtr->cropSprite != NULL) {
+                        ssd1306_DrawBitmap(x, y, EraseTreeSprite, 17, 26, Black);
+                        ssd1306_DrawBitmap(x, y, itemPtr->cropSprite, 17, 26, White);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+
 void animateWater() {
     static const uint8_t* frames[] = {
         WaterAnimation1,
@@ -235,13 +298,6 @@ void orchardDisplay(){
     drawTreeSpot();
     drawTrees();
 
-//    int tree = checkIfOnTreeSpot();
-//        char treeSpot[20];
-//        sprintf(treeSpot, "%d", tree);
-//        ssd1306_SetCursor(0, 0);
-//        ssd1306_WriteString(treeSpot, Font_6x8, White);
-//
-//
 //    char coordString[20];
 //    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
 //    ssd1306_SetCursor(128 - (6*9), 64-8);
@@ -431,6 +487,7 @@ void handleOrchard() {
         	orchardPlayerMovement();
 
         	playerDisplay();
+        	drawBlockingTrees();
 
         	orchardPlayerAction();
 

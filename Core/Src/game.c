@@ -32,7 +32,7 @@ int DOWN_Button_Flag = 0;
 int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
-int FrameRate = 12;	//lower is faster
+int FrameRate = 22;	//lower is faster
 int GrowSpeed = 1; //higher is faster
 
 int worldBreak = 0;

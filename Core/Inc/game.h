@@ -221,6 +221,7 @@ void initShopItems(void);
 void updateButtonFlags(void);
 void cropGrowth(void);
 void gameLogic(void);
+void theMap(void);
 void playerDisplay(void);
 void playerErase(void);
 void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
