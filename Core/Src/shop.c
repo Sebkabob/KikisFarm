@@ -107,7 +107,7 @@ int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect
     }
 
     // Check if HouseKey is already owned.
-    if (selectedItem->id == HOUSEKEY && hasItemInInventory(inventory, HOUSEKEY) > 0) {
+    if (selectedItem->id == HOUSEKEY && game.mileStone >= HOUSE_KEY_BOUGHT) {
         return 0;
     }
 
@@ -132,7 +132,7 @@ int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect
     if (selectedItem->id == HOUSEKEY) {
         if (addItemToInventory(inventory, selectedItem, 1)) {
             *money -= selectedItem->buyValue;
-            game.houseUnlocked = 1;
+            game.mileStone = HOUSE_KEY_BOUGHT;
             displayStats();
             ssd1306_UpdateScreen();
             return 1;
@@ -521,19 +521,19 @@ void shopDisplay(){
 void shopPlayerAction(){
     if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && shopNearBuy()) {
         shopSoftRefresh();
-        textSpeaking("seeds, seeds, seeds.yeah I got them...", 150, 8, 1);
+        textSpeaking("Goods at a good     price! (kind of)", 400, 9, 1);
         while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         shopHardRefresh();
         shopBuy();
     } else if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && shopNearSell()){
     	if (!isInventoryEmpty(player.inventory)){
-            textSpeaking("I'll buy stuff!     (I will lowball you)", 500, 7, 1);
+            textSpeaking("I'll buy stuff!     (I will lowball you)", 110, 7, 1);
             while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             shopSoftRefresh();
             shopSell();
             shopHardRefresh();
     	} else {
-    		textSpeaking("Come back with stuff to sell!", 500, 7, 1);
+    		textSpeaking("Come back with stuff to sell!", 110, 7, 1);
     		while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     	}
     }
@@ -544,7 +544,7 @@ void shopPlayerAction(){
         showInventory(0);
     }
 
-    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
+    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1 && game.mileStone >= MAP_ACQUIRED) {
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
         theMap();
     }
@@ -563,10 +563,8 @@ void shopPlayerAction(){
 
 void handleShop() {
     // Set initial shop state (starting position and direction)
-
     ssd1306_Fill(Black);
     shopDisplay();
-    ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -577,16 +575,12 @@ void handleShop() {
         if (now - lastFrameTime >= FRAME_DELAY) {
 
         	ssd1306_Fill(Black);
-        	if (refreshBackground){
-        		refreshBackground = 0;
-        		shopDisplay();
-        		ssd1306_CopyBuffer();
-        	}
+
+        	shopDisplay();
 
         	updateButtonFlags();
             shopPlayerMovement();
 
-        	ORBuffer();
         	playerDisplay();
 
             shopPlayerAction();

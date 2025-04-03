@@ -83,6 +83,13 @@ void pullEEPROM(void) {
     HAL_Delay(10);
     addr += sizeof(cropTiles);
 
+    // Read treeTiles info from EEPROM
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&treeTiles, sizeof(treeTiles), 1000)) {
+        //buzzer(100, 300);
+    }
+    HAL_Delay(10);
+    addr += sizeof(treeTiles);
+
     // Read game info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {
         //buzzer(100, 300);
@@ -133,6 +140,13 @@ void pushEEPROM(void) {
     }
     HAL_Delay(10);
     addr += sizeof(cropTiles);
+
+    // Write treeTiles info to EEPROM
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&treeTiles, sizeof(treeTiles), 1000)) {
+        //buzzer(100, 300);
+    }
+    HAL_Delay(10);
+    addr += sizeof(treeTiles);
 
     // Write game info to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&game, sizeof(game), 1000)) {

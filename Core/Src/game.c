@@ -1,6 +1,7 @@
 #include "main.h"
 #include "game.h"
 #include "crop.h"
+#include "sound.h"
 #include "sprites.h"
 #include "NimaLTD.I-CUBE-EE24_conf.h"
 #include "ee24.h"
@@ -32,7 +33,7 @@ int LEFT_Button_Flag = 0;
 int RIGHT_Button_Flag = 0;
 
 int FrameRate = 22;	//lower is faster
-int GrowSpeed = 1;
+int GrowSpeed = 1; //higher is fast
 
 int worldBreak = 0;
 
@@ -67,19 +68,19 @@ Item tillSoil      = { TILLSOIL,      0,    100,   0,   0,   1,  SERVICE,   NULL
 Item houseKey      = { HOUSEKEY,      50000,90000, 0,   0,   20, ITEM,      NULL,           HouseKeySprite,      HouseKeyTitle    };
 
 /*                     ITEM           SELL  BUY    GROW XP   LV  TYPE       CROP SPRITE     ITEM ICON            TITLE            */
-Item apple         = { APPLE,         5,    0,     2,   5,   0,  HFRUIT,    AppleTreeSprite,AppleItemSprite,     AppleTitle       };
-Item orange        = { ORANGE,        7,    0,     5,   10,  0,  HFRUIT,    OrangeTreeSprite,OrangeItemSprite,   OrangeTitle      };
-Item banana        = { BANANA,        12,   0,     8,   20,  0,  HFRUIT,    BananaTreeSprite,BananaItemSprite,   BananaTitle      };
-Item cherry        = { CHERRY,        15,   0,     12,  30,  0,  HFRUIT,    CherryTreeSprite,CherryItemSprite,   CherryTitle      };
-Item money         = { MONEY,         0,    0,     12,  30,  0,  HFRUIT,    NULL,   		NULL,                CarrotTitle      };
+Item apple         = { APPLE,         8,    0,     20,  200,  6,  HFRUIT,    AppleTreeSprite, AppleItemSprite,    AppleTitle       };
+Item orange        = { ORANGE,        12,   0,     35,  400,  4,  HFRUIT,    OrangeTreeSprite,OrangeItemSprite,   OrangeTitle      };
+Item banana        = { BANANA,        25,   0,     50,  1000, 4,  HFRUIT,    BananaTreeSprite,BananaItemSprite,   BananaTitle      };
+Item cherry        = { CHERRY,        20,   0,     80,  2000, 17, HFRUIT,    CherryTreeSprite,CherryItemSprite,   CherryTitle      };
+Item money         = { MONEY,         1000, 0,     120, 1000, 0,  HFRUIT,    MoneyTreeSprite, NULL,               NULL      };
 
-Item appleSapling  = { APPLESAPLING,  15000,30000, 0,   0,   20, SAPLING,  	NULL,           AppleSaplingSprite,  AppleSaplingTitle  };
-Item orangeSapling = { ORANGESAPLING, 30000,50000, 0,   0,   22, SAPLING,  	NULL,           OrangeSaplingSprite, OrangeSaplingTitle   };
-Item bananaSapling = { BANANASAPLING, 40000,60000, 0,   0,   24, SAPLING,  	NULL,           BananaSaplingSprite, BananaSaplingTitle };
-Item cherrySapling = { CHERRYSAPLING, 50000,70000, 0,   0,   26, SAPLING,  	NULL,           CherrySaplingSprite, CherrySaplingTitle };
-Item moneySapling  = { MONEYSAPLING,  50000,90000, 0,   0,   28, SAPLING,  	NULL,           MoneySaplingSprite,  MoneySaplingTitle };
+Item appleSapling  = { APPLESAPLING,  15000,20000, 0,   0,   20,  SAPLING,  	NULL,           AppleSaplingSprite,  AppleSaplingTitle  };
+Item orangeSapling = { ORANGESAPLING, 30000,40000, 0,   0,   22,  SAPLING,  	NULL,           OrangeSaplingSprite, OrangeSaplingTitle   };
+Item bananaSapling = { BANANASAPLING, 40000,50000, 0,   0,   24,  SAPLING,  	NULL,           BananaSaplingSprite, BananaSaplingTitle };
+Item cherrySapling = { CHERRYSAPLING, 50000,60000, 0,   0,   26,  SAPLING,  	NULL,           CherrySaplingSprite, CherrySaplingTitle };
+Item moneySapling  = { MONEYSAPLING,  50000,80000, 0,   0,   28,  SAPLING,  	NULL,           MoneySaplingSprite,  MoneySaplingTitle };
 
-Item boat		   = { BOAT,  		  90000,850000,0,   0,   30, ITEM,  	NULL,           BoatItemSprite,  	 BoatTitle };
+Item boat		   = { BOAT,  		  90000,400000,0,   0,   30, ITEM,  	NULL,           BoatItemSprite,  	 BoatTitle };
 
 
 uint32_t cropPlantTimes[10] = {0}; // Stores planting time stamps
@@ -122,7 +123,7 @@ void initShopItems(void) {
     shopItems[8]  = saffronSeed;
     shopItems[9]  = tillSoil;
     shopItems[10] = houseKey;
-    shopItems[11]  = tillSoil;
+    shopItems[11] = tillSoil;
     shopItems[12] = appleSapling;
     shopItems[13] = orangeSapling;
     shopItems[14] = bananaSapling;
@@ -157,6 +158,7 @@ Item* getItemPointerFromID(ItemType id) {
         case ORANGE:        return &orange;
         case BANANA:        return &banana;
         case CHERRY:        return &cherry;
+        case MONEY:         return &money;
         case APPLESAPLING:  return &appleSapling;
         case ORANGESAPLING: return &orangeSapling;
         case BANANASAPLING: return &bananaSapling;
@@ -200,6 +202,7 @@ Item getGrownSapling(ItemType saplingId) {
         case ORANGESAPLING: return orange;
         case BANANASAPLING: return banana;
         case CHERRYSAPLING: return cherry;
+        case MONEYSAPLING:  return money;
         default:
             // Return an "empty" crop when the seedId is invalid.
             // You might alternatively handle this as an error.
@@ -281,7 +284,7 @@ void initGame(){
     player.money = 9999999;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 99;
+    player.level = 28;
     player.soilSpots = 1;
 
     game.houseUnlocked = 0;
@@ -314,48 +317,119 @@ void initGame(){
         cropTiles[i].grown = 0;
         cropTiles[i].isTilled = (i == 2) ? true : false;
     }
+
+    for (int i = 0; i < 6; i++) {
+        treeTiles[i].tree.id = NONE;
+        treeTiles[i].tree.sellValue = 0;
+        treeTiles[i].tree.buyValue = 0;
+        treeTiles[i].tree.growTime = 0;
+        treeTiles[i].tree.xp = 0;
+        treeTiles[i].tree.levelUnlock = 0;
+        treeTiles[i].tree.subType = 0;
+        treeTiles[i].tree.cropSprite = NULL;   // Adjust field name if needed.
+        treeTiles[i].tree.itemSprite = NULL;   // Adjust field name if needed.
+        treeTiles[i].grown = 0;
+        treeTiles[i].isTilled = false;
+    }
 }
 
 void updateButtonFlags(){
-    // A button
-    if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
-    	A_Button_Flag = 1;
-    }
+	// A button
+	if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+	    A_Button_Flag = 1;
+	} else {
+	    A_Button_Flag = 0;
+	}
 
-    // B Button
-    if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
-    	B_Button_Flag = 1;
-    }
+	// B button
+	if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+	    B_Button_Flag = 1;
+	} else {
+	    B_Button_Flag = 0;
+	}
 
-    // START button
-    if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
-    	START_Button_Flag = 1;
-    }
+	// START button (assuming pressed state is logic 1)
+	if (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1) {
+	    START_Button_Flag = 1;
+	} else {
+	    START_Button_Flag = 0;
+	}
 
-    // SELECT button
-    if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
-    	SELECT_Button_Flag = 1;
-    }
+	// SELECT button
+	if (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0) {
+	    SELECT_Button_Flag = 1;
+	} else {
+	    SELECT_Button_Flag = 0;
+	}
 
-    // UP button
-    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
-    	UP_Button_Flag = 1;
-    }
+	// UP button
+	if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
+	    UP_Button_Flag = 1;
+	} else {
+	    UP_Button_Flag = 0;
+	}
 
 	// DOWN button
-    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
-    	DOWN_Button_Flag = 1;
+	if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
+	    DOWN_Button_Flag = 1;
+	} else {
+	    DOWN_Button_Flag = 0;
+	}
+
+	// LEFT button
+	if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+	    LEFT_Button_Flag = 1;
+	} else {
+	    LEFT_Button_Flag = 0;
+	}
+
+	// RIGHT button
+	if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+	    RIGHT_Button_Flag = 1;
+	} else {
+	    RIGHT_Button_Flag = 0;
+	}
+
+}
+
+void cutToDark(int speed){
+    int mid = 32; // Screen midpoint (assuming 128x64 display)
+
+    for (int i = 0; i < mid; i++) {
+        ssd1306_Line(0, i, 127, i, Black); // Draw top to mid
+        ssd1306_Line(0, 63 - i, 127, 63 - i, Black); // Draw bottom to mid
+        ssd1306_UpdateScreen();
+        HAL_Delay(speed);
+    }
+    HAL_Delay(speed * 10);
+}
+
+void TransitionVortex(int speed) {
+    int top = 0;
+    int bottom = 63;  // 64-pixel tall display: 0..63
+    int left = 0;
+    int right = 127;  // 128-pixel wide display: 0..127
+
+    while (top <= bottom && left <= right) {
+        // Draw horizontal lines (top and bottom edges)
+        ssd1306_Line(left, top, right, top, Black);
+        ssd1306_Line(left, bottom, right, bottom, Black);
+
+        // Draw vertical lines (left and right edges)
+        ssd1306_Line(left, top, left, bottom, Black);
+        ssd1306_Line(right, top, right, bottom, Black);
+
+        ssd1306_UpdateScreen();
+        HAL_Delay(speed);
+
+        // Move boundaries inward
+        top++;
+        bottom--;
+        left++;
+        right--;
     }
 
-    // LEFT button
-    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
-    	LEFT_Button_Flag = 1;
-    }
-
-    // RIGHT button
-    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
-    	RIGHT_Button_Flag = 1;
-    }
+    HAL_Delay(speed * 10);
 }
 
 void cropGrowth(){
@@ -375,18 +449,28 @@ void cropGrowth(){
     }
 }
 
-void treeGrowth(){
+void treeGrowth(void) {
     uint32_t currentTime = HAL_GetTick();
-    // Loop through all 10 crop spots.
-    for (int i = 0; i < 10; i++) {
-        // Process only tilled spots with a planted crop that hasn't grown yet.
-        if (treeTiles[i].isTilled && treeTiles[i].tree.id != NONE && treeTiles[i].grown == 0) {
-            // The crop's growTime is in game ticks (seconds).
-            // Compare elapsed time (in ms) with growTime (converted to ms).
-            if (currentTime - treePlantTimes[i] >= (treeTiles[i].tree.growTime * 1000) / GrowSpeed) {
-            	refreshBackground = 1;
-                treeTiles[i].grown = 1;
-                // (Optional: update the sprite or trigger additional logic here.)
+    // Loop through all tree spots (adjust loop limit to match your treeTiles array size)
+    for (int i = 0; i < 6; i++) {
+        if (treeTiles[i].isTilled && treeTiles[i].tree.id != NONE) {
+            if (treeTiles[i].grown == 0) {
+                // Stage 0 -> 1: 24 minutes = 24 * 60 * 1000 = 1440000 ms
+                if (currentTime - treePlantTimes[i] >= 14400.00) {
+                    treeTiles[i].grown = 1;
+                    treePlantTimes[i] = currentTime;  // Reset timer for next stage
+                }
+            } else if (treeTiles[i].grown == 1) {
+                // Stage 1 -> 2: 12 minutes = 720000 ms
+                if (currentTime - treePlantTimes[i] >= 7200.00) {
+                    treeTiles[i].grown = 2;
+                    treePlantTimes[i] = currentTime;  // Reset timer for next stage
+                }
+            } else if (treeTiles[i].grown == 2) {
+                // Stage 2 -> 3: Use the tree's growTime (in seconds) converted to ms.
+                if (currentTime - treePlantTimes[i] >= (treeTiles[i].tree.growTime * 1000) / GrowSpeed) {
+                    treeTiles[i].grown = 3;
+                }
             }
         }
     }
@@ -451,6 +535,7 @@ void playerErase(){
 }
 
 void theMap(){
+	sound(mapOpen);
 	World worldToGoTo;
 	int worldSelect = 0;
 
@@ -478,9 +563,13 @@ void theMap(){
 	    	leaveWorld = 1;
             player.coordinates.x = 60;
             player.coordinates.y = 36;
+            if (game.mileStone < BOAT_ACQUIRED && worldToGoTo == FISHING){
+            	textSpeaking("hah! nice try...    get that boat first", 100, 8, 1);
+            	break;
+            }
 	    	player.inWorld = worldToGoTo;
-	    	//cutToDark(20);
-	    	HAL_Delay(50);
+	    	TransitionVortex(15);
+	    	HAL_Delay(100);
 	    	break;
 	    }
 
@@ -505,6 +594,7 @@ void theMap(){
 	    // UP button
 	    if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0);
+	    	sound(menuNav);
 	    	if (worldSelect > 1)
 	    		worldSelect--;
 	    }
@@ -512,6 +602,7 @@ void theMap(){
 		// DOWN button
 	    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
+	    	sound(menuNav);
 	    	if (worldSelect < 4)
 	    		worldSelect++;
 	    }
@@ -519,6 +610,7 @@ void theMap(){
 	    // LEFT button
 	    if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0);
+	    	sound(menuNav);
 	    	if (worldSelect > 1)
 	    		worldSelect--;
 	    }
@@ -526,9 +618,11 @@ void theMap(){
 	    // RIGHT button
 	    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
+	    	sound(menuNav);
 	    	if (worldSelect < 4)
 	    		worldSelect++;
 	    }
+	    ssd1306_Fill(Black);
 	    ssd1306_DrawBitmap(0, 0, TheMap, 128, 64, White);
 		switch (worldSelect) {
 		case 1:
@@ -559,7 +653,6 @@ void theMap(){
 
 
 	    ssd1306_UpdateScreen();
-	    ssd1306_Fill(Black);
 	}
 }
 
@@ -793,18 +886,6 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
         ssd1306_UpdateScreen();
     }
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
-}
-
-void cutToDark(int speed){
-    int mid = 32; // Screen midpoint (assuming 128x64 display)
-
-    for (int i = 0; i < mid; i++) {
-        ssd1306_Line(0, i, 127, i, Black); // Draw top to mid
-        ssd1306_Line(0, 63 - i, 127, 63 - i, Black); // Draw bottom to mid
-        ssd1306_UpdateScreen();
-        HAL_Delay(speed);
-    }
-    HAL_Delay(speed * 10);
 }
 
 void displayStats(void) {

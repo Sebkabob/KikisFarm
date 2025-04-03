@@ -9,6 +9,7 @@
 #define INC_ORCHARD
 
 #include <stdbool.h>
+#include "stm32f4xx_hal.h"
 
 #define treeSpotXc1 1
 #define treeSpotXc2 19
@@ -19,6 +20,8 @@
 
 #define treeSpotYr1	22
 #define treeSpotYr2 29
+
+extern uint32_t treePlantTimes[6]; // Declare globally so other files can use it
 
 void orchardDisplay(void);
 bool orchardObstacle(int x, int y);

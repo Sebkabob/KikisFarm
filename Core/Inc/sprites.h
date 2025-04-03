@@ -78,6 +78,7 @@ extern const unsigned char downArrow[];
 extern const unsigned char upArrow[];
 
 extern const unsigned char TheHouse[];
+extern const unsigned char MapOnTable[];
 
 extern const unsigned char OrchardWorldSprite[];
 extern const unsigned char TreeSpot[];
@@ -120,5 +121,14 @@ extern const unsigned char ShopsTitle[];
 extern const unsigned char OrchardTitle[];
 extern const unsigned char CropFarmTitle[];
 extern const unsigned char FishingTitle[];
+
+extern const unsigned char WaterAnimation1[];
+extern const unsigned char WaterAnimation2[];
+extern const unsigned char WaterAnimation3[];
+extern const unsigned char WaterAnimation4[];
+extern const unsigned char WaterAnimation5[];
+
+extern const unsigned char ControlsTitle2[];
+
 
 #endif /* INC_SPRITES_H_ */

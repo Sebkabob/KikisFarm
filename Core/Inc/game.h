@@ -170,7 +170,7 @@ typedef struct {
     bool isTilled;  // Whether the soil is tilled
 } CropTile;
 
-// Attributes of a croptile
+// Attributes of a treetile
 typedef struct {
     Item tree;      // The tree planted (if any)
     int grown;      // Growth progress (0 if not planted)
@@ -196,7 +196,7 @@ extern int refreshBackground;
 
 extern Item shopItems[];
 
-extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron, mint, tomato;
+extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron, mint, tomato, apple, banana, orange, cherry, money;
 extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed, saffronSeed, mintSeed, tomatoSeed;
 extern Item tillSoil, houseKey;
 
@@ -205,6 +205,7 @@ extern Player player;
 extern Game game;
 
 extern CropTile cropTiles[10];
+extern TreeTile treeTiles[6];
 
 extern Direction cropDirection;
 

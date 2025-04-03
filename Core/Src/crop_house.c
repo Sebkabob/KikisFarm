@@ -9,6 +9,9 @@
 void cropHouseDisplay(){
     // Draw the house background bitmap
     ssd1306_DrawBitmap(0, 0, TheHouse, 128, 64, White);
+    if (game.mileStone < MAP_ACQUIRED){
+    	ssd1306_DrawBitmap(20, 34, MapOnTable, 16, 5, White);
+    }
 
     // Prepare the player's coordinates string
     char coordString[20];
@@ -161,6 +164,45 @@ void cropHousePlayerMovement(){
     }
 }
 
+void mapInteract(){
+	if (game.mileStone < MAP_ACQUIRED){
+		game.mileStone = MAP_ACQUIRED;
+		textSpeaking("interesting... a map", 150, 8, 1);
+		textSpeaking("woah, what???       there's something   else???", 150, 8, 1);
+		textSpeaking("(press start to use the map)", 150, 8, 1);
+		textSpeaking("(the map allows you to fast travel      around the world)", 150, 8, 1);
+		textSpeaking("(maybe go visit the orchard? or do whatever I don't care)", 150, 8, 1);
+		textSpeaking("(Till More Soil to  plant saplings at   the orchard btw)", 150, 8, 1);
+		ssd1306_Fill(Black);        // Clear the screen
+		ssd1306_DrawBitmap(0, 0, ControlsTitle2, 128, 64, White);
+		ssd1306_UpdateScreen();
+		HAL_Delay(250);
+		while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
+	} else {
+		textSpeaking("what a fine walnut  table!", 150, 8, 1);
+		textSpeaking("(you already got the map quit looking at the table...)", 150, 8, 1);
+	}
+}
+
+void booksOfLore(){
+	textSpeaking("most of these are   porn, weird.", 150, 8, 1);
+	textSpeaking("there is a diary    here though...", 150, 8, 1);
+    textSpeakingFullScreen("1/1/2293 - Entry 1", 100, 10, 1);
+    textSpeakingFullScreen("Hello, my name is Kiki, I am writing this diary to keep track of things!" , 100, 10, 1);
+    textSpeakingFullScreen("So far the farm seems to be doing very well, everyone is getting fed." , 100, 10, 1);
+    textSpeakingFullScreen("We have had some minor set backs but as of now everything is going good!" , 100, 10, 1);
+    textSpeakingFullScreen("Tom is doing well, I dont know how he has so much money to keep buying everyones stuff but he seems happy!" , 100, 10, 1);
+    textSpeakingFullScreen("I just finished building this house, I'm pretty proud of it :)" , 100, 10, 1);
+    textSpeakingFullScreen("I have absolutely no idea how Mary has so much stuff to sell, like seriouly how did you get all that in here?" , 100, 10, 1);
+    textSpeakingFullScreen("Anyways, thats all for now, ciao!" , 100, 10, 1);
+
+    textSpeakingFullScreen("2/23/2293 - Entry 2", 100, 10, 1);
+    textSpeakingFullScreen("Hello diary, its been about a month now, we recently started planting seeds at the orchard." , 100, 10, 1);
+    textSpeakingFullScreen("The soil here is super fertile! with how well the farm has been doing I hope these seeds take!" , 100, 10, 1);
+    textSpeakingFullScreen("" , 100, 10, 1);
+    textSpeakingFullScreen("" , 100, 10, 1);
+}
+
 void cropHousePlayerAction(){
 
     // Button A:
@@ -168,8 +210,8 @@ void cropHousePlayerAction(){
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         if (nearArcadeMachine()) textSpeaking("a broken arcade     machine, wonder if  it can be fixed...", 150, 8, 1);
-        if (nearBookshelf()) textSpeaking("must be books of    lore, too bad the   update isnt here...", 150, 8, 1);
-        if (nearTable()) textSpeaking("a walnut table...", 150, 8, 1);
+        if (nearBookshelf()) booksOfLore();
+        if (nearTable()) mapInteract();
         if (nearRasins()) textSpeaking("ew ew ew,           raisins on the floor", 150, 8, 1);
         if (nearPee()) textSpeaking("piss on the floor,  real classy", 150, 8, 1);
         if (nearDoor()) textSpeaking("another locked door, great...", 150, 8, 1);
@@ -197,7 +239,7 @@ void cropHousePlayerAction(){
     }
 
     // START button:
-    if (START_Button_Flag) {
+    if (START_Button_Flag && game.mileStone >= MAP_ACQUIRED) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
         theMap();

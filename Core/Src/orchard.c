@@ -88,33 +88,27 @@ int checkIfOnTreeSpot(void) {
 void drawTreeSpot(void) {
     // Spot 1 -> corresponds to treeTiles[0]
     if (player.soilSpots > 10) {
-        uint16_t color = (treeTiles[0].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc6, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 1
+        ssd1306_DrawBitmap(treeSpotXc6, treeSpotYr1, TreeSpot, 23, 7, White); // Spot 1
     }
     // Spot 2 -> corresponds to treeTiles[1]
     if (player.soilSpots > 11) {
-        uint16_t color = (treeTiles[1].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc5, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 2
+        ssd1306_DrawBitmap(treeSpotXc5, treeSpotYr2, TreeSpot, 23, 7, White); // Spot 2
     }
     // Spot 3 -> corresponds to treeTiles[2]
     if (player.soilSpots > 12) {
-        uint16_t color = (treeTiles[2].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc4, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 3
+        ssd1306_DrawBitmap(treeSpotXc4, treeSpotYr1, TreeSpot, 23, 7, White); // Spot 3
     }
     // Spot 4 -> corresponds to treeTiles[3]
     if (player.soilSpots > 13) {
-        uint16_t color = (treeTiles[3].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc3, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 4
+        ssd1306_DrawBitmap(treeSpotXc3, treeSpotYr2, TreeSpot, 23, 7, White); // Spot 4
     }
     // Spot 5 -> corresponds to treeTiles[4]
     if (player.soilSpots > 14) {
-        uint16_t color = (treeTiles[4].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc2, treeSpotYr1, TreeSpot, 23, 7, color); // Spot 5
+        ssd1306_DrawBitmap(treeSpotXc2, treeSpotYr1, TreeSpot, 23, 7, White); // Spot 5
     }
     // Spot 6 -> corresponds to treeTiles[5]
     if (player.soilSpots > 15) {
-        uint16_t color = (treeTiles[5].tree.id != NONE) ? Black : White;
-        ssd1306_DrawBitmap(treeSpotXc1, treeSpotYr2, TreeSpot, 23, 7, color); // Spot 6
+        ssd1306_DrawBitmap(treeSpotXc1, treeSpotYr2, TreeSpot, 23, 7, White); // Spot 6
     }
 }
 
@@ -162,60 +156,96 @@ void orchardPlayerMovement(){
 // Draws trees
 //------------------------------------------------------------------------------
 void drawTrees(void) {
-    // Loop through all 10 crop spots
-    for (int i = 0; i < 10; i++) {
-        // Only draw if the tile is tilled and a crop has been planted
+    for (int i = 0; i < 6; i++) {
         if (treeTiles[i].isTilled && treeTiles[i].tree.id != NONE) {
             int x = 0, y = 0;
-            // Determine drawing coordinates based on the crop spot number (i+1)
+            // Determine drawing coordinates based on the tree spot number (i+1)
             switch (i + 1) {
-                case 1:  x = treeSpotXc1; y = treeSpotYr2 - 22; break;
-                case 2:  x = treeSpotXc2; y = treeSpotYr1 - 22; break;
-                case 3:  x = treeSpotXc3; y = treeSpotYr2 - 22; break;
-                case 4:  x = treeSpotXc4; y = treeSpotYr1 - 22; break;
-                case 5:  x = treeSpotXc5; y = treeSpotYr2 - 22; break;
-                case 6:  x = treeSpotXc6; y = treeSpotYr1 - 22; break;
+                case 1:  x = treeSpotXc6 + 3; y = treeSpotYr1 - 22; break;
+                case 2:  x = treeSpotXc5 + 3; y = treeSpotYr2 - 22; break;
+                case 3:  x = treeSpotXc4 + 3; y = treeSpotYr1 - 22; break;
+                case 4:  x = treeSpotXc3 + 3; y = treeSpotYr2 - 22; break;
+                case 5:  x = treeSpotXc2 + 3; y = treeSpotYr1 - 22; break;
+                case 6:  x = treeSpotXc1 + 3; y = treeSpotYr2 - 22; break;
                 default: break;
             }
 
-            const unsigned char *spriteToDraw = NULL;
-            if (treeTiles[i].grown == 0) {
-                // Use getItemPointerFromID() to get the item pointer and then its sprite.
-                Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
-                if (itemPtr != NULL) {
-                    spriteToDraw = itemPtr->cropSprite;
+            // Draw the sprite based on the growth stage
+            switch (treeTiles[i].grown) {
+                case 0:		ssd1306_DrawBitmap(x+6, y+24, SproutTreeSprite, 5, 2, White);   break;
+                case 1:     ssd1306_DrawBitmap(x+6, y+16, SaplingTreeSprite, 6, 10, White); break;
+                case 2: {
+                    ssd1306_DrawBitmap(x, y, EraseTreeSprite, 17, 26, Black);
+                	ssd1306_DrawBitmap(x, y, EmptyTreeSprite, 17, 26, White);  break;
                 }
-            } else {
-                // Crop is not fully grown: use the sprout sprite.
-                spriteToDraw = SproutSprite;
+                case 3: {
+                    Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
+                    if (itemPtr != NULL && itemPtr->cropSprite != NULL) {
+                        ssd1306_DrawBitmap(x, y, EraseTreeSprite, 17, 26, Black);
+                        ssd1306_DrawBitmap(x, y, itemPtr->cropSprite, 17, 26, White);
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            Item *itemPtr = getItemPointerFromID(treeTiles[i].tree.id);
-            if (itemPtr != NULL) {
-                spriteToDraw = itemPtr->cropSprite;
-            }
-            ssd1306_DrawBitmap(x, y, spriteToDraw, 17, 26, White);
         }
     }
 }
 
+void animateWater() {
+    static const uint8_t* frames[] = {
+        WaterAnimation1,
+        WaterAnimation2,
+        WaterAnimation3,
+        WaterAnimation4,
+        WaterAnimation5
+    };
+
+    static int index = 0;
+    static int direction = 1;
+    static uint32_t lastFrameSwitch = 0;
+
+    uint32_t now = HAL_GetTick();
+
+    // Always draw the current frame (no matter how much time has passed)
+    ssd1306_DrawBitmap(128 - 46, 64 - 28, frames[index], 46, 28, White);
+
+    // Only update the frame index every 500ms
+    if (now - lastFrameSwitch >= 500) {
+        lastFrameSwitch = now;
+
+        // Update index
+        index += direction;
+
+        // Reverse direction at the ends
+        if (index == 4) direction = -1;  // reached frame 5 (index 4)
+        else if (index == 0) direction = 1;  // reached frame 1 (index 0)
+    }
+}
+
+
+
+
 void orchardDisplay(){
     // Draw the house background bitmap
     ssd1306_DrawBitmap(0, 0, OrchardWorldSprite, 128, 64, White);
+    animateWater();
 
     drawTreeSpot();
     drawTrees();
 
-    int tree = checkIfOnTreeSpot();
-        char treeSpot[20];
-        sprintf(treeSpot, "%d", tree);
-        ssd1306_SetCursor(0, 0);
-        ssd1306_WriteString(treeSpot, Font_6x8, White);
-
-
-    char coordString[20];
-    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-    ssd1306_SetCursor(50, 0);
-    ssd1306_WriteString(coordString, Font_6x8, White);
+//    int tree = checkIfOnTreeSpot();
+//        char treeSpot[20];
+//        sprintf(treeSpot, "%d", tree);
+//        ssd1306_SetCursor(0, 0);
+//        ssd1306_WriteString(treeSpot, Font_6x8, White);
+//
+//
+//    char coordString[20];
+//    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
+//    ssd1306_SetCursor(128 - (6*9), 64-8);
+//    ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 void treePlant(){
@@ -254,7 +284,7 @@ void treePlant(){
                 treeTiles[spot - 1].isTilled = true;
 
                 // Record the time when the sapling was planted
-                cropPlantTimes[spot - 1] = HAL_GetTick();
+                treePlantTimes[spot - 1] = HAL_GetTick();
 
                 // Remove one unit of the seed from the player's inventory
                 removeItemFromInventory(player.inventory,
@@ -264,6 +294,47 @@ void treePlant(){
         }
     }
 }
+
+void treeHarvest(){
+    int spot = checkIfOnTreeSpot();  // Returns a number 1–10 if on a valid crop spot.
+
+    if (spot != 0 && treeTiles[spot - 1].grown == 3) {
+        // Play harvesting tones
+        if (treeTiles[spot - 1].tree.id == MONEY) {
+            // Instead of adding an item, add the sell value of money to player's money.
+            player.money += money.sellValue;
+        } else {
+            Item *harvestedTree = NULL;
+            switch (treeTiles[spot - 1].tree.id) {
+                case APPLE:   harvestedTree = &apple;   break;
+                case ORANGE:  harvestedTree = &orange;  break;
+                case BANANA:  harvestedTree = &banana;  break;
+                case CHERRY:  harvestedTree = &cherry;  break;
+                default:
+                    // If no matching crop, handle the error.
+                    return;
+            }
+
+            // If the inventory is full, play an error sound and exit.
+            // levelUnlock in this case used as amount of fruit per harvest
+            if (!addItemToInventory(player.inventory, harvestedTree, harvestedTree->levelUnlock)) {
+                sound(inventoryFull);
+                return;
+            }
+        }
+
+        sound(harvest);
+
+        // Increase player's XP and reset tree state.
+        player.xp += treeTiles[spot - 1].tree.xp;
+        treeTiles[spot - 1].grown = 2;
+        treePlantTimes[spot - 1] = HAL_GetTick();
+
+        ssd1306_UpdateScreen();
+    }
+}
+
+
 
 void orchardPlayerAction(){
 
@@ -275,8 +346,8 @@ void orchardPlayerAction(){
         int spot = checkIfOnTreeSpot();  // Returns a number 1–6 if on a valid tree spot.
         if (spot != 0) {
             // If a grown sapling exists, harvest it.
-            if (treeTiles[spot - 1].grown == 4) {
-                //treeHarvest();
+            if (treeTiles[spot - 1].grown == 3) {
+                treeHarvest();
             }
             // Otherwise, if the spot is empty, plant a seed.
             else if (treeTiles[spot - 1].tree.id == NONE) {
@@ -291,8 +362,23 @@ void orchardPlayerAction(){
     if (B_Button_Flag) {
     	B_Button_Flag = 0;
     	refreshBackground = 1;
-        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-        buzzer(300, 25);
+        uint32_t startTime = HAL_GetTick();
+        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            HAL_Delay(10);
+            if (HAL_GetTick() - startTime >= 1500) {
+                // Held for 1.5 seconds: destroy the crop.
+                int spot = checkIfOnTreeSpot();
+                if (spot != 0 && treeTiles[spot - 1].tree.id != NONE) {
+                    treeTiles[spot - 1].tree.id = NONE;
+                    treeTiles[spot - 1].grown = 0;
+                    sound(destroy);
+                }
+                // Wait until button is released.
+                while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+                return;
+            }
+        }
+        sound(inventoryOpen);
         showInventory(0);
     }
 
@@ -312,6 +398,7 @@ void orchardPlayerAction(){
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
         theMap();
+        while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
     }
 }
 
@@ -320,8 +407,6 @@ void handleOrchard() {
 
     ssd1306_Fill(Black);
     orchardDisplay();
-	ssd1306_CopyBuffer();
-
 	playerDisplay();
 	ssd1306_UpdateScreen();
 

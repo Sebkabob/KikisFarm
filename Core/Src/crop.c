@@ -91,7 +91,7 @@ int checkIfOnCrop(void) {
 int checkIfNearHouse(){
     if (player.coordinates.x >= OB1_X && player.coordinates.x < OB1_X + OB1_W &&
         player.coordinates.y >= OB1_Y && player.coordinates.y <= OB1_Y + OB1_H + 2
-		&& hasItemInInventory(player.inventory, HOUSEKEY) > 0) {
+		&& game.mileStone >= HOUSE_KEY_BOUGHT) {
         return 1;
     }
     return 0;
@@ -201,17 +201,17 @@ void drawCrops(void) {
 //------------------------------------------------------------------------------
 void cropDisplay(void) {
     // Draw static background elements.
-    if (!hasItemInInventory(player.inventory, HOUSEKEY))
+    if (game.mileStone < HOUSE_KEY_BOUGHT)
     	ssd1306_DrawBitmap(0, 0, LockedHouseSprite, 37, 31, White);
     ssd1306_DrawBitmap(0, 0, CropWorldSprite, 128, 64, White);
 
     drawSoil();
     drawCrops();
 
-    char coordString[20];
-    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-    ssd1306_SetCursor(0, 0);
-    ssd1306_WriteString(coordString, Font_6x8, White);
+//    char coordString[20];
+//    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
+//    ssd1306_SetCursor(0, 0);
+//    ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 //------------------------------------------------------------------------------
@@ -437,7 +437,7 @@ void cropPlayerAction(void) {
     }
 
     // START button:
-    if (START_Button_Flag) {
+    if (START_Button_Flag && game.mileStone >= MAP_ACQUIRED) {
     	START_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOA, START_Pin) == 1);
         theMap();
@@ -453,7 +453,6 @@ void handleCrop() {
 
     ssd1306_Fill(Black);
 	cropDisplay();
-	ssd1306_CopyBuffer();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -495,7 +494,7 @@ void handleCrop() {
             break;
         }
 
-        if (player.coordinates.x >= RIGHT_WORLD_EDGE - 1) {
+        if (player.coordinates.x >= RIGHT_WORLD_EDGE - 1 && game.mileStone >= MAP_ACQUIRED) {
             player.inWorld = ORCHARD;
             player.coordinates.x = 3;
             break;

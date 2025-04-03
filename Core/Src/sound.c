@@ -161,6 +161,14 @@ const uint16_t inventoryFull[][2] = {
     {0,  0}
 };
 
+// mapOpen: a repeated low note to indicate full inventory.
+const uint16_t mapOpen[][2] = {
+    {E4,  30},
+    {G4s, 40},
+    {B4,  50},
+    {0,  0}
+};
+
 
 void sound(const uint16_t soundArray[][2]) {
     int i = 0;
