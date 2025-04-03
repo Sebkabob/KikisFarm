@@ -123,10 +123,12 @@ const uint16_t playGame[][2] = {
 
 // levelUp: an ascending scale for leveling up.
 const uint16_t levelUp[][2] = {
-    {C5, 40},
-    {E5, 40},
-    {G5, 40},
-    {A5, 40},
+    {C5, 50},
+    {E5, 70},
+    {G5, 70},
+    {A5, 70},
+    {B5, 70},
+    {1047, 100},
     {0,  0}
 };
 

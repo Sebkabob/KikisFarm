@@ -274,8 +274,8 @@ void animateWater() {
     // Always draw the current frame (no matter how much time has passed)
     ssd1306_DrawBitmap(128 - 46, 64 - 28, frames[index], 46, 28, White);
 
-    // Only update the frame index every 500ms
-    if (now - lastFrameSwitch >= 500) {
+    // Only update the frame index every 400ms
+    if (now - lastFrameSwitch >= 400) {
         lastFrameSwitch = now;
 
         // Update index
@@ -367,18 +367,6 @@ void treeHarvest(){
                 // If no matching crop, handle the error.
                 return;
         }
-
-        // If this is a money tree, add the sell value to player's money.
-//        if (treeTiles[spot - 1].tree.id == MONEY) {
-//            sound(harvest);
-//            player.xp += treeTiles[spot - 1].tree.xp;
-//            treeTiles[spot - 1].grown = 2;
-//            // For money trees, reset the timer with an extra delay (e.g., add an extra 1 second delay)
-//            treePlantTimes[spot - 1] = HAL_GetTick() + 1000;
-//            player.money += money.sellValue;
-//            ssd1306_UpdateScreen();
-//            return;
-//        }
 
         // For non-money trees, add the harvested item to the inventory.
         if (!addItemToInventory(player.inventory, harvestedTree, harvestedTree->levelUnlock)) {

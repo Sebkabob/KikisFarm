@@ -428,7 +428,6 @@ void cropPlayerAction(void) {
         while (HAL_GPIO_ReadPin(GPIOA, SELECT_Pin) == 0);
         statbarShow = 0;
         refreshBackground = 1;
-        sound(menuOpen);
         int p = gameMenu();  // Assume gameMenu() returns a flag.
         if (p)
             leaveWorld = 1;

@@ -224,6 +224,7 @@ void gameLogic(void);
 void theMap(void);
 void playerDisplay(void);
 void playerErase(void);
+int textPrompt(const char *headerText);
 void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
 void textSpeaking(const char *text, int voice, int speed, int button);
 void cutToDark(int speed);

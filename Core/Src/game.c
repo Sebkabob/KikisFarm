@@ -205,10 +205,11 @@ Item getGrownSapling(ItemType saplingId) {
 }
 
 int getTillSoilCost() {
-    int baseCost = 100;
-    double multiplier = 1.9;
-    int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
-    return ((cost + 5) / 10) * 10;
+    // Use the power law equation for cost
+    double cost = 100 * 2.3357 * pow(player.soilSpots, 2.4636);
+    cost += 100;
+    // Round the cost to the nearest multiple of 10
+    return ((int)(cost + 5) / 10) * 10;
 }
 
 int getTreeSpotCost() {
@@ -218,47 +219,97 @@ int getTreeSpotCost() {
     return ((cost + 5) / 10) * 10;
 }
 
+typedef struct {
+    int x;
+    int y;
+    int speed;
+} Confetti;
+
 void displayLevelUp() {
+    // Level up box dimensions.
     int rectWidth = 80, rectHeight = 26;
     int rectX = (128 - rectWidth) / 2, rectY = (64 - rectHeight) / 2;
-    ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
-    ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
 
-    const char *headerText = "Level Up!";
-    int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
-    int headerY = rectY + 3;
-    ssd1306_SetCursor(headerX, headerY);
-    // Casting headerText to (char*) to match the expected parameter type.
-    ssd1306_WriteString((char*)headerText, Font_7x10, White);
+    // Prepare confetti particles.
+    #define CONFETTI_COUNT 70
+    Confetti confetti[CONFETTI_COUNT];
+    for (int i = 0; i < CONFETTI_COUNT; i++) {
+        confetti[i].x = rand() % 128;
+        confetti[i].y = rand() % 64;  // Start anywhere on screen.
+        confetti[i].speed = (rand() % 2) + 1;  // Speed: 1 or 2 pixels per frame.
+    }
 
-    char leftStr[12], rightStr[12];
-    // Use snprintf to avoid potential buffer overflow.
-    snprintf(leftStr, sizeof(leftStr), "%d", player.level);
-    snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
+    // Animate confetti and level-up box until any button is pressed.
+    while (1) {
+        // Clear the screen.
+        ssd1306_Fill(Black);
 
-    int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
-    int startX = rectX + (rectWidth - totalWidth) / 2;
-    int levelY = headerY + 12;
-    ssd1306_SetCursor(startX, levelY);
-    ssd1306_WriteString(leftStr, Font_7x10, White);
-    ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
-    ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
-    ssd1306_WriteString(rightStr, Font_7x10, White);
+        // Update and draw each confetti piece.
+        for (int i = 0; i < CONFETTI_COUNT; i++) {
+            ssd1306_DrawPixel(confetti[i].x, confetti[i].y, White);
+            confetti[i].y += confetti[i].speed;
+            // Reset to top if the confetti falls off the bottom.
+            if (confetti[i].y >= 64) {
+                confetti[i].y = 0;
+                confetti[i].x = rand() % 128;
+            }
+        }
+
+        ORBuffer();
+
+        // Draw the level-up box behind the text.
+        ssd1306_FillRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, Black);
+        ssd1306_DrawRectangle(rectX, rectY, rectX + rectWidth, rectY + rectHeight, White);
+
+        // Draw the "Level Up!" header centered inside the box.
+        const char *headerText = "Level Up!";
+        int headerX = rectX + (rectWidth - strlen(headerText) * 7) / 2;
+        int headerY = rectY + 3;
+        ssd1306_SetCursor(headerX, headerY);
+        ssd1306_WriteString((char*)headerText, Font_7x10, White);
+
+        // Draw the level numbers and arrow.
+        char leftStr[12], rightStr[12];
+        snprintf(leftStr, sizeof(leftStr), "%d", player.level);
+        snprintf(rightStr, sizeof(rightStr), "%d", player.level + 1);
+        int totalWidth = strlen(leftStr) * 7 + 12 + strlen(rightStr) * 7 + 8;
+        int startX = rectX + (rectWidth - totalWidth) / 2;
+        int levelY = headerY + 12;
+        ssd1306_SetCursor(startX, levelY);
+        ssd1306_WriteString(leftStr, Font_7x10, White);
+        ssd1306_DrawBitmap(startX + strlen(leftStr) * 7 + 4, levelY, Arrow, 12, 9, White);
+        ssd1306_SetCursor(startX + strlen(leftStr) * 7 + 4 + 12 + 4, levelY);
+        ssd1306_WriteString(rightStr, Font_7x10, White);
+
+        // Update the display.
+        ssd1306_UpdateScreen();
+        HAL_Delay(50);
+
+        // Check if any button is pressed.
+        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 ||
+            HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0 ) {
+            // Wait until all buttons are released.
+            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 ||
+                   HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0 ) {
+                HAL_Delay(10);
+            }
+            break;  // Exit the loop when any button is pressed.
+        }
+    }
 }
 
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
-    double xpMultiplier = 1 + 0.40 * player.level;
+    double xpMultiplier = 1 + 0.45 * player.level;
     int xpNeededForNextLevel = baseXp * xpMultiplier;
 
     if (player.xp >= xpNeededForNextLevel) {
+        sound(levelUp);
+        ssd1306_CopyBuffer();
         displayLevelUp();
         player.level++;
         player.xp = 0;
         ssd1306_UpdateScreen();
-        sound(levelUp);
-        while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
-        while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     }
     return xpNeededForNextLevel;
 }
@@ -540,6 +591,15 @@ void theMap(){
 	  case CROPHOUSE:
 		  worldSelect = 2;
 		  break;
+	  case BASEMENT:
+		  worldSelect = 2;
+		  break;
+	  case HOUSEROOM:
+		  worldSelect = 2;
+		  break;
+	  case TITLE:
+		  worldSelect = 2;
+		  break;
 	  case ORCHARD:
 		  worldSelect = 3;
 		  break;
@@ -559,8 +619,8 @@ void theMap(){
             	break;
             }
 	    	player.inWorld = worldToGoTo;
-	    	TransitionVortex(15);
-	    	HAL_Delay(100);
+	    	TransitionVortex(10);
+	    	HAL_Delay(50);
 	    	break;
 	    }
 
@@ -594,7 +654,7 @@ void theMap(){
 	    if (HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOA, DOWN_Pin) == 0);
 	    	sound(menuNav);
-	    	if (worldSelect < 4)
+	    	if (worldSelect < 3)
 	    		worldSelect++;
 	    }
 
@@ -610,7 +670,7 @@ void theMap(){
 	    if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
 	    	while(HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0);
 	    	sound(menuNav);
-	    	if (worldSelect < 4)
+	    	if (worldSelect < 3)
 	    		worldSelect++;
 	    }
 	    ssd1306_Fill(Black);
@@ -808,6 +868,113 @@ void textSpeakingFullScreen(const char *text, int voice, int speed, int button) 
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
 }
 
+int textPrompt(const char *headerText) {
+	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+    // Clear the screen.
+    ssd1306_Fill(Black);
+
+    // Use Font_7x10 for the header.
+    // Define maximum characters per line (approximate for a 128-pixel wide display).
+    int maxCharsPerLine = 18;
+    int textLength = strlen(headerText);
+
+    // Calculate the total number of lines (clamp to a maximum of 4 lines for the header area).
+    int numLines = (textLength + maxCharsPerLine - 1) / maxCharsPerLine;
+    if (numLines > 4) numLines = 4;
+
+    // Define a header area height (e.g., 42 pixels) and vertically center the header block.
+    int headerAreaHeight = 42;
+    int startY = (headerAreaHeight - (numLines * 10)) / 2;  // using a line height of 10 pixels
+
+    // Loop through the header text and draw each line centered.
+    for (int i = 0; i < numLines; i++) {
+        int startIndex = i * maxCharsPerLine;
+        int remaining = textLength - startIndex;
+        int lineLength = (remaining < maxCharsPerLine) ? remaining : maxCharsPerLine;
+
+        // Create a temporary buffer for the current line.
+        char lineBuffer[19];  // 18 characters max + 1 for null terminator
+        strncpy(lineBuffer, headerText + startIndex, lineLength);
+        lineBuffer[lineLength] = '\0';
+
+        // Calculate the width (in pixels) of this line (approx. 7 pixels per character).
+        int lineWidth = lineLength * 7;
+        int startX = (128 - lineWidth) / 2;  // center horizontally
+
+        ssd1306_SetCursor(startX, startY + i * 10);
+        ssd1306_WriteString(lineBuffer, Font_7x10, White);
+    }
+
+    // Draw the "yes" and "no" options at the bottom of the screen.
+    ssd1306_SetCursor(20, 50);
+    ssd1306_WriteString("yes", Font_7x10, White);
+    ssd1306_SetCursor(94, 50);
+    ssd1306_WriteString("no", Font_7x10, White);
+
+    // Default selection: "yes" (we use 1 for yes, 0 for no).
+    int selection = 1;
+
+    // Draw selection rectangle around "yes" (coordinates similar to your areYouSureMenu).
+    ssd1306_DrawRectangle(18, 48, 42, 62, White);
+    ssd1306_UpdateScreen();
+
+    // Poll for button input.
+    while (1) {
+        HAL_Delay(10);  // Small delay for polling
+
+        // RIGHT button pressed: select "no".
+        if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+            while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
+                HAL_Delay(10);
+            }
+            if (selection != 0) {
+                // Erase the rectangle around "yes".
+                ssd1306_DrawRectangle(18, 48, 42, 62, Black);
+                // Draw rectangle around "no" (using coordinates similar to areYouSureMenu).
+                ssd1306_DrawRectangle(92, 48, 109, 62, White);
+                selection = 0;
+                ssd1306_UpdateScreen();
+            }
+        }
+
+        // LEFT button pressed: select "yes".
+        if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+            while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
+                HAL_Delay(10);
+            }
+            if (selection != 1) {
+                // Erase the rectangle around "no".
+                ssd1306_DrawRectangle(92, 48, 109, 62, Black);
+                // Draw rectangle around "yes".
+                ssd1306_DrawRectangle(18, 48, 42, 62, White);
+                selection = 1;
+                ssd1306_UpdateScreen();
+            }
+        }
+
+        // A button pressed: confirm the selection.
+        if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+            while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+                HAL_Delay(10);
+            }
+            ssd1306_Fill(Black);
+            ssd1306_UpdateScreen();
+            return (selection == 1) ? 1 : 0;
+        }
+
+        // B button pressed: cancel immediately (return 0).
+        if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+                HAL_Delay(10);
+            }
+            ssd1306_Fill(Black);
+            ssd1306_UpdateScreen();
+            return 0;
+        }
+    }
+}
+
+
 
 
 void textSpeaking(const char *text, int voice, int speed, int button) {
@@ -975,6 +1142,7 @@ void menuItemsDraw(){
 }
 
 int gameMenu(){
+    sound(menuOpen);
     int menuselect = 1;
 
     menuItemsDraw();
