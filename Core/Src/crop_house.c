@@ -13,6 +13,8 @@ void cropHouseDisplay(){
     	ssd1306_DrawBitmap(20, 34, MapOnTable, 16, 5, White);
     }
 
+    ssd1306_DrawBitmap(9, 50, BasementDoor, 25, 13, White);
+
     // Prepare the player's coordinates string
     char coordString[20];
     sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
@@ -38,9 +40,9 @@ bool cropHouseObstacle(int x, int y) {
     if (x >= 12 && x <= 37 && y >= 22 && y <= 36)
         return true;
 
-    // Obstacle 4: Stairwell
-    if (((x >= 0 && x <= 30) && (y >= 42 && y <= 46)) || ((y >= 51 && y <= 53) && (x >= 0 && x <= 26)))
-        return true;
+//    // Obstacle 4: Stairwell
+//    if (((x >= 0 && x <= 30) && (y >= 42 && y <= 46)) || ((y >= 51 && y <= 53) && (x >= 0 && x <= 26)))
+//        return true;
 
     return false;
 }

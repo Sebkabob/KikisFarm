@@ -79,6 +79,7 @@ extern const unsigned char upArrow[];
 
 extern const unsigned char TheHouse[];
 extern const unsigned char MapOnTable[];
+extern const unsigned char BasementDoor[];
 
 extern const unsigned char OrchardWorldSprite[];
 extern const unsigned char TreeSpot[];
