@@ -9,6 +9,7 @@
 #include "crop.h"
 #include "sprites.h"
 #include "crop_house.h"
+#include "characters.h"
 #include <stdbool.h>
 
 #define NEAR_THRESHOLD 1
@@ -403,8 +404,9 @@ void orchardPlayerAction(){
                 treePlant();
             }
         }
-
-        while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+        else {
+            petFeed();
+        }
     }
 
     // Button B:
@@ -427,7 +429,6 @@ void orchardPlayerAction(){
                 return;
             }
         }
-        sound(inventoryOpen);
         showInventory(0);
     }
 
@@ -456,6 +457,7 @@ void handleOrchard() {
 
     ssd1306_Fill(Black);
     orchardDisplay();
+    catDisplay();
 	playerDisplay();
 	ssd1306_UpdateScreen();
 
@@ -474,6 +476,7 @@ void handleOrchard() {
         	updateButtonFlags();
         	orchardPlayerMovement();
 
+            catDisplay();
         	playerDisplay();
         	drawBlockingTrees();
 

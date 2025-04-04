@@ -7,6 +7,7 @@
 #include "ee24.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 // Global brightness settings (adjust ranges as needed)
@@ -41,7 +42,13 @@ int refreshBackground = 0;
 
 Player player;
 
+Pet cat;
+
 Game game;
+
+//------------------------------------------------------------------------------
+// Item definitions for all items in the game.
+//------------------------------------------------------------------------------
 /*                     ITEM           SELL  BUY    GROW XP   LV   TYPE       CROP SPRITE     ITEM ICON            TITLE            */
 Item wheat         = { WHEAT,         5,    0,     2,   5,   0,   HCROP,     WheatSprite,    ItemIconWheat,       WheatTitle       };
 Item corn          = { CORN,          7,    0,     5,   10,  0,   HCROP,     CornSprite,     ItemIconCorn,        CornTitle        };
@@ -111,6 +118,9 @@ TreeTile treeTiles[6] = {
 // Define the shop inventory array as before.
 Item shopItems[18];
 
+//------------------------------------------------------------------------------
+//Intilizes what items are in the shop and in what locations.
+//------------------------------------------------------------------------------
 void initShopItems(void) {
     shopItems[0]  = wheatSeed;
     shopItems[1]  = cornSeed;
@@ -132,6 +142,9 @@ void initShopItems(void) {
     shopItems[17] = boat;
 }
 
+//------------------------------------------------------------------------------
+// Assigns pointers to item IDs.
+//------------------------------------------------------------------------------
 Item* getItemPointerFromID(ItemType id) {
     switch (id) {
         case WHEAT:         return &wheat;
@@ -170,6 +183,9 @@ Item* getItemPointerFromID(ItemType id) {
     }
 }
 
+//------------------------------------------------------------------------------
+// Returns a non pointer for crops.
+//------------------------------------------------------------------------------
 Item getGrownCrop(ItemType seedId) {
     switch (seedId) {
         case WHEATSEED:   return wheat;
@@ -191,6 +207,9 @@ Item getGrownCrop(ItemType seedId) {
     }
 }
 
+//------------------------------------------------------------------------------
+// Returns a non pointer for saplings.
+//------------------------------------------------------------------------------
 Item getGrownSapling(ItemType saplingId) {
     switch (saplingId) {
         case APPLESAPLING:  return apple;
@@ -204,6 +223,9 @@ Item getGrownSapling(ItemType saplingId) {
     }
 }
 
+//------------------------------------------------------------------------------
+// Gets the cost of tilling soil for the shop.
+//------------------------------------------------------------------------------
 int getTillSoilCost() {
     // Use the power law equation for cost
     double cost = 100 * 2.3357 * pow(player.soilSpots, 2.4636);
@@ -212,13 +234,9 @@ int getTillSoilCost() {
     return ((int)(cost + 5) / 10) * 10;
 }
 
-int getTreeSpotCost() {
-    int baseCost = 100;
-    double multiplier = 2.0;
-    int cost = (int)(baseCost * pow(multiplier, player.soilSpots));
-    return ((cost + 5) / 10) * 10;
-}
-
+//------------------------------------------------------------------------------
+// Displays when the player level ups and plays a confetti animation.
+//------------------------------------------------------------------------------
 typedef struct {
     int x;
     int y;
@@ -298,6 +316,9 @@ void displayLevelUp() {
     }
 }
 
+//------------------------------------------------------------------------------
+// Handles leveling up logic.
+//------------------------------------------------------------------------------
 int gameLevelUp(void) {
     int baseXp = 150 + (70 * player.level) + (15 * player.level * player.level);
     double xpMultiplier = 1 + 0.45 * player.level;
@@ -314,10 +335,18 @@ int gameLevelUp(void) {
     return xpNeededForNextLevel;
 }
 
+//------------------------------------------------------------------------------
+// Handles what happens when the game starts up.
+//------------------------------------------------------------------------------
 void gameStartup(){
 	pullEEPROM();
+    cat.coordinates.x = player.coordinates.x;
+    cat.coordinates.y = player.coordinates.y;
 }
 
+//------------------------------------------------------------------------------
+// Dictates what the values are for the game when a new game begins.
+//------------------------------------------------------------------------------
 void initGame(){
     player.coordinates.x = 60;
     player.coordinates.y = 14;
@@ -368,13 +397,22 @@ void initGame(){
         treeTiles[i].tree.xp = 0;
         treeTiles[i].tree.levelUnlock = 0;
         treeTiles[i].tree.subType = 0;
-        treeTiles[i].tree.cropSprite = NULL;   // Adjust field name if needed.
-        treeTiles[i].tree.itemSprite = NULL;   // Adjust field name if needed.
+        treeTiles[i].tree.cropSprite = NULL;
+        treeTiles[i].tree.itemSprite = NULL;
         treeTiles[i].grown = 0;
         treeTiles[i].isTilled = false;
     }
+
+    cat.coordinates.x = 55;
+    cat.coordinates.y = 45;
+    cat.direction = DOWN;
+    cat.inWorld = ORCHARD;
+    cat.love = 0;
 }
 
+//------------------------------------------------------------------------------
+// Updates button flags when a button is pressed.
+//------------------------------------------------------------------------------
 void updateButtonFlags(){
 	// A button
 	if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
@@ -434,6 +472,9 @@ void updateButtonFlags(){
 
 }
 
+//------------------------------------------------------------------------------
+// An animation that makes the screen go dark.
+//------------------------------------------------------------------------------
 void cutToDark(int speed){
     int mid = 32; // Screen midpoint (assuming 128x64 display)
 
@@ -446,70 +487,59 @@ void cutToDark(int speed){
     HAL_Delay(speed * 10);
 }
 
+//------------------------------------------------------------------------------
+// An animation that makes the screen go dark.
+//------------------------------------------------------------------------------
 void TransitionVortex(int speed) {
     int top = 0;
     int bottom = 63;  // 64-pixel tall display: 0..63
     int left = 0;
     int right = 127;  // 128-pixel wide display: 0..127
-
     while (top <= bottom && left <= right) {
-        // Draw horizontal lines (top and bottom edges)
         ssd1306_Line(left, top, right, top, Black);
         ssd1306_Line(left, bottom, right, bottom, Black);
-
-        // Draw vertical lines (left and right edges)
         ssd1306_Line(left, top, left, bottom, Black);
         ssd1306_Line(right, top, right, bottom, Black);
-
         ssd1306_UpdateScreen();
         HAL_Delay(speed);
-
-        // Move boundaries inward
-        top++;
-        bottom--;
-        left++;
-        right--;
+        top++; bottom--; left++; right--;
     }
-
     HAL_Delay(speed * 10);
 }
 
+//------------------------------------------------------------------------------
+// Handles crop growing logic.
+//------------------------------------------------------------------------------
 void cropGrowth(){
     uint32_t currentTime = HAL_GetTick();
-    // Loop through all 10 crop spots.
     for (int i = 0; i < 10; i++) {
-        // Process only tilled spots with a planted crop that hasn't grown yet.
         if (cropTiles[i].isTilled && cropTiles[i].crop.id != NONE && cropTiles[i].grown == 0) {
-            // The crop's growTime is in game ticks (seconds).
-            // Compare elapsed time (in ms) with growTime (converted to ms).
             if (currentTime - cropPlantTimes[i] >= (cropTiles[i].crop.growTime * 1000) / GrowSpeed) {
             	refreshBackground = 1;
                 cropTiles[i].grown = 1;
-                // (Optional: update the sprite or trigger additional logic here.)
             }
         }
     }
 }
 
+//------------------------------------------------------------------------------
+// Handles tree growing logic.
+//------------------------------------------------------------------------------
 void treeGrowth(void) {
     uint32_t currentTime = HAL_GetTick();
-    // Loop through all tree spots (adjust loop limit to match your treeTiles array size)
     for (int i = 0; i < 6; i++) {
         if (treeTiles[i].isTilled && treeTiles[i].tree.id != NONE) {
             if (treeTiles[i].grown == 0) {
-                // Stage 0 -> 1: 24 minutes = 24 * 60 * 1000 = 1440000 ms
-                if (currentTime - treePlantTimes[i] >= 14400.00) {
+                if (currentTime - treePlantTimes[i] >= 1440000) { // 24 minutes to grow to sapling
                     treeTiles[i].grown = 1;
                     treePlantTimes[i] = currentTime;  // Reset timer for next stage
                 }
             } else if (treeTiles[i].grown == 1) {
-                // Stage 1 -> 2: 12 minutes = 720000 ms
-                if (currentTime - treePlantTimes[i] >= 7200.00) {
+                if (currentTime - treePlantTimes[i] >= 720000) { // 12 minutes to grow to tree
                     treeTiles[i].grown = 2;
-                    treePlantTimes[i] = currentTime;  // Reset timer for next stage
+                    treePlantTimes[i] = currentTime;
                 }
             } else if (treeTiles[i].grown == 2) {
-                // Stage 2 -> 3: Use the tree's growTime (in seconds) converted to ms.
                 if (currentTime - treePlantTimes[i] >= (treeTiles[i].tree.growTime * 1000) / GrowSpeed) {
                     treeTiles[i].grown = 3;
                 }
@@ -518,64 +548,83 @@ void treeGrowth(void) {
     }
 }
 
+//------------------------------------------------------------------------------
+// Handles the time keeping logic for the game.
+//------------------------------------------------------------------------------
 void gameTime() {
-    static uint32_t lastTick = 0;  // Store the time at which the counter was last incremented
-    uint32_t currentTime = HAL_GetTick();  // Get the current time in milliseconds
-
-    // Check if 1000 ms (1 second) has elapsed since last increment
+    static uint32_t lastTick = 0;
+    uint32_t currentTime = HAL_GetTick();
     if (currentTime - lastTick >= 1000) {
-        game.ticks++;             // Increment the ticks counter
-        lastTick = currentTime;   // Update lastTick to the current time
+        game.ticks++;
+        lastTick = currentTime;
 
-        // If game.ticks reaches 1440 (24 minutes), increment game.day and reset ticks
-        if (game.ticks >= 1440) {
-            game.day++;        // Increment the day counter
-            game.ticks = 0;     // Reset ticks to start counting the next day
+        if (game.ticks >= 1440) { // 24 minutes in a day
+            game.day++;
+            game.ticks = 0;
         }
     }
 }
 
+//------------------------------------------------------------------------------
+// Displays the cat Love bar.
+//------------------------------------------------------------------------------
+void displayCatStats(void) {
+	ssd1306_FillRectangle(0, 55, 128, 64, White);
+    ssd1306_SetCursor(15, 56);
+    ssd1306_WriteString("Love", Font_6x8, Black);
+    ssd1306_FillRectangle(43, 57, 113, 61, Black);
+    int levelBar = (cat.love-CAT_LOVE_THRESHOLD) / 60;
+    if (levelBar >= 68)
+    	ssd1306_FillRectangle(44, 58, 112, 60, White);
+    else if (levelBar != 0)
+    	ssd1306_FillRectangle(44, 58, 44 + levelBar, 60, White);
+}
 
+//------------------------------------------------------------------------------
+// Handles feeding the pet when you are close to it.
+//------------------------------------------------------------------------------
+void petFeed() {
+	if (game.mileStone < CAT_MET){
+		textSpeaking("Dang, this cat looks super hungry       ", 110, 7, 1);
+		textSpeaking("Looks like nobody   fed him for awhile", 110, 7, 1);
+		textSpeaking("Maybe I should feed him something...", 110, 7, 1);
+		game.mileStone = CAT_MET;
+	}
+    // Check if the player is near the cat.
+    if (abs(player.coordinates.x - cat.coordinates.x) <= 10 &&
+        abs(player.coordinates.y - cat.coordinates.y) <= 10) {
+
+        // Let the player select a food item from the inventory.
+        showInventory(3);
+    }
+}
+
+//------------------------------------------------------------------------------
+// Handles how the pets love decreases with time when not fed.
+//------------------------------------------------------------------------------
+void petLove() {
+    static uint32_t lastTime = 0;
+    uint32_t currentTime = HAL_GetTick();
+    if (currentTime - lastTime >= 1000 && cat.love > 2) {
+        cat.love -= 2;
+        lastTime = currentTime;
+    }
+}
+
+//------------------------------------------------------------------------------
+// Calls different game logic that happens constantly.
+//------------------------------------------------------------------------------
 void gameLogic(){
 	gameTime();
 	gameLevelUp();
 	cropGrowth();
 	treeGrowth();
+	petLove();
 }
 
-void playerDisplay(){
-    // Choose the appropriate player sprite.
-    const unsigned char *sprite;
-    switch(player.direction) {
-        case DOWN:  sprite = KikiDownSprite;  break;
-        case UP:    sprite = KikiUpSprite;    break;
-        case LEFT:  sprite = KikiLeftSprite;  break;
-        case RIGHT: sprite = KikiRightSprite; break;
-        default:    sprite = KikiDownSprite;  break;
-    }
-
-    // Draw the player sprite.
-    ssd1306_FillRectangle(player.coordinates.x + 2, player.coordinates.y + 2,
-    		              player.coordinates.x + 5, player.coordinates.y + 5, Black);
-
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, White);
-}
-
-void playerErase(){
-    // Choose the appropriate player sprite.
-    const unsigned char *sprite;
-    switch(player.direction) {
-        case DOWN:  sprite = KikiDownSprite;  break;
-        case UP:    sprite = KikiUpSprite;    break;
-        case LEFT:  sprite = KikiLeftSprite;  break;
-        case RIGHT: sprite = KikiRightSprite; break;
-        default:    sprite = KikiDownSprite;  break;
-    }
-
-    // Draw the player sprite.
-    ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, sprite, 9, 11, Black);
-}
-
+//------------------------------------------------------------------------------
+// Displays the map and allows for interaction with the map.
+//------------------------------------------------------------------------------
 void theMap(){
 	sound(mapOpen);
 	World worldToGoTo;
@@ -707,39 +756,31 @@ void theMap(){
 	}
 }
 
+//------------------------------------------------------------------------------
+// Shows text with the whole screen.
+//------------------------------------------------------------------------------
 void textSpeakingFullScreen(const char *text, int voice, int speed, int button) {
-    // Wait until button is released before starting
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-
     int length = strlen(text);
-    int maxLength = 120;  // Limit text length to 120 characters
+    int maxLength = 120;
     if (length > maxLength) length = maxLength;
-
-    // Clear the entire display and draw a border
     ssd1306_FillRectangle(0, 0, 128, 64, Black);
     ssd1306_DrawRectangle(0, 0, 127, 63, White);
     ssd1306_UpdateScreen();
-
     int x = 4, y = 4;
-    int max_line_chars = 20;    // Maximum characters per line
-    int current_line_chars = 0; // Count of characters in the current line
-    int skip = 0;             // Flag for skipping typewriter animation
-
+    int max_line_chars = 20;
+    int current_line_chars = 0;
+    int skip = 0;
     ssd1306_SetCursor(x, y);
-
     int i = 0;
     while (i < length) {
-        // Check if the user pressed the button to skip animation
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && button) {
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
             skip = 1;
             break;
         }
-
-        // If the current character is a space, print it (if it fits)
         if (text[i] == ' ') {
             if (current_line_chars + 1 > max_line_chars) {
-                // Move to next line if space doesn't fit
                 y += 10;
                 x = 4;
                 ssd1306_SetCursor(x, y);
@@ -752,24 +793,17 @@ void textSpeakingFullScreen(const char *text, int voice, int speed, int button) 
             i++;
             continue;
         }
-
-        // Determine the length of the next word (until a space or end-of-string)
         int wordStart = i;
         int wordLength = 0;
         while ((i + wordLength) < length && text[i + wordLength] != ' ') {
             wordLength++;
         }
-
-        // If not at the beginning of a line, check if adding a space and this word exceeds the line length.
         if (current_line_chars > 0 && (current_line_chars + 1 + wordLength) > max_line_chars) {
-            // Start a new line
             y += 10;
             x = 4;
             ssd1306_SetCursor(x, y);
             current_line_chars = 0;
         }
-
-        // Print the word character-by-character with sound and delay
         for (int j = 0; j < wordLength; j++) {
             if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && button) {
                 while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
@@ -786,11 +820,8 @@ void textSpeakingFullScreen(const char *text, int voice, int speed, int button) 
         }
         i = wordStart + wordLength;
         if (skip) break;
-
-        // After the word, if there's a space in the source text, print one
         if (i < length && text[i] == ' ') {
             if (current_line_chars + 1 > max_line_chars) {
-                // New line if space won't fit
                 y += 10;
                 x = 4;
                 ssd1306_SetCursor(x, y);
@@ -801,19 +832,15 @@ void textSpeakingFullScreen(const char *text, int voice, int speed, int button) 
                 HAL_Delay(200 / speed);
                 current_line_chars++;
             }
-            // Skip any additional consecutive spaces
             while (i < length && text[i] == ' ') {
                 i++;
             }
         }
     }
-
     if (skip) {
-        // If skipping animation, clear the screen and print the text immediately with word wrapping
         ssd1306_FillRectangle(0, 0, 128, 64, Black);
         ssd1306_DrawRectangle(0, 0, 127, 63, White);
         ssd1306_UpdateScreen();
-
         x = 4; y = 4; current_line_chars = 0;
         ssd1306_SetCursor(x, y);
         i = 0;
@@ -863,96 +890,64 @@ void textSpeakingFullScreen(const char *text, int voice, int speed, int button) 
         }
         ssd1306_UpdateScreen();
     }
-
-    // Wait until the button is released before finishing
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
 }
 
+//------------------------------------------------------------------------------
+// Shows a question and prompts the user for a yes or no, returns the answer.
+//------------------------------------------------------------------------------
 int textPrompt(const char *headerText) {
 	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-    // Clear the screen.
     ssd1306_Fill(Black);
-
-    // Use Font_7x10 for the header.
-    // Define maximum characters per line (approximate for a 128-pixel wide display).
     int maxCharsPerLine = 18;
     int textLength = strlen(headerText);
-
-    // Calculate the total number of lines (clamp to a maximum of 4 lines for the header area).
     int numLines = (textLength + maxCharsPerLine - 1) / maxCharsPerLine;
     if (numLines > 4) numLines = 4;
-
-    // Define a header area height (e.g., 42 pixels) and vertically center the header block.
     int headerAreaHeight = 42;
-    int startY = (headerAreaHeight - (numLines * 10)) / 2;  // using a line height of 10 pixels
-
-    // Loop through the header text and draw each line centered.
+    int startY = (headerAreaHeight - (numLines * 10)) / 2;
     for (int i = 0; i < numLines; i++) {
         int startIndex = i * maxCharsPerLine;
         int remaining = textLength - startIndex;
         int lineLength = (remaining < maxCharsPerLine) ? remaining : maxCharsPerLine;
-
-        // Create a temporary buffer for the current line.
-        char lineBuffer[19];  // 18 characters max + 1 for null terminator
+        char lineBuffer[19];
         strncpy(lineBuffer, headerText + startIndex, lineLength);
         lineBuffer[lineLength] = '\0';
-
-        // Calculate the width (in pixels) of this line (approx. 7 pixels per character).
         int lineWidth = lineLength * 7;
-        int startX = (128 - lineWidth) / 2;  // center horizontally
-
+        int startX = (128 - lineWidth) / 2;
         ssd1306_SetCursor(startX, startY + i * 10);
         ssd1306_WriteString(lineBuffer, Font_7x10, White);
     }
-
-    // Draw the "yes" and "no" options at the bottom of the screen.
     ssd1306_SetCursor(20, 50);
     ssd1306_WriteString("yes", Font_7x10, White);
     ssd1306_SetCursor(94, 50);
     ssd1306_WriteString("no", Font_7x10, White);
-
-    // Default selection: "yes" (we use 1 for yes, 0 for no).
-    int selection = 1;
-
-    // Draw selection rectangle around "yes" (coordinates similar to your areYouSureMenu).
+    int selection = 0;
     ssd1306_DrawRectangle(18, 48, 42, 62, White);
     ssd1306_UpdateScreen();
-
-    // Poll for button input.
     while (1) {
-        HAL_Delay(10);  // Small delay for polling
-
-        // RIGHT button pressed: select "no".
+        HAL_Delay(10);
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
                 HAL_Delay(10);
             }
             if (selection != 0) {
-                // Erase the rectangle around "yes".
                 ssd1306_DrawRectangle(18, 48, 42, 62, Black);
-                // Draw rectangle around "no" (using coordinates similar to areYouSureMenu).
                 ssd1306_DrawRectangle(92, 48, 109, 62, White);
                 selection = 0;
                 ssd1306_UpdateScreen();
             }
         }
-
-        // LEFT button pressed: select "yes".
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
                 HAL_Delay(10);
             }
             if (selection != 1) {
-                // Erase the rectangle around "no".
                 ssd1306_DrawRectangle(92, 48, 109, 62, Black);
-                // Draw rectangle around "yes".
                 ssd1306_DrawRectangle(18, 48, 42, 62, White);
                 selection = 1;
                 ssd1306_UpdateScreen();
             }
         }
-
-        // A button pressed: confirm the selection.
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
                 HAL_Delay(10);
@@ -961,8 +956,6 @@ int textPrompt(const char *headerText) {
             ssd1306_UpdateScreen();
             return (selection == 1) ? 1 : 0;
         }
-
-        // B button pressed: cancel immediately (return 0).
         if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
             while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
                 HAL_Delay(10);
@@ -974,39 +967,33 @@ int textPrompt(const char *headerText) {
     }
 }
 
-
-
-
+//------------------------------------------------------------------------------
+// A dynamic text box that shows text with a box varying in size depending on length.
+//------------------------------------------------------------------------------
 void textSpeaking(const char *text, int voice, int speed, int button) {
 	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     int length = strlen(text);
     int maxLength = 60;
     if (length > maxLength) length = maxLength;
-
     int startY;
-
     if (length <= 20) {
-        startY = 54;  // Only bottom line
+        startY = 54;
     } else if (length <= 40) {
-        startY = 44;  // Bottom two lines
+        startY = 44;
     } else {
-        startY = 34;  // Full textbox
+        startY = 34;
     }
-
-    ssd1306_FillRectangle(0, startY - 2, 128, 64, Black); // Clear textbox area
-    ssd1306_DrawRectangle(0, startY - 2, 128 - 1, 64 - 1, White); // Draw textbox border
+    ssd1306_FillRectangle(0, startY - 2, 128, 64, Black);
+    ssd1306_DrawRectangle(0, startY - 2, 128 - 1, 64 - 1, White);
     ssd1306_UpdateScreen();
-
-    int x = 4, y = startY; // Start position for text
+    int x = 4, y = startY;
     int charCount = 0;
-    int skip = 0; // Flag for skipping animation
-
+    int skip = 0;
     ssd1306_SetCursor(x, y);
-
     for (int i = 0; i < length; i++) {
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && button) {
         	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-            skip = 1;  // User pressed A, skip animation
+            skip = 1;
             break;
         }
         if (text[i] != ' ') {
@@ -1024,7 +1011,6 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
         }
     }
     if (skip) {
-        // Instantly display full text
         ssd1306_FillRectangle(0, startY - 2, 128, 64, Black);
         ssd1306_DrawRectangle(0, startY - 2, 128 - 1, 64 - 1, White);
         x = 4;
@@ -1046,79 +1032,58 @@ void textSpeaking(const char *text, int voice, int speed, int button) {
     while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1 && button);
 }
 
+//------------------------------------------------------------------------------
+// Displays the players stats.
+//------------------------------------------------------------------------------
 void displayStats(void) {
     char money[16];
     char level[16];
-
-    // Calculate XP required for the next level
     int xpNeededForNextLevel = gameLevelUp();
-
-    // Ensure we don’t divide by zero
     if (xpNeededForNextLevel == 0) xpNeededForNextLevel = 1;
-
-    // Scale XP bar to a max width of 37 pixels (adjusted for the new bar size)
     int levelBar = (player.xp * 37) / xpNeededForNextLevel;
-    if (levelBar > 37) levelBar = 37; // Clamp to max width
-
-    // Draw the stats background in the lower 9 pixels (Y:55-64)
+    if (levelBar > 37) levelBar = 37;
     ssd1306_FillRectangle(0, 55, 128, 64, White);
-
-    // Convert player's money (in cents) to dollars and cents
     int dollars = player.money / 100;
     int cents = player.money % 100;
-    // Format the money with leading zeros: e.g., "$08.50"
     sprintf(money, "$%05d.%02d", dollars, cents);
     ssd1306_SetCursor(73, 56);
     ssd1306_WriteString(money, Font_6x8, Black);
-
-    // Prepare and draw level text
     sprintf(level, "Lv.%02d", player.level);
     ssd1306_SetCursor(1, 56);
     ssd1306_WriteString(level, Font_6x8, Black);
-
-    // Draw XP bar background (empty bar)
     ssd1306_FillRectangle(32, 57, 70, 61, Black);
-
-    // Fill XP progress in the bar (if progress exists)
     if (levelBar > 0) {
         ssd1306_FillRectangle(33, 58, 33 + levelBar, 60, White);
     }
 }
 
+//------------------------------------------------------------------------------
+// Helper function that shows the battery and current game day.
+//------------------------------------------------------------------------------
 void drawMenuSideFeatures(){
-    // Define the "day" label and compute its width.
-    // For Font_6x8, each character is approximately 6 pixels wide.
     char daysLabel[] = "Day";
-    int daysLabelWidth = strlen(daysLabel) * 6; // e.g., 4 characters * 6 = 24 pixels
-
-    // Position the "day" label on the right side.
-    // Here, we place it 2 pixels from the right edge.
+    int daysLabelWidth = strlen(daysLabel) * 6;
     int daysLabelX = 128 - daysLabelWidth - 8;
     ssd1306_SetCursor(daysLabelX, 22);
     ssd1306_WriteString(daysLabel, Font_6x8, White);
-
-    // Format the day number.
     char daysStr[16];
     sprintf(daysStr, "%d", game.day);
     int daysStrWidth = strlen(daysStr) * 6;
-
-    // Center the day number below the "day" label.
     int daysStrX = daysLabelX + (daysLabelWidth - daysStrWidth) / 2;
     ssd1306_SetCursor(daysStrX, 32);
     ssd1306_WriteString(daysStr, Font_6x8, White);
-
     ssd1306_DrawRectangle(7-1, 27-1, 27-1, 37-1, White);
     ssd1306_DrawRectangle(27-1, 30-1, 29-1, 34-1, White);
-
-    // Update battery life and display it in the top right corner (y ~2)
     int batteryVoltagePercentage = updateBatteryLife();
     char battStr[16];
     sprintf(battStr, "%02d%%", batteryVoltagePercentage);
     ssd1306_SetCursor(8, 28);
     ssd1306_WriteString(battStr, Font_6x8, White);
-
 }
 
+//------------------------------------------------------------------------------
+// Draws the options in the menu.
+//------------------------------------------------------------------------------
 void menuItemsDraw(){
     // Clear only the menu area (y=15 to 48) so we can use the top area for battery info
     ssd1306_FillRectangle(0, 15, 127, 48, Black);
@@ -1141,6 +1106,9 @@ void menuItemsDraw(){
     ssd1306_DrawRectangle(35, 27-10, 91, 36-10, Black);
 }
 
+//------------------------------------------------------------------------------
+// Displays the interactive game menu.
+//------------------------------------------------------------------------------
 int gameMenu(){
     sound(menuOpen);
     int menuselect = 1;

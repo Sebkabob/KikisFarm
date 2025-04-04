@@ -76,6 +76,13 @@ void pullEEPROM(void) {
     HAL_Delay(10);
     addr += sizeof(player);
 
+    // Read cat info from EEPROM
+    if (!EE24_Read(&hee24, addr, (uint8_t *)&cat, sizeof(cat), 1000)) {
+        //buzzer(100, 300);
+    }
+    HAL_Delay(10);
+    addr += sizeof(cat);
+
     // Read cropTiles info from EEPROM
     if (!EE24_Read(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {
         //buzzer(100, 300);
@@ -133,6 +140,13 @@ void pushEEPROM(void) {
     }
     HAL_Delay(10);
     addr += sizeof(player);
+
+    // Write cat info to EEPROM (note: inventory pointers are saved here but will be overridden)
+    if (!EE24_Write(&hee24, addr, (uint8_t *)&cat, sizeof(cat), 1000)) {
+        //buzzer(100, 300);
+    }
+    HAL_Delay(10);
+    addr += sizeof(cat);
 
     // Write cropTiles info to EEPROM
     if (!EE24_Write(&hee24, addr, (uint8_t *)&cropTiles, sizeof(cropTiles), 1000)) {

@@ -2,6 +2,7 @@
 #include "crop.h"
 #include "inventory.h"
 #include "sprites.h"
+#include "characters.h"
 #include <stdbool.h>
 #include <stdio.h>    // For sprintf
 #include <string.h>   // For memset if needed
@@ -13,9 +14,6 @@ void cropDisplay(void);
 void cropPlayerMovement(void);
 void cropPlayerAction(void);
 void handleCrop();
-
-// Global variables
-int showCoordinates = 0;
 
 //------------------------------------------------------------------------------
 // Returns true if the (x,y) point collides with any defined obstacle.
@@ -197,7 +195,7 @@ void drawCrops(void) {
 
 
 //------------------------------------------------------------------------------
-// Full redraw of the scene: draws background, UI, and player sprite offscreen,
+// Full redraw of the scene: draws background, and crops.
 //------------------------------------------------------------------------------
 void cropDisplay(void) {
     // Draw static background elements.
@@ -207,11 +205,6 @@ void cropDisplay(void) {
 
     drawSoil();
     drawCrops();
-
-//    char coordString[20];
-//    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-//    ssd1306_SetCursor(0, 0);
-//    ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 //------------------------------------------------------------------------------
@@ -258,7 +251,9 @@ void cropPlayerMovement(void) {
     }
 }
 
-
+//------------------------------------------------------------------------------
+// Plants a crop if on an empty crop spot
+//------------------------------------------------------------------------------
 void cropPlant(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
@@ -305,8 +300,9 @@ void cropPlant(){
     }
 }
 
-
-
+//------------------------------------------------------------------------------
+// Harvests a crop if on a crop spot and the crop is grown
+//------------------------------------------------------------------------------
 void cropHarvest(){
     refreshBackground = 1;
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
@@ -347,8 +343,9 @@ void cropHarvest(){
     }
 }
 
-
-
+//------------------------------------------------------------------------------
+// Destroys crop if on a crop spot and there is a crop
+//------------------------------------------------------------------------------
 void cropDestroy(){
 	refreshBackground = 1;
     uint32_t startTime = HAL_GetTick();
@@ -378,23 +375,24 @@ void cropPlayerAction(void) {
     if (A_Button_Flag) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
-        int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
-        if (spot != 0) {
-            // If a grown crop exists, harvest it.
+        int spot = checkIfOnCrop();
+        if (checkIfOnCrop() != 0) {
             if (cropTiles[spot - 1].grown == 1) {
                 cropHarvest();
             }
-            // Otherwise, if the spot is empty, plant a seed.
             else if (cropTiles[spot - 1].crop.id == NONE) {
                 cropPlant();
             }
         }
-        if (checkIfNearHouse()){
+        else if(checkIfNearHouse()){
         	player.inWorld = CROPHOUSE;
             player.coordinates.x = 60;
             player.coordinates.y = 40;
             player.direction = UP;
             leaveWorld = 1;
+        }
+        else{
+            petFeed();
         }
     }
 
@@ -418,7 +416,6 @@ void cropPlayerAction(void) {
                 return;
             }
         }
-        sound(inventoryOpen);
         showInventory(0);
     }
 
@@ -446,23 +443,23 @@ void cropPlayerAction(void) {
 // updates movement, actions, and the full display.
 //------------------------------------------------------------------------------
 void handleCrop() {
-    // Set starting position and direction
-
     ssd1306_Fill(Black);
 	cropDisplay();
+	catDisplay();
+	playerDisplay();
+	ssd1306_UpdateScreen();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = FrameRate;  // ~30 FPS
+    const uint32_t FRAME_DELAY = FrameRate;
 
-    GrowSpeed = 1; //normal
+    GrowSpeed = 1;
 
     game.houseUnlocked = 1;
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
-            // Process input and update state only once per frame
         	ssd1306_Fill(Black);
 
         	cropDisplay();
@@ -470,6 +467,7 @@ void handleCrop() {
         	updateButtonFlags();
         	cropPlayerMovement();
 
+            catDisplay();
         	playerDisplay();
 
         	cropPlayerAction();
@@ -482,7 +480,6 @@ void handleCrop() {
 
         HAL_Delay(1);
 
-        // Exit condition: if player goes across bridge
         if (player.coordinates.y < 0) {
             player.inWorld = SHOP;
             player.coordinates.x = 60;
@@ -490,7 +487,6 @@ void handleCrop() {
             player.direction = UP;
             break;
         }
-
         if (player.coordinates.x >= RIGHT_WORLD_EDGE - 1 && game.mileStone >= MAP_ACQUIRED) {
             player.inWorld = ORCHARD;
             player.coordinates.x = 3;

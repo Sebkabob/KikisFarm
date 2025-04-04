@@ -6,6 +6,7 @@
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include "sprites.h"
+#include "characters.h"
 #include "crop.h"
 #include <stdio.h>
 #include <string.h>
@@ -25,9 +26,10 @@
 #define HOUSE_ENTERED 			30
 #define MAP_ACQUIRED 			35
 #define ORCHARD_ENTERED 		40
-#define FIRST_TREE_PLANTED 		45
-#define FIRST_TREE_HARVESTED	50
-#define BOAT_ACQUIRED			55
+#define CAT_MET			 		45
+#define FIRST_TREE_PLANTED 		50
+#define FIRST_TREE_HARVESTED	55
+#define BOAT_ACQUIRED			60
 
 // ONLY DEFINE 1 //
 #define CPP		//ssd1306 lib
@@ -153,6 +155,13 @@ typedef struct {
     int soilSpots;
 } Player;
 
+typedef struct {
+    int love;
+    World inWorld;
+    Coordinates coordinates;
+    Direction direction;
+} Pet;
+
 // Attributes of the game
 typedef struct {
 	int ticks;
@@ -202,6 +211,8 @@ extern Item tillSoil, houseKey;
 
 extern Player player;
 
+extern Pet cat;
+
 extern Game game;
 
 extern CropTile cropTiles[10];
@@ -210,25 +221,47 @@ extern TreeTile treeTiles[6];
 extern Direction cropDirection;
 
 
+// Shop and item functions
+void initShopItems(void);
 Item* getItemPointerFromID(ItemType id);
 Item getGrownCrop(ItemType seedId);
+Item getGrownSapling(ItemType saplingId);
 int getTillSoilCost(void);
+int getTreeSpotCost(void);
+
+// Level up and game state functions
 void displayLevelUp(void);
 int gameLevelUp(void);
 void gameStartup(void);
 void initGame(void);
-void initShopItems(void);
+
+// Button and transition functions
 void updateButtonFlags(void);
-void cropGrowth(void);
-void gameLogic(void);
-void theMap(void);
-void playerDisplay(void);
-void playerErase(void);
-int textPrompt(const char *headerText);
-void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
-void textSpeaking(const char *text, int voice, int speed, int button);
 void cutToDark(int speed);
+void TransitionVortex(int speed);
+
+// Crop and tree growth functions
+void cropGrowth(void);
+void treeGrowth(void);
+void gameTime(void);
+
+// Pet (cat) related functions
+void petFeed(void);
+void petLove(void);
+
+// Main game logic
+void gameLogic(void);
+
+// Map and text display functions
+void theMap(void);
+void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
+int textPrompt(const char *headerText);
+void textSpeaking(const char *text, int voice, int speed, int button);
 void displayStats(void);
+
+// Menu functions
+void drawMenuSideFeatures(void);
+void menuItemsDraw(void);
 int gameMenu(void);
 void gameOptions(void);
 

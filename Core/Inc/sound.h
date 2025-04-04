@@ -53,6 +53,8 @@ extern const uint16_t destroy[][2];
 extern const uint16_t inventoryOpen[][2];
 extern const uint16_t inventoryFull[][2];
 extern const uint16_t mapOpen[][2];
+extern const uint16_t catMeow[][2];
+extern const uint16_t catFeed[][2];
 
 void sound(const uint16_t soundArray[][2]);
 

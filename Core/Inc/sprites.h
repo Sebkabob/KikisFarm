@@ -133,5 +133,10 @@ extern const unsigned char WaterAnimation5[];
 
 extern const unsigned char ControlsTitle2[];
 
+extern const unsigned char CatUp[];
+extern const unsigned char CatDown[];
+extern const unsigned char CatLeft[];
+extern const unsigned char CatRight[];
+
 
 #endif /* INC_SPRITES_H_ */

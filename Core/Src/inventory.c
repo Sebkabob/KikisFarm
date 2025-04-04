@@ -1,5 +1,8 @@
 #include "inventory.h"
 
+//------------------------------------------------------------------------------
+// Draws all inventory icons in the grid.
+//------------------------------------------------------------------------------
 void drawInventoryIcons(int xMov, int yMov){
     // Draw the items in the inventory
     for (int i = 0; i < 9; i++) {
@@ -15,12 +18,13 @@ void drawInventoryIcons(int xMov, int yMov){
     }
 }
 
+//------------------------------------------------------------------------------
+// Draws the title and quantity of a selected item.
+//------------------------------------------------------------------------------
 void drawItemInfo(int itemSelect){
-    // Draw the title and quantity of the selected item
     if (player.inventory[itemSelect - 1].item != NULL && player.inventory[itemSelect - 1].item->id != NONE) {
         ssd1306_FillRectangle(57, 2, 121, 53, Black);
         ssd1306_DrawBitmap(57, 2, player.inventory[itemSelect - 1].item->titleSprite, 65, 24, White);
-
         char quantityText[10];
         snprintf(quantityText, sizeof(quantityText), "x%02d", player.inventory[itemSelect - 1].quantity);
         ssd1306_SetCursor(82, 25);
@@ -30,7 +34,9 @@ void drawItemInfo(int itemSelect){
     }
 }
 
-
+//------------------------------------------------------------------------------
+// Returns true if entire inventory is empty.
+//------------------------------------------------------------------------------
 bool isInventoryEmpty(InventorySlot inventory[]) {
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item != NULL && inventory[i].item->id != NONE) {
@@ -40,15 +46,15 @@ bool isInventoryEmpty(InventorySlot inventory[]) {
     return true;
 }
 
+//------------------------------------------------------------------------------
+// Moves items so they are justified to the first grid square.
+//------------------------------------------------------------------------------
 void moveInventoryItemsTogether(InventorySlot inventory[]) {
     int nextFree = 0;
     for (int i = 0; i < 9; i++) {
-        // Check if the current slot is not empty
         if (inventory[i].item != NULL && inventory[i].item->id != NONE) {
             if (i != nextFree) {
-                // Move the item and its quantity to the next available free slot
                 inventory[nextFree] = inventory[i];
-                // Mark the original slot as empty
                 inventory[i].item = NULL;
                 inventory[i].quantity = 0;
             }
@@ -57,20 +63,19 @@ void moveInventoryItemsTogether(InventorySlot inventory[]) {
     }
 }
 
-// Add an item to the inventory
+//------------------------------------------------------------------------------
+// Adds items at a desired quantity to the inventory.
+//------------------------------------------------------------------------------
 int addItemToInventory(InventorySlot inventory[], Item *item, int quantity) {
-    // First, try to add to existing stacks that are not full.
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item != NULL && inventory[i].item->id == item->id && inventory[i].quantity < 99) {
             int space = 99 - inventory[i].quantity;
             int add = (quantity > space) ? space : quantity;
             inventory[i].quantity += add;
             quantity -= add;
-            if (quantity == 0) return 1; // All quantity added.
+            if (quantity == 0) return 1;
         }
     }
-
-    // Then, add remaining quantity in new empty slots.
     for (int i = 0; i < 9 && quantity > 0; i++) {
         if (inventory[i].item == NULL || inventory[i].item->id == NONE) {
             int add = (quantity > 99) ? 99 : quantity;
@@ -79,13 +84,13 @@ int addItemToInventory(InventorySlot inventory[], Item *item, int quantity) {
             quantity -= add;
         }
     }
-
-    // Return success if all quantity was added.
     return (quantity == 0) ? 1 : 0;
 }
 
 
-// Remove an item from the inventory
+//------------------------------------------------------------------------------
+// Removes items at a desired quantity from the inventory.
+//------------------------------------------------------------------------------
 int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int quantity) {
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item != NULL && inventory[i].item->id == itemType) {
@@ -96,22 +101,27 @@ int removeItemFromInventory(InventorySlot inventory[], ItemType itemType, int qu
                 inventory[i].quantity = 0;
             }
             moveInventoryItemsTogether(inventory);
-            return 1; // Success
+            return 1;
         }
     }
-    return 0; // Item not found
+    return 0;
 }
 
-// Check if an item exists in the inventory
+//------------------------------------------------------------------------------
+// Returns the quantity of an item in the inventory if it exists.
+//------------------------------------------------------------------------------
 int hasItemInInventory(InventorySlot inventory[], ItemType itemType) {
     for (int i = 0; i < 9; i++) {
         if (inventory[i].item != NULL && inventory[i].item->id == itemType) {
             return inventory[i].quantity;
         }
     }
-    return 0; // Item not found
+    return 0;
 }
 
+//------------------------------------------------------------------------------
+// Lets the player know if they are able to plant an item if its a seed.
+//------------------------------------------------------------------------------
 void drawCanPlantCrop(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == CROPSEED){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
@@ -120,11 +130,13 @@ void drawCanPlantCrop(int itemSelect){
 		ssd1306_SetCursor(91 - (7 / 2), 39);
 		ssd1306_WriteString("X", Font_7x10, White);
 	}
-
     ssd1306_DrawRectangle(66, 35, 115, 51, White);
     ssd1306_DrawRectangle(67, 36, 114, 50, White);
 }
 
+//------------------------------------------------------------------------------
+// Lets the player know if they are able to plant an item if its a sapling.
+//------------------------------------------------------------------------------
 void drawCanPlantSapling(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == SAPLING){
 	    ssd1306_SetCursor(91 - ((int)strlen("plant") * 6 / 2), 40);
@@ -138,6 +150,9 @@ void drawCanPlantSapling(int itemSelect){
     ssd1306_DrawRectangle(67, 36, 114, 50, White);
 }
 
+//------------------------------------------------------------------------------
+// Lets the player know if they are able to consume an item if its consumable.
+//------------------------------------------------------------------------------
 void drawCanConsume(int itemSelect){
 	if (player.inventory[itemSelect - 1].item->subType == CONSUMABLE){
 	    ssd1306_SetCursor(91 - ((int)strlen("drink") * 6 / 2), 40);
@@ -151,33 +166,45 @@ void drawCanConsume(int itemSelect){
     ssd1306_DrawRectangle(67, 36, 114, 50, White);
 }
 
+//------------------------------------------------------------------------------
+// Lets the player know if they are able to feed an item to the cat.
+//------------------------------------------------------------------------------
+void drawCanFeed(int itemSelect){
+	if (player.inventory[itemSelect - 1].item->subType == HFRUIT ||
+			player.inventory[itemSelect - 1].item->subType == HCROP){
+	    ssd1306_SetCursor(91 - ((int)strlen("feed") * 6 / 2), 40);
+	    ssd1306_WriteString("feed", Font_6x8, White);
+	} else {
+		ssd1306_SetCursor(91 - (7 / 2), 39);
+		ssd1306_WriteString("X", Font_7x10, White);
+	}
+
+    ssd1306_DrawRectangle(66, 35, 115, 51, White);
+    ssd1306_DrawRectangle(67, 36, 114, 50, White);
+}
+
+//------------------------------------------------------------------------------
+// Shows the players inventory, depeding on the int entered it will have different
+// functions: Planting Seeds, Planting Saplings, Feeding the cat.
+//------------------------------------------------------------------------------
 int showInventory(int plantSeed) {
-
+	if (plantSeed == 3)
+		sound(catMeow);
+	else
+		sound(inventoryOpen);
 	moveInventoryItemsTogether(player.inventory);
-
-    int itemSelect = 1; // Start with the first item selected
-    int moved = 1;      // Indicates that the selection box needs to be redrawn
+    int itemSelect = 1;
+    int moved = 1;
     int xMov, yMov;
-    int prevXMov = 0, prevYMov = 0; // Track previous selection box position
-
     ssd1306_FillRectangle(5, 1, 122, 55, Black);
     ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
-
     xMov = ((itemSelect - 1) % 3) * 17;
     yMov = ((itemSelect - 1) / 3) * 17;
-    prevXMov = xMov;
-    prevYMov = yMov;
-
     drawInventoryIcons(xMov, yMov);
     displayStats();
-
-    // Draw the initial selection box
     ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
-
     drawItemInfo(itemSelect);
-
     ssd1306_UpdateScreen();
-
     while (1) {
         if (HAL_GPIO_ReadPin(GPIOB, UP_Pin) == 0 && itemSelect > 3) {
             moved = 1;
@@ -213,62 +240,63 @@ int showInventory(int plantSeed) {
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
 
             if (plantSeed == 1) {
-                // Check if the selected item is a valid seed
                 Item* selectedItem = player.inventory[itemSelect - 1].item;
                 if (selectedItem->subType == CROPSEED) {
-                    // Remove one unit of the seed from the inventory.
                 	return selectedItem->id;
                 }
             }
             else if (plantSeed == 2) {
-                // Check if the selected item is a valid sapling
                 Item* selectedItem = player.inventory[itemSelect - 1].item;
                 if (selectedItem->subType == SAPLING) {
-                    // Remove one unit of the sapling from the inventory.
                 	return selectedItem->id;
                 }
             }
-            else {
-                // Handle normal inventory selection if needed.
-                moved = 1; // Ensure redraw after selection.
+            else if (plantSeed == 3) {
+                Item* selectedItem = player.inventory[itemSelect - 1].item;
+                if (selectedItem->subType == HFRUIT || selectedItem->subType == HCROP) {
+                	cat.love += selectedItem->sellValue;
+                	sound(catFeed);
+                    ItemType feedItem = selectedItem->id;
+                    if (feedItem != NONE) {
+                        int slot = -1;
+                        for (int i = 0; i < 9; i++) {
+                            if (player.inventory[i].item != NULL &&
+                                player.inventory[i].item->id == feedItem) {
+                                slot = i;
+                                break;
+                            }
+                        }
+                        if (slot != -1) {
+                            removeItemFromInventory(player.inventory,
+                                                    player.inventory[slot].item->id,
+                                                    1);
+                        }
+                    }
+                }
             }
-            moved = 1; // Ensure redraw after selection.
+            else {
+                moved = 1;
+            }
+            moved = 1;
         }
-
         if (moved) {
             moved = 0;
-            // Erase the previous selection box.
-            ssd1306_DrawRectangle(8 + prevXMov, 4 + prevYMov, 21 + prevXMov, 17 + prevYMov, Black);
-
-            // Update selection box position.
+            ssd1306_FillRectangle(5, 1, 122, 55, Black);
+            ssd1306_DrawBitmap(4, 0, BoardSprite, 120, 60, White);
             xMov = ((itemSelect - 1) % 3) * 17;
             yMov = ((itemSelect - 1) / 3) * 17;
-            prevXMov = xMov;
-            prevYMov = yMov;
-
-            displayStats();
-
-            // Draw the new selection box.
+            drawInventoryIcons(xMov, yMov);
             ssd1306_DrawRectangle(8 + xMov, 4 + yMov, 21 + xMov, 17 + yMov, White);
-
-            // Clear previous text area.
             ssd1306_FillRectangle(57, 2, 121, 53, Black);
-
             drawItemInfo(itemSelect);
-
-            if (plantSeed == 1) {
-            	drawCanPlantCrop(itemSelect);
+            switch (plantSeed) {
+                case 0: displayStats(); break;
+                case 1: drawCanPlantCrop(itemSelect);    displayStats();    break;
+                case 2: drawCanPlantSapling(itemSelect); displayStats();    break;
+                case 3: drawCanFeed(itemSelect);         displayCatStats(); break;
             }
-            else if (plantSeed == 2){
-            	drawCanPlantSapling(itemSelect);
-            }
-            else {
-            		//drawCanConsume(itemSelect);
-            }
-
             ssd1306_UpdateScreen();
         }
     }
-    // If no valid seed is selected, return NONE.
     return NONE;
 }

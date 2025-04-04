@@ -171,6 +171,19 @@ const uint16_t mapOpen[][2] = {
     {0,  0}
 };
 
+// mapOpen: a repeated low note to indicate full inventory.
+const uint16_t catMeow[][2] = {
+    {G5, 70},
+    {E5, 100},
+    {0,  0}
+};
+
+// Menu open: a gentle two-note jump.
+const uint16_t catFeed[][2] = {
+    {G5, 50},
+    {0,  0}
+};
+
 
 void sound(const uint16_t soundArray[][2]) {
     int i = 0;

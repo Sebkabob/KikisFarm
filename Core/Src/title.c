@@ -3,9 +3,12 @@
 #include "sprites.h"
 #include "title.h"
 
+//------------------------------------------------------------------------------
+// A short introduction to the game
+//------------------------------------------------------------------------------
 void gameIntro(){
     int voice1 = 400;  // Voice for character 1
-    int voice2 = 120;  // Voice for character 2]
+    int voice2 = 120;  // Voice for character 2
     int speed = 7;
 
     ssd1306_Fill(Black);
@@ -41,11 +44,11 @@ void gameIntro(){
     		"I feel like you're not the same anymore...", voice2, speed, 1);
 }
 
-
+//------------------------------------------------------------------------------
+// A menu to ensure the player actually wants to reset the game.
+//------------------------------------------------------------------------------
 int areYouSureMenu(){
     int menuSelect = 1;  // Default: no selected
-
-    // Draw the static text once.
     ssd1306_Fill(Black);
     ssd1306_SetCursor(22, 4);
     ssd1306_WriteString("WARNING!", Font_11x18, White);
@@ -57,63 +60,45 @@ int areYouSureMenu(){
     ssd1306_WriteString("yes", Font_7x10, White);
     ssd1306_SetCursor(94, 50);
     ssd1306_WriteString("no", Font_7x10, White);
-
-    // Draw initial selection rectangle around "yes"
     ssd1306_DrawRectangle(92, 48, 109, 62, White);
     ssd1306_UpdateScreen();
-
     sound(areYouSure);
-
     while (1){
-        HAL_Delay(10); // Small delay to prevent overwhelming polling
-
-        // RIGHT button pressed: select "no" (menuSelect = 1)
+        HAL_Delay(10);
         if (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
             sound(menuNav);
             if (menuSelect != 1) {
-                // Erase the rectangle around "yes"
                 ssd1306_DrawRectangle(18, 48, 42, 62, Black);
-                // Draw rectangle around "no"
                 ssd1306_DrawRectangle(92, 48, 109, 62, White);
                 menuSelect = 1;
                 ssd1306_UpdateScreen();
             }
-            // Wait for the button to be released
             while (HAL_GPIO_ReadPin(GPIOB, RIGHT_Pin) == 0) {
                 HAL_Delay(10);
             }
         }
-
-        // LEFT button pressed: select "yes" (menuSelect = 2)
         if (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
         	sound(menuNav);
             if (menuSelect != 2) {
-                // Erase the rectangle around "no"
                 ssd1306_DrawRectangle(92, 48, 109, 62, Black);
-                // Draw rectangle around "yes"
                 ssd1306_DrawRectangle(18, 48, 42, 62, White);
                 menuSelect = 2;
                 ssd1306_UpdateScreen();
             }
-            // Wait for the button to be released
             while (HAL_GPIO_ReadPin(GPIOB, LEFT_Pin) == 0) {
                 HAL_Delay(10);
             }
         }
-
-        // A button: confirm selection.
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
         	sound(deleteSave);
             while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
 
             if (menuSelect == 2) {
-                return 1;  // "yes" selected
+                return 1;
             } else {
-                return 0;  // "no" selected
+                return 0;
             }
         }
-
-        // B button: immediately return 0.
         if (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
         	sound(buttonPress);
             while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
@@ -122,21 +107,24 @@ int areYouSureMenu(){
     }
 }
 
+//------------------------------------------------------------------------------
+// Shows the controls of the game.
+//------------------------------------------------------------------------------
 void controlsTitle(){
-	ssd1306_Fill(Black);        // Clear the screen
+	ssd1306_Fill(Black);
 	ssd1306_DrawBitmap(0, 0, ControlsTitle, 128, 64, White);
 	ssd1306_UpdateScreen();
 	HAL_Delay(250);
 	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 1);
 }
 
-#if defined(CPP)
+//------------------------------------------------------------------------------
+// Draws the title screen and handles selection.
+//------------------------------------------------------------------------------
 void handleTitle() {
-
 	gameStartup();
-
 	int menuSelect = 1;
-	ssd1306_Fill(Black);        // Clear the screen
+	ssd1306_Fill(Black);
 	ssd1306_DrawBitmap(0, 0, TitleWorldSprite, 128, 64, White);
 	ssd1306_DrawRectangle(42, 27, 86, 35, White);
 	ssd1306_UpdateScreen();
@@ -169,7 +157,6 @@ void handleTitle() {
             	ssd1306_UpdateScreen();
             	HAL_Delay(100);
         	}
-        	//player.inWorld = CROP;
         	return;
         }
         if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0 && menuSelect == 2) {
@@ -189,5 +176,3 @@ void handleTitle() {
 
     }
 }
-
-#endif

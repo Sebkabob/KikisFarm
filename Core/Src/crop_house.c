@@ -311,8 +311,7 @@ void handleCropHouse() {
 
     ssd1306_Fill(Black);
     cropHouseDisplay();
-	ssd1306_CopyBuffer();
-
+    catDisplay();
 	playerDisplay();
 	ssd1306_UpdateScreen();
 
@@ -336,6 +335,7 @@ void handleCropHouse() {
         	updateButtonFlags();
         	cropHousePlayerMovement();
 
+            catDisplay();
         	playerDisplay();
 
         	cropHousePlayerAction();

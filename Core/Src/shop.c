@@ -3,14 +3,18 @@
 #include "sprites.h"
 #include "shop.h"
 #include "inventory.h"
+#include "characters.h"
 #include <stdbool.h>
 #include <math.h>
 
-#define TOTAL_SHOP_ITEMS 18  // Total items in the shop 9, 12, 15, 18, 21
-#define VISIBLE_SHOP_ITEMS 9  // 3 x 3 grid
+#define TOTAL_SHOP_ITEMS 18
+#define VISIBLE_SHOP_ITEMS 9
 
 void textSpeaking(const char *text, int speed, int fontSize, int wait);
 
+//------------------------------------------------------------------------------
+// Defines obstacles in the shop world.
+//------------------------------------------------------------------------------
 bool shopObstacle(int x, int y) {
     return (
         (x >= OB5_X && x < OB5_X + OB5_W &&
@@ -21,15 +25,18 @@ bool shopObstacle(int x, int y) {
     );
 }
 
+//------------------------------------------------------------------------------
+// .
+//------------------------------------------------------------------------------
 void shopSoftRefresh(){
-    ssd1306_Fill(Black);        // Clear the screen
+    ssd1306_Fill(Black);
     ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
     ssd1306_UpdateScreen();
 }
 
 void shopHardRefresh(){
-    ssd1306_Fill(Black);        // Clear the screen
+    ssd1306_Fill(Black);
     ssd1306_DrawBitmap(0, 0, ShopWorldSprite, 128, 64, White);
     ssd1306_DrawBitmap(player.coordinates.x, player.coordinates.y, KikiDownSprite, 9, 11, White);
     ssd1306_UpdateScreen();
@@ -536,6 +543,8 @@ void shopPlayerAction(){
     		textSpeaking("Come back with stuff to sell!", 110, 7, 1);
     		while(HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
     	}
+    } else if (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0) {
+    	petFeed();
     }
 
     if (B_Button_Flag) {
@@ -564,6 +573,9 @@ void handleShop() {
     // Set initial shop state (starting position and direction)
     ssd1306_Fill(Black);
     shopDisplay();
+    catDisplay();
+	playerDisplay();
+	ssd1306_UpdateScreen();
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
@@ -580,6 +592,7 @@ void handleShop() {
         	updateButtonFlags();
             shopPlayerMovement();
 
+            catDisplay();
         	playerDisplay();
 
             shopPlayerAction();
