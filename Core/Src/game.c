@@ -340,8 +340,7 @@ int gameLevelUp(void) {
 //------------------------------------------------------------------------------
 void gameStartup(){
 	pullEEPROM();
-    cat.coordinates.x = player.coordinates.x;
-    cat.coordinates.y = player.coordinates.y;
+	resetPlayerHistory();
 }
 
 //------------------------------------------------------------------------------
@@ -922,7 +921,7 @@ int textPrompt(const char *headerText) {
     ssd1306_SetCursor(94, 50);
     ssd1306_WriteString("no", Font_7x10, White);
     int selection = 0;
-    ssd1306_DrawRectangle(18, 48, 42, 62, White);
+    ssd1306_DrawRectangle(92, 48, 109, 62, White);
     ssd1306_UpdateScreen();
     while (1) {
         HAL_Delay(10);
