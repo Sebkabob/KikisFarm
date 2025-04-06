@@ -587,17 +587,21 @@ void displayCatStats(void) {
 // Handles feeding the pet when you are close to it.
 //------------------------------------------------------------------------------
 void petFeed() {
-	if (game.mileStone < CAT_MET){
-		textSpeaking("Dang, this cat looks super hungry       ", 110, 7, 1);
-		textSpeaking("Looks like nobody   fed him for awhile", 110, 7, 1);
-		textSpeaking("Maybe I should feed him something...", 110, 7, 1);
-		textSpeaking("(press A to feed the cat)", 110, 7, 1);
-		textSpeaking("(hold B to make him sit)", 110, 7, 1);
-		game.mileStone = CAT_MET;
-	}
     // Check if the player is near the cat.
     if (abs(player.coordinates.x - cat.coordinates.x) <= 10 &&
         abs(player.coordinates.y - cat.coordinates.y) <= 10 && player.inWorld == cat.inWorld) {
+    	if (game.mileStone < CAT_MET){
+    		textSpeaking("Dang, this cat looks super hungry       ", 110, 7, 1);
+    		textSpeaking("Looks like nobody   fed him for awhile", 110, 7, 1);
+    		textSpeaking("Maybe I should feed him something...", 110, 7, 1);
+    		textSpeaking("(press A to feed the cat)", 110, 7, 1);
+    		textSpeaking("(hold B to make him sit/follow)", 110, 7, 1);
+    		textSpeaking("(he wont move if the Love bar is empty)", 110, 7, 1);
+    		textSpeaking("(feeding increases  the Love bar)", 110, 7, 1);
+    		textSpeaking("(you'll figure it   out its just a cat)", 110, 7, 1);
+    		game.mileStone = CAT_MET;
+    		return;
+    	}
     	if (cat.sit == 1 && cat.love > CAT_LOVE_THRESHOLD){
     		resetPlayerHistory();
     		sound(catStand);

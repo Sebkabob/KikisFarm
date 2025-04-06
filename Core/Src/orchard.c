@@ -11,6 +11,8 @@
 #include "crop_house.h"
 #include "characters.h"
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #define NEAR_THRESHOLD 1
 
@@ -340,12 +342,65 @@ void treeHarvest(){
 }
 
 //------------------------------------------------------------------------------
+// Hmmmmm.
+//------------------------------------------------------------------------------
+void ponderingThought(void) {
+    // Generate a random number between 1 and 10.
+    int randomNum = (rand() % 10) + 1;
+
+    // Process the random number using a switch statement.
+    switch (randomNum) {
+        case 1:
+        	textSpeaking("Damn.", 150, 8, 1);
+            break;
+        case 2://///////*/////////////////////####################????????????????????
+        	textSpeaking("This game must have been a bitch and a  half to make", 150, 8, 1);
+            break;
+        case 3://///////*/////////////////////####################????????????????????
+        	textSpeaking("I wonder what egg   prices are right now?", 150, 8, 1);
+            break;
+        case 4://///////*/////////////////////####################????????????????????
+        	textSpeaking("This water is so    beautiful...", 150, 8, 1);
+            break;
+        case 5://///////*/////////////////////####################????????????????????
+        	textSpeaking("*nothing at all*", 150, 8, 1);
+            break;
+        case 6://///////*/////////////////////####################????????????????????
+        	textSpeaking("I wonder where the  boat will take me...", 150, 8, 1);
+            break;
+        case 7://///////*/////////////////////####################????????????????????
+        	textSpeaking("I love my mother", 150, 8, 1);
+            break;
+        case 8://///////*/////////////////////####################????????????????????
+        	textSpeaking("Costco pizza is so  good but really     oily", 150, 8, 1);
+            break;
+        case 9://///////*/////////////////////####################????????????????????
+        	textSpeaking("I wonder where seb  is right now?", 150, 8, 1);
+        	textSpeaking("I should text him.", 150, 8, 1);
+            break;
+        case 10:////////*/////////////////////####################????????????????????
+        	textSpeaking("HfdSKkvm9(SI89*N@#Nnf#@snFNcWSNkjdnwdnWdWDNIKJWNdnwJCNwjNnwd", 150, 8, 1);
+            break;
+        default:
+            // This should never happen.
+        	textSpeaking("damn.", 150, 8, 1);
+            break;
+    }
+}
+
+//------------------------------------------------------------------------------
 // Handles button actions.
 //------------------------------------------------------------------------------
 void orchardPlayerAction(){
     if (A_Button_Flag) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+        if (orchardObstacle(player.coordinates.x + 1, player.coordinates.y + 1)){
+        	textSpeaking("you ponder and look at the water...", 150, 8, 1);
+        	textSpeaking("you think to        yourself:", 150, 8, 1);
+        	ponderingThought();
+        	while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+        }
         int spot = checkIfOnTreeSpot();
         if (spot != 0) {
         	if (cat.sit == 1){

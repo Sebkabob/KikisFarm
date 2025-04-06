@@ -310,9 +310,9 @@ void handleCropHouse() {
 	playerDisplay();
 	ssd1306_UpdateScreen();
 
-	if (game.cropHouseIntro){
+	if (game.mileStone < HOUSE_ENTERED){
 		cropHouseIntro();
-		game.cropHouseIntro = 0;
+		game.mileStone = HOUSE_ENTERED;
 	}
 
     leaveWorld = 0;
