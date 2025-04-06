@@ -357,7 +357,7 @@ void ponderingThought(void) {
         	textSpeaking("This game must have been a bitch and a  half to make", 150, 8, 1);
             break;
         case 3://///////*/////////////////////####################????????????????????
-        	textSpeaking("I wonder what egg   prices are right now?", 150, 8, 1);
+        	textSpeaking("I wonder what egg   prices are right    now?", 150, 8, 1);
             break;
         case 4://///////*/////////////////////####################????????????????????
         	textSpeaking("This water is so    beautiful...", 150, 8, 1);
