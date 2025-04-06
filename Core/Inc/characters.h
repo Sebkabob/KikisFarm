@@ -17,6 +17,5 @@ void resetPlayerHistory(void);
 void updatePlayerHistory(void);
 void catDisplay(void);
 void playerDisplay(void);
-void playerErase(void);
 
 #endif /* INC_CHARACTERS_H_ */

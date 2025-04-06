@@ -188,10 +188,12 @@ void drawCanFeed(int itemSelect){
 // functions: Planting Seeds, Planting Saplings, Feeding the cat.
 //------------------------------------------------------------------------------
 int showInventory(int plantSeed) {
-	if (plantSeed == 3)
+	if (plantSeed == 3) {
 		sound(catMeow);
-	else
+	}
+	else {
 		sound(inventoryOpen);
+	}
 	moveInventoryItemsTogether(player.inventory);
     int itemSelect = 1;
     int moved = 1;

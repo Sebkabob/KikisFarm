@@ -9,6 +9,11 @@
   *
   *	-money tree stays fruited
   *
+  *	CODE CLEANING:
+  *	-make just 2 pointer/nonpointer return functions
+  *	-make buttons better
+  *	-give things their own files instead of all being in game.c
+  *
   ******************************************************************************
   */
 /* USER CODE END Header */

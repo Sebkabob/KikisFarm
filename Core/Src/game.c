@@ -351,14 +351,14 @@ void initGame(){
     player.coordinates.y = 14;
     player.direction = DOWN;
 
-    player.money = 9999999;
+    player.money = 999999;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 28;
-    player.soilSpots = 1;
+    player.level = 99;
+    player.soilSpots = 16;
 
     game.houseUnlocked = 0;
-    game.mileStone = NEW_GAME;
+    game.mileStone = CAT_MET - 1;
     game.cropHouseIntro = 1;
 
     game.day = 1;
@@ -407,6 +407,7 @@ void initGame(){
     cat.direction = DOWN;
     cat.inWorld = ORCHARD;
     cat.love = 0;
+    cat.sit = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -575,6 +576,9 @@ void displayCatStats(void) {
     int levelBar = (cat.love-CAT_LOVE_THRESHOLD) / 60;
     if (levelBar >= 68)
     	ssd1306_FillRectangle(44, 58, 112, 60, White);
+    else if (levelBar <= 0){
+    	ssd1306_FillRectangle(44, 58, 112, 60, Black);
+    }
     else if (levelBar != 0)
     	ssd1306_FillRectangle(44, 58, 44 + levelBar, 60, White);
 }
@@ -587,13 +591,18 @@ void petFeed() {
 		textSpeaking("Dang, this cat looks super hungry       ", 110, 7, 1);
 		textSpeaking("Looks like nobody   fed him for awhile", 110, 7, 1);
 		textSpeaking("Maybe I should feed him something...", 110, 7, 1);
+		textSpeaking("(press A to feed the cat)", 110, 7, 1);
+		textSpeaking("(hold B to make him sit)", 110, 7, 1);
 		game.mileStone = CAT_MET;
 	}
     // Check if the player is near the cat.
     if (abs(player.coordinates.x - cat.coordinates.x) <= 10 &&
-        abs(player.coordinates.y - cat.coordinates.y) <= 10) {
-
-        // Let the player select a food item from the inventory.
+        abs(player.coordinates.y - cat.coordinates.y) <= 10 && player.inWorld == cat.inWorld) {
+    	if (cat.sit == 1 && cat.love > CAT_LOVE_THRESHOLD){
+    		resetPlayerHistory();
+    		sound(catStand);
+    		cat.sit = 0;
+    	}
         showInventory(3);
     }
 }
@@ -604,11 +613,33 @@ void petFeed() {
 void petLove() {
     static uint32_t lastTime = 0;
     uint32_t currentTime = HAL_GetTick();
-    if (currentTime - lastTime >= 1000 && cat.love > 2) {
+    if (currentTime - lastTime >= 1000 && cat.love > 2 && cat.sit == 0) {
         cat.love -= 2;
         lastTime = currentTime;
     }
+    if (cat.love < 2){
+    	cat.sit = 1;
+    }
 }
+
+//------------------------------------------------------------------------------
+// Handles if the pet is told to sit.
+//------------------------------------------------------------------------------
+void petSit(void) {
+    if (abs(player.coordinates.x - cat.coordinates.x) <= 10 &&
+        abs(player.coordinates.y - cat.coordinates.y) <= 10) {;
+    	if (cat.sit == 1 && cat.love > CAT_LOVE_THRESHOLD && player.inWorld == cat.inWorld) {
+    		resetPlayerHistory();
+        	sound(catStand);
+    		cat.sit = 0;
+    	} else if (cat.sit == 0) {
+    		sound(catSit);
+    		cat.sit = 1;
+    		cat.direction = DOWN;
+    	}
+    }
+}
+
 
 //------------------------------------------------------------------------------
 // Calls different game logic that happens constantly.

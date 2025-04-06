@@ -178,13 +178,33 @@ const uint16_t catMeow[][2] = {
     {0,  0}
 };
 
-// Menu open: a gentle two-note jump.
+// catFeed: a gentle one-note.
 const uint16_t catFeed[][2] = {
     {G5, 50},
     {0,  0}
 };
 
+// catSit: a descent.
+const uint16_t catSit[][2] = {
+    {F5, 70},
+    {E5, 70},
+    {D5, 70},
+    {C5, 100},
+    {0,  0}
+};
 
+// catSit: a descent.
+const uint16_t catStand[][2] = {
+    {C5, 70},
+    {D5, 70},
+    {E5, 70},
+    {F5, 100},
+    {0,  0}
+};
+
+//------------------------------------------------------------------------------
+// Plays a selected sound from the sound library.
+//------------------------------------------------------------------------------
 void sound(const uint16_t soundArray[][2]) {
     int i = 0;
     while (soundArray[i][0] != 0 || soundArray[i][1] != 0) {

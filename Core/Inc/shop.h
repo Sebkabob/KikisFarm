@@ -31,7 +31,7 @@ int getTillSoilCost(void);
 bool shopObstacle(int x, int y);
 void shopSoftRefresh(void);
 void shopHardRefresh(void);
-void shopTextDraw(int itemSelect);
+void buyShopTextDraw(int itemSelect);
 int shopBuyItem(int *money, int level, InventorySlot inventory[], int itemSelect);
 bool shopNearBuy(void);
 bool shopNearSell(void);

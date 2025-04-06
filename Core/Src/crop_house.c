@@ -7,24 +7,11 @@
 #define NEAR_THRESHOLD 1
 
 void cropHouseDisplay(){
-    // Draw the house background bitmap
     ssd1306_DrawBitmap(0, 0, TheHouse, 128, 64, White);
     if (game.mileStone < MAP_ACQUIRED){
     	ssd1306_DrawBitmap(20, 34, MapOnTable, 16, 5, White);
     }
-
     ssd1306_DrawBitmap(9, 50, BasementDoor, 25, 13, White);
-
-    // Prepare the player's coordinates string
-    char coordString[20];
-    sprintf(coordString, "X:%d Y:%d", player.coordinates.x, player.coordinates.y);
-
-    // Set the cursor position to an area that doesn't interfere with the main graphic.
-    // Here, we choose a y value of 56 (near the bottom) so that the text is visible.
-    ssd1306_SetCursor(0, 0);
-
-    // Write the coordinate string on the display using a chosen font (e.g., Font_6x8)
-    //ssd1306_WriteString(coordString, Font_6x8, White);
 }
 
 bool cropHouseObstacle(int x, int y) {
@@ -269,6 +256,7 @@ void cropHousePlayerAction(){
     if (A_Button_Flag) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
+        petFeed();
         if (nearArcadeMachine()) textSpeaking("a broken arcade     machine, wonder if  it can be fixed...", 150, 8, 1);
         if (nearBookshelf()) booksOfLore();
         if (nearTable()) mapInteract();
@@ -281,9 +269,15 @@ void cropHousePlayerAction(){
     // Button B:
     if (B_Button_Flag) {
     	B_Button_Flag = 0;
-    	refreshBackground = 1;
-        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
-        buzzer(300, 25);
+    	uint32_t startTime = HAL_GetTick();
+        while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
+            HAL_Delay(10);
+            if (HAL_GetTick() - startTime >= 1500) {
+            	petSit();
+                while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
+                return;
+            }
+        }
         showInventory(0);
     }
 
@@ -306,9 +300,10 @@ void cropHousePlayerAction(){
     }
 }
 
+//------------------------------------------------------------------------------
+// Main loop for the crop house world: updates movement, actions, and the full display.
+//------------------------------------------------------------------------------
 void handleCropHouse() {
-    // Set starting position and direction
-
     ssd1306_Fill(Black);
     cropHouseDisplay();
     catDisplay();
@@ -322,12 +317,11 @@ void handleCropHouse() {
 
     leaveWorld = 0;
     uint32_t lastFrameTime = HAL_GetTick();
-    const uint32_t FRAME_DELAY = FrameRate;  // ~30 FPS
+    const uint32_t FRAME_DELAY = FrameRate;
 
     while (!leaveWorld) {
         uint32_t now = HAL_GetTick();
         if (now - lastFrameTime >= FRAME_DELAY) {
-            // Process input and update state only once per frame
         	ssd1306_Fill(Black);
 
         	cropHouseDisplay();
@@ -352,8 +346,6 @@ void handleCropHouse() {
         	worldBreak = 0;
         	break;
         }
-
-        // Exit condition: if player exits the house
         if (player.coordinates.y >= 52 &&
            (player.coordinates.x + 5 > 60) &&
            (player.coordinates.x < 60 + 6)) {

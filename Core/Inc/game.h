@@ -160,6 +160,7 @@ typedef struct {
     World inWorld;
     Coordinates coordinates;
     Direction direction;
+    int sit;
 } Pet;
 
 // Attributes of the game
@@ -248,6 +249,7 @@ void gameTime(void);
 // Pet (cat) related functions
 void petFeed(void);
 void petLove(void);
+void petSit(void);
 
 // Main game logic
 void gameLogic(void);

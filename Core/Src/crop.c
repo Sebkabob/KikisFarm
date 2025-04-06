@@ -258,7 +258,6 @@ void cropPlant(){
     int spot = checkIfOnCrop();  // Returns a number 1–10 if on a valid crop spot.
     // If no grown crop, allow planting if the spot is empty
     if (spot != 0 && cropTiles[spot - 1].crop.id == NONE) {
-        sound(inventoryOpen);
 
         // Let the player select a seed from the inventory
         while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0) {
@@ -367,8 +366,7 @@ void cropDestroy(){
 }
 
 //------------------------------------------------------------------------------
-// Processes player actions (interacting with crops, toggling UI, menu).
-// Basic debouncing is used by waiting for button release.
+// Handles button actions.
 //------------------------------------------------------------------------------
 void cropPlayerAction(void) {
     // Button A: Harvest a grown crop or plant a seed if the spot is empty.
@@ -376,7 +374,10 @@ void cropPlayerAction(void) {
     	A_Button_Flag = 0;
         while (HAL_GPIO_ReadPin(GPIOB, A_Pin) == 0);
         int spot = checkIfOnCrop();
-        if (checkIfOnCrop() != 0) {
+        if (spot != 0) {
+        	if (cat.sit == 1){
+        		petFeed();
+        	}
             if (cropTiles[spot - 1].grown == 1) {
                 cropHarvest();
             }
@@ -410,8 +411,9 @@ void cropPlayerAction(void) {
                     cropTiles[spot - 1].crop.id = NONE;
                     cropTiles[spot - 1].grown = 0;
                     sound(destroy);
+                } else if (spot == 0){
+                    petSit();
                 }
-                // Wait until button is released.
                 while (HAL_GPIO_ReadPin(GPIOB, B_Pin) == 0);
                 return;
             }
@@ -439,8 +441,7 @@ void cropPlayerAction(void) {
 }
 
 //------------------------------------------------------------------------------
-// Main loop for the crop world: sets initial position and then repeatedly
-// updates movement, actions, and the full display.
+// Main loop for the crop world: updates movement, actions, and the full display.
 //------------------------------------------------------------------------------
 void handleCrop() {
     ssd1306_Fill(Black);
