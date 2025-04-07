@@ -351,14 +351,14 @@ void initGame(){
     player.coordinates.y = 14;
     player.direction = DOWN;
 
-    player.money = 999999;
+    player.money = 0;
     player.inWorld = CROP;
     player.xp = 0;
-    player.level = 99;
-    player.soilSpots = 16;
+    player.level = 1;
+    player.soilSpots = 1 ;
 
     game.houseUnlocked = 0;
-    game.mileStone = CAT_MET - 1;
+    game.mileStone = NEW_GAME;
     game.cropHouseIntro = 1;
 
     game.day = 1;
