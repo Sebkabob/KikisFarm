@@ -6,6 +6,7 @@
 #include "ssd1306.h"
 #include "ssd1306_fonts.h"
 #include "sprites.h"
+#include "characters.h"
 #include "crop.h"
 #include <stdio.h>
 #include <string.h>
@@ -13,8 +14,22 @@
 
 #define TOP_SCREEN_EDGE 0
 #define BOTTOM_WORLD_EDGE 54
-#define LEFT_WORLD_EDGE 0
-#define RIGHT_WORLD_EDGE 120
+#define LEFT_WORLD_EDGE -1
+#define RIGHT_WORLD_EDGE 121
+
+#define NEW_GAME 				0
+#define FIRST_CROP_PLANTED 		5
+#define FIRST_CROP_HARVEST 		10
+#define FIRST_SHOP_VISIT 		15
+#define FIRST_SELL_VISIT 		20
+#define HOUSE_KEY_BOUGHT 		25
+#define HOUSE_ENTERED 			30
+#define MAP_ACQUIRED 			35
+#define ORCHARD_ENTERED 		40
+#define CAT_MET			 		45
+#define FIRST_TREE_PLANTED 		50
+#define FIRST_TREE_HARVESTED	55
+#define BOAT_ACQUIRED			60
 
 // ONLY DEFINE 1 //
 #define CPP		//ssd1306 lib
@@ -64,7 +79,17 @@ typedef enum {
 	SAFFRONSEED,
 	MINTSEED,
 	TOMATOSEED,
-	COFFEE
+	APPLE,
+	ORANGE,
+	BANANA,
+	CHERRY,
+	MONEY,
+	APPLESAPLING,
+	ORANGESAPLING,
+	BANANASAPLING,
+	CHERRYSAPLING,
+	MONEYSAPLING,
+	BOAT
 } ItemType;
 
 typedef enum {
@@ -72,7 +97,9 @@ typedef enum {
 	CROPSEED,
 	SERVICE,
 	CONSUMABLE,
-	ITEM
+	ITEM,
+	HFRUIT,
+	SAPLING
 } SubItemType;
 
 typedef enum {
@@ -128,6 +155,14 @@ typedef struct {
     int soilSpots;
 } Player;
 
+typedef struct {
+    int love;
+    World inWorld;
+    Coordinates coordinates;
+    Direction direction;
+    int sit;
+} Pet;
+
 // Attributes of the game
 typedef struct {
 	int ticks;
@@ -135,7 +170,7 @@ typedef struct {
     int houseUnlocked;		//1 if the player buys the key
     int firstIntro;			//0 once the intro has been seen
     int cropHouseIntro;		//0 once the intro has been seen
-    int cropHouseLights;
+    int mileStone;
 } Game;
 
 // Attributes of a croptile
@@ -144,6 +179,13 @@ typedef struct {
     int grown;      // Growth progress (0 if not planted)
     bool isTilled;  // Whether the soil is tilled
 } CropTile;
+
+// Attributes of a treetile
+typedef struct {
+    Item tree;      // The tree planted (if any)
+    int grown;      // Growth progress (0 if not planted)
+    bool isTilled;  // Whether the soil is tilled
+} TreeTile;
 
 // Parameters for initializing crop world
 typedef struct {
@@ -164,36 +206,64 @@ extern int refreshBackground;
 
 extern Item shopItems[];
 
-extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron, mint, tomato;
+extern Item wheat, corn, potato, carrot, pumpkin, sugar, saffron, mint, tomato, apple, banana, orange, cherry, money;
 extern Item wheatSeed, cornSeed, potatoSeed, carrotSeed, pumpkinSeed, sugarSeed, saffronSeed, mintSeed, tomatoSeed;
 extern Item tillSoil, houseKey;
 
 extern Player player;
 
+extern Pet cat;
+
 extern Game game;
 
 extern CropTile cropTiles[10];
+extern TreeTile treeTiles[6];
 
 extern Direction cropDirection;
 
 
+// Shop and item functions
+void initShopItems(void);
 Item* getItemPointerFromID(ItemType id);
 Item getGrownCrop(ItemType seedId);
+Item getGrownSapling(ItemType saplingId);
 int getTillSoilCost(void);
+int getTreeSpotCost(void);
+
+// Level up and game state functions
 void displayLevelUp(void);
 int gameLevelUp(void);
 void gameStartup(void);
 void initGame(void);
-void initShopItems(void);
+
+// Button and transition functions
 void updateButtonFlags(void);
-void cropGrowth(void);
-void gameLogic(void);
-void playerDisplay(void);
-void playerErase(void);
-void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
-void textSpeaking(const char *text, int voice, int speed, int button);
 void cutToDark(int speed);
+void TransitionVortex(int speed);
+
+// Crop and tree growth functions
+void cropGrowth(void);
+void treeGrowth(void);
+void gameTime(void);
+
+// Pet (cat) related functions
+void petFeed(void);
+void petLove(void);
+void petSit(void);
+
+// Main game logic
+void gameLogic(void);
+
+// Map and text display functions
+void theMap(void);
+void textSpeakingFullScreen(const char *text, int voice, int speed, int button);
+int textPrompt(const char *headerText);
+void textSpeaking(const char *text, int voice, int speed, int button);
 void displayStats(void);
+
+// Menu functions
+void drawMenuSideFeatures(void);
+void menuItemsDraw(void);
 int gameMenu(void);
 void gameOptions(void);
 

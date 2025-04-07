@@ -123,18 +123,20 @@ const uint16_t playGame[][2] = {
 
 // levelUp: an ascending scale for leveling up.
 const uint16_t levelUp[][2] = {
-    {C5, 40},
-    {E5, 40},
-    {G5, 40},
-    {A5, 40},
+    {C5, 50},
+    {E5, 70},
+    {G5, 70},
+    {A5, 70},
+    {B5, 70},
+    {1047, 100},
     {0,  0}
 };
 
 // harvest (alternate): a bright, upbeat sequence.
 const uint16_t harvest[][2] = {
-    {G4, 60},
-    {B4, 60},
-    {D5, 60},
+    {G4, 50},
+    {B4, 50},
+    {D5, 50},
     {0,  0}
 };
 
@@ -161,7 +163,48 @@ const uint16_t inventoryFull[][2] = {
     {0,  0}
 };
 
+// mapOpen: a repeated low note to indicate full inventory.
+const uint16_t mapOpen[][2] = {
+    {E4,  30},
+    {G4s, 40},
+    {B4,  50},
+    {0,  0}
+};
 
+// mapOpen: a repeated low note to indicate full inventory.
+const uint16_t catMeow[][2] = {
+    {G5, 70},
+    {E5, 100},
+    {0,  0}
+};
+
+// catFeed: a gentle one-note.
+const uint16_t catFeed[][2] = {
+    {G5, 50},
+    {0,  0}
+};
+
+// catSit: a descent.
+const uint16_t catSit[][2] = {
+    {F5, 70},
+    {E5, 70},
+    {D5, 70},
+    {C5, 100},
+    {0,  0}
+};
+
+// catSit: a descent.
+const uint16_t catStand[][2] = {
+    {C5, 70},
+    {D5, 70},
+    {E5, 70},
+    {F5, 100},
+    {0,  0}
+};
+
+//------------------------------------------------------------------------------
+// Plays a selected sound from the sound library.
+//------------------------------------------------------------------------------
 void sound(const uint16_t soundArray[][2]) {
     int i = 0;
     while (soundArray[i][0] != 0 || soundArray[i][1] != 0) {

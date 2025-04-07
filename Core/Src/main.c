@@ -7,8 +7,12 @@
   *
   *	LEFT TO DO:
   *
-  *	-1 MORE ITEMS
-  *	-XP BAR GLITCH
+  *	-money tree stays fruited
+  *
+  *	CODE CLEANING:
+  *	-make just 2 pointer/nonpointer return functions
+  *	-make buttons better
+  *	-give things their own files instead of all being in game.c
   *
   ******************************************************************************
   */
@@ -27,6 +31,7 @@
 #include "title.h"
 #include "crop.h"
 #include "shop.h"
+#include "orchard.h"
 #include "crop_house.h"
 /* USER CODE END Includes */
 
@@ -260,6 +265,9 @@ int main(void)
 		  break;
 	  case CROPHOUSE:
 		  handleCropHouse();
+		  break;
+	  case ORCHARD:
+		  handleOrchard();
 		  break;
 	  default:
 		  player.inWorld = TITLE;
